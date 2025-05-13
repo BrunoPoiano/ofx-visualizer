@@ -1,13 +1,13 @@
-package moviments
+package transaction
 
 import (
 	"database/sql"
 	"main/types"
 )
 
-func InsetItems(items []types.CsvTable, db *sql.DB) {
+func InsertItems(items []types.Transaction, db *sql.DB) {
 
-	stmt, err := db.Prepare("INSERT INTO moviments(id,date,value,desc) values(?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO transactions(id,date,value,desc) values(?,?,?,?)")
 	if err != nil {
 		return
 	}

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	moviments "main/controller"
+	transaction "main/controller"
 	"main/database"
 	csv "main/services"
 
@@ -15,7 +15,6 @@ func main() {
 	if err != nil {
 		return
 	}
-	defer db.Close()
 
 	table, err := csv.ParseCsv("./NU_248402601_01ABR2025_30ABR2025.csv")
 	if err != nil {
@@ -27,6 +26,7 @@ func main() {
 		println(item.Id, value, item.Date)
 	}
 
-	moviments.InsetItems(table, db)
+	transaction.InsertItems(table, db)
+	defer db.Close()
 
 }

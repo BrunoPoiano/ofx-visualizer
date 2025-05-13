@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-func ParseCsv(filePath string) ([]types.CsvTable, error) {
+func ParseCsv(filePath string) ([]types.Transaction, error) {
 
 	file, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	var lines []types.CsvTable
+	var lines []types.Transaction
 
 	for index, line := range strings.Split(string(file), "\n") {
 		if index == 0 {
@@ -29,7 +29,7 @@ func ParseCsv(filePath string) ([]types.CsvTable, error) {
 
 		value, _ := strconv.ParseFloat(items[1], 64)
 
-		lines = append(lines, types.CsvTable{Date: items[0], Value: value, Id: items[2], Desc: items[3]})
+		lines = append(lines, types.Transaction{Date: items[0], Value: value, Id: items[2], Desc: items[3]})
 
 	}
 

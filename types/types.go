@@ -1,6 +1,6 @@
 package types
 
-type CsvTable struct {
+type Transaction struct {
 	Id    string
 	Date  string
 	Value float64
