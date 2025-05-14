@@ -10,9 +10,10 @@ func ConnectDatabase() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	return db, nil
+}
 
+func RunMigrations(db *sql.DB) {
 	migrations.CreatingTableTransaction(db)
 	migrations.CreatingTableBanc(db)
-
-	return db, nil
 }

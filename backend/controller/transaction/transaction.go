@@ -2,7 +2,12 @@ package transaction
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
+	"log"
 	"main/types"
+	"net/http"
+	"strconv"
 )
 
 func InsertItems(items []types.Transaction, db *sql.DB) {
@@ -18,11 +23,35 @@ func InsertItems(items []types.Transaction, db *sql.DB) {
 
 }
 
-func GetItems(db *sql.DB) ([]types.Transaction, error) {
+func GetItems(w http.ResponseWriter, r *http.Request) {
+	database := r.Context().Value("db").(*sql.DB)
+	params := r.URL.Query()
 
-	rows, err := db.Query("SELECT * FROM transactions")
+	currentPage, err := strconv.ParseInt(params.Get("currentPage"), 10, 64)
 	if err != nil {
-		return nil, err
+		currentPage = 1
+	}
+
+	perPage, err := strconv.ParseInt(params.Get("perPage"), 10, 64)
+	if err != nil {
+		perPage = 5
+	}
+
+	offset := perPage * (currentPage - 1)
+
+	query := fmt.Sprintf("SELECT * FROM transactions LIMIT %v OFFSET %v", perPage, offset)
+
+	rows, err := database.Query(query)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var totalItems string
+	total, _ := database.Query("SELECT count(id) as totalItems FROM transactions")
+	for total.Next() {
+		total.Scan(&totalItems)
 	}
 
 	defer rows.Close()
@@ -32,15 +61,24 @@ func GetItems(db *sql.DB) ([]types.Transaction, error) {
 	for rows.Next() {
 		var item types.Transaction
 		if err := rows.Scan(&item.Id, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
-			return nil, err
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 		items = append(items, item)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	return items, nil
+	response := types.TransactionPagination{
+		Data:        items,
+		Total:       totalItems,
+		CurrentPage: currentPage,
+		PerPage:     perPage,
+	}
+
+	json.NewEncoder(w).Encode(response)
 
 }

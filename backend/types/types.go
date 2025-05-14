@@ -13,3 +13,10 @@ type Banc struct {
 	Name      string
 	AccountId string
 }
+
+type TransactionPagination struct {
+	Data        []Transaction `json:"items"`
+	Total       string        `json:"totalItems"`
+	CurrentPage int64         `json:"currentPage"`
+	PerPage     int64         `json:"perPage"`
+}
