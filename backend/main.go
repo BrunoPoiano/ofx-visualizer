@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	_ "github.com/glebarez/go-sqlite"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -29,6 +30,14 @@ func main() {
 
 	router.HandleFunc("/bancs", middleware.DatabaseMiddleware(db, bancController.GetItems)).Methods("GET")
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(handleCors())(router)))
 
+}
+
+func handleCors() (handlers.CORSOption, handlers.CORSOption, handlers.CORSOption) {
+	headers := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	origins := handlers.AllowedOrigins([]string{"http://localhost:5173"})
+	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
+	return headers, origins, methods
 }
