@@ -1,9 +1,11 @@
-import { ModeToggle } from "@/components/mode-toggle";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 export const HomePage = () => {
   return (
-    <div>
+    <section>
       <ModeToggle />
-    </div>
+      <Button>Teste</Button>
+    </section>
   );
 };
