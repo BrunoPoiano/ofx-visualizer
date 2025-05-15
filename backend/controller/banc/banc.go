@@ -1,44 +1,48 @@
-package banc
+package bancController
 
 import (
 	"database/sql"
+	"encoding/json"
+	bancService "main/services/banc"
 	"main/types"
+	"net/http"
+	"strconv"
 )
 
-func InsertItems(item types.Banc, db *sql.DB) {
+// GetItems retrieves a paginated list of items.
+// @Summary Get items with pagination
+// @Description Get items from the database with pagination support
+// @Param w http.ResponseWriter - The http.ResponseWriter to write the response to.
+// @Param r *http.Request - The http.Request containing the request parameters.
+// @Return void
+func GetItems(w http.ResponseWriter, r *http.Request) {
 
-	stmt, err := db.Prepare("INSERT INTO bancs(id,name,account_id) values(?,?,?)")
+	database := r.Context().Value("db").(*sql.DB)
+	params := r.URL.Query()
+
+	currentPage, err := strconv.ParseInt(params.Get("currentPage"), 10, 64)
 	if err != nil {
+		currentPage = 1
+	}
+
+	perPage, err := strconv.ParseInt(params.Get("perPage"), 10, 64)
+	if err != nil {
+		perPage = 5
+	}
+
+	items, totalItems, err := bancService.GetItems(database, int(perPage), int(currentPage))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	_, err = stmt.Exec(item.Id, item.Name, item.AccountId)
-
-}
-
-func GetItems(db *sql.DB) ([]types.Banc, error) {
-
-	rows, err := db.Query("SELECT * FROM bancs")
-	if err != nil {
-		return nil, err
+	response := types.ReturnPagination{
+		Data:        items,
+		Total:       totalItems,
+		CurrentPage: int(currentPage),
+		PerPage:     int(perPage),
 	}
 
-	defer rows.Close()
-
-	var items []types.Banc
-
-	for rows.Next() {
-		var item types.Banc
-		if err := rows.Scan(&item.Id, &item.Name, &item.AccountId); err != nil {
-			return nil, err
-		}
-		items = append(items, item)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return items, nil
+	json.NewEncoder(w).Encode(response)
 
 }

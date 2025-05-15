@@ -1,26 +1,37 @@
-package ofx
+package ofxService
 
 import (
 	"fmt"
+	"io"
 	"main/types"
-	"os"
+	"mime/multipart"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func ParseOfx(filepath string) ([]types.Transaction, types.Banc, error) {
-
-	file, err := os.ReadFile(filepath)
-	if err != nil {
-		return nil, types.Banc{}, err
-	}
+// ParseOfx parses an OFX file and extracts transaction data and bank information.
+//
+// Parameters:
+//   - file: A multipart.File representing the OFX file to parse.
+//
+// Returns:
+//   - []types.Transaction: A slice of Transaction structs, each representing a transaction from the OFX file.
+//   - types.Banc: A Banc struct containing bank information extracted from the OFX file.
+//   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
+func ParseOfx(file multipart.File) ([]types.Transaction, types.Banc, error) {
 
 	var lines []types.Transaction
 
-	stmttrn := getItensFromTag("STMTTRN", string(file))
-	banc := parseBancInfo(string(file))
+	fileContent, err := io.ReadAll(file)
+	if err != nil {
+		return nil, types.Banc{}, fmt.Errorf("error reading file: %w", err)
+	}
+	fileString := string(fileContent)
+
+	stmttrn := getItensFromTag("STMTTRN", fileString)
+	banc := parseBancInfo(fileString)
 	for _, item := range stmttrn {
 		line := parseSTMTTRNIntoTransaction(item)
 		lines = append(lines, line)
@@ -29,6 +40,14 @@ func ParseOfx(filepath string) ([]types.Transaction, types.Banc, error) {
 	return lines, banc, nil
 }
 
+// getItensFromTag extracts all occurrences of a tag and its content from a string.
+//
+// Parameters:
+//   - tag: The tag to search for (e.g., "STMTTRN").
+//   - fileString: The string to search within.
+//
+// Returns:
+//   - []string: A slice of strings, where each string is the content found within the specified tag.
 func getItensFromTag(tag, fileString string) []string {
 
 	sintax := fmt.Sprintf(`(?s)<%s>(.*?)</%s>`, tag, tag)
@@ -45,6 +64,13 @@ func getItensFromTag(tag, fileString string) []string {
 	return results
 }
 
+// parseSTMTTRNIntoTransaction parses a STMTTRN string into a Transaction struct.
+//
+// Parameters:
+//   - stmttrn: The STMTTRN string to parse.
+//
+// Returns:
+//   - types.Transaction: A Transaction struct containing the parsed data.
 func parseSTMTTRNIntoTransaction(stmttrn string) types.Transaction {
 
 	var transaction types.Transaction
@@ -59,6 +85,14 @@ func parseSTMTTRNIntoTransaction(stmttrn string) types.Transaction {
 	return transaction
 }
 
+// parseOfxDate parses an OFX date string into a formatted date string.
+//
+// Parameters:
+//   - date: The OFX date string to parse.
+//
+// Returns:
+//   - string: A formatted date string in the format "2006-01-02 15:04:05".
+//   - error: An error if the date string could not be parsed, or nil if parsing was successful.
 func parseOfxDate(date string) (string, error) {
 	if idx := strings.Index(date, "["); idx != -1 {
 		date = date[:idx]
@@ -74,6 +108,13 @@ func parseOfxDate(date string) (string, error) {
 
 }
 
+// parseBancInfo parses bank information from a string.
+//
+// Parameters:
+//   - file: The string containing the bank information.
+//
+// Returns:
+//   - types.Banc: A Banc struct containing the parsed bank information.
 func parseBancInfo(file string) types.Banc {
 
 	var banc types.Banc

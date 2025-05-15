@@ -1,28 +1,76 @@
-package transaction
+package transactionController
 
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"log"
+	bancService "main/services/banc"
+	ofxService "main/services/ofx"
+	transactionService "main/services/transaction"
 	"main/types"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-func InsertItems(items []types.Transaction, db *sql.DB) {
+const MAX_UPLOAD_SIZE = 1024 * 1024 // 1MB
 
-	stmt, err := db.Prepare("INSERT INTO transactions(id,date,value,desc,type) values(?,?,?,?,?)")
+// InsertItems handles the insertion of transaction and bank data from an OFX file.
+// It parses the OFX file, extracts transaction and bank information, and inserts them into the database.
+// @Summary Insert transaction items from OFX file
+// @Description Upload an OFX file to insert transaction and bank data into the database
+// @Param w http.ResponseWriter - The response writer
+// @Param r *http.Request - The request object, containing the OFX file
+// @Return void
+func InsertItems(w http.ResponseWriter, r *http.Request) {
+
+	database := r.Context().Value("db").(*sql.DB)
+
+	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
+		http.Error(w, "FIle is required", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	if fileHeader.Size > MAX_UPLOAD_SIZE {
+		http.Error(w, "File Too Big", http.StatusBadRequest)
 		return
 	}
 
-	for _, item := range items {
-		_, err = stmt.Exec(item.Id, item.Date, item.Value, item.Desc, item.Type)
+	if !strings.Contains(fileHeader.Filename, ".ofx") {
+		http.Error(w, "File should be .ofx", http.StatusBadRequest)
+		return
 	}
+
+	transactions, banc, err := ofxService.ParseOfx(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	bancId, err := bancService.InsertItems(database, banc)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = transactionService.InsertTransaction(database, transactions, bancId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w)
 
 }
 
+// GetItems retrieves transactions from the database with pagination.
+// It fetches transactions based on the provided page number and items per page.
+// @Summary Get transaction items with pagination
+// @Description Retrieve transactions from the database with pagination support
+// @Param w http.ResponseWriter - The response writer
+// @Param r *http.Request - The request object, containing pagination parameters
+// @Return void
 func GetItems(w http.ResponseWriter, r *http.Request) {
 	database := r.Context().Value("db").(*sql.DB)
 	params := r.URL.Query()
@@ -37,46 +85,17 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		perPage = 5
 	}
 
-	offset := perPage * (currentPage - 1)
-
-	query := fmt.Sprintf("SELECT * FROM transactions LIMIT %v OFFSET %v", perPage, offset)
-
-	rows, err := database.Query(query)
+	items, totalItems, err := transactionService.GetTransactions(database, int(perPage), int(currentPage))
 	if err != nil {
-		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	var totalItems string
-	total, _ := database.Query("SELECT count(id) as totalItems FROM transactions")
-	for total.Next() {
-		total.Scan(&totalItems)
-	}
-
-	defer rows.Close()
-
-	var items []types.Transaction
-
-	for rows.Next() {
-		var item types.Transaction
-		if err := rows.Scan(&item.Id, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		items = append(items, item)
-	}
-
-	if err := rows.Err(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	response := types.TransactionPagination{
+	response := types.ReturnPagination{
 		Data:        items,
 		Total:       totalItems,
-		CurrentPage: currentPage,
-		PerPage:     perPage,
+		CurrentPage: int(currentPage),
+		PerPage:     int(perPage),
 	}
 
 	json.NewEncoder(w).Encode(response)

@@ -1,22 +1,23 @@
 package types
 
 type Transaction struct {
-	Id    string
-	Date  string
-	Type  string
-	Value float64
-	Desc  string
+	Id     string
+	BancId int
+	Date   string
+	Type   string
+	Value  float64
+	Desc   string
 }
 
 type Banc struct {
-	Id        int64
+	Id        int
 	Name      string
 	AccountId string
 }
 
-type TransactionPagination struct {
-	Data        []Transaction `json:"items"`
-	Total       string        `json:"totalItems"`
-	CurrentPage int64         `json:"currentPage"`
-	PerPage     int64         `json:"perPage"`
+type ReturnPagination struct {
+	Data        any `json:"items"`
+	Total       int `json:"totalItems"`
+	CurrentPage int `json:"currentPage"`
+	PerPage     int `json:"perPage"`
 }

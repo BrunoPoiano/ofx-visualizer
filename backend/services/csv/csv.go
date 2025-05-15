@@ -1,4 +1,4 @@
-package csv
+package csvService
 
 import (
 	"main/types"
@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+// ParseCsv reads a CSV file from the given file path and parses it into a slice of Transaction structs.
+//
+// Parameters:
+//   - filePath: The path to the CSV file.
+//
+// Returns:
+//   - []types.Transaction: A slice of Transaction structs representing the data in the CSV file.
+//   - error: An error if there was a problem reading or parsing the file.
 func ParseCsv(filePath string) ([]types.Transaction, error) {
 
 	file, err := os.ReadFile(filePath)

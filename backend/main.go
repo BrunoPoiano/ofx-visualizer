@@ -2,7 +2,8 @@ package main
 
 import (
 	"log"
-	"main/controller/transaction"
+	bancController "main/controller/banc"
+	transactionController "main/controller/transaction"
 	"main/database"
 	"main/middleware"
 	"net/http"
@@ -23,7 +24,11 @@ func main() {
 	defer db.Close()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transaction.GetItems)).Methods("GET")
+	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transactionController.GetItems)).Methods("GET")
+	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transactionController.InsertItems)).Methods("POST")
+
+	router.HandleFunc("/bancs", middleware.DatabaseMiddleware(db, bancController.GetItems)).Methods("GET")
+
 	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
