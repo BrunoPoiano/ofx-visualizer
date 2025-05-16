@@ -1,9 +1,9 @@
-package bancController
+package BankController
 
 import (
 	"database/sql"
 	"encoding/json"
-	bancService "main/services/banc"
+	BankService "main/services/bank"
 	"main/types"
 	"net/http"
 	"strconv"
@@ -30,7 +30,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		perPage = 5
 	}
 
-	items, totalItems, err := bancService.GetItems(database, int(perPage), int(currentPage))
+	items, totalItems, err := BankService.GetItems(database, int(perPage), int(currentPage))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

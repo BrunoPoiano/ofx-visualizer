@@ -1,4 +1,4 @@
-package bancService
+package BankService
 
 import (
 	"database/sql"
@@ -6,17 +6,17 @@ import (
 	"main/types"
 )
 
-// InsertItems inserts a banc item into the database.
+// InsertItems inserts a Bank item into the database.
 //
 // Parameters:
 //   - database: A pointer to the database connection.
-//   - item: The Banc item to insert.
+//   - item: The Bank item to insert.
 //
 // Returns:
 //   - An error if the insertion fails, nil otherwise.
-func InsertItems(database *sql.DB, item types.Banc) (int, error) {
+func InsertItems(database *sql.DB, item types.Bank) (int, error) {
 
-	stmt, err := database.Prepare("INSERT INTO bancs(name,account_id) values(?,?)")
+	stmt, err := database.Prepare("INSERT INTO Banks(name,account_id) values(?,?)")
 	if err != nil {
 		return 0, err
 	}
@@ -34,7 +34,7 @@ func InsertItems(database *sql.DB, item types.Banc) (int, error) {
 	return int(id), nil
 }
 
-// GetItems retrieves a paginated list of banc items from the database.
+// GetItems retrieves a paginated list of Bank items from the database.
 //
 // Parameters:
 //   - database: A pointer to the database connection.
@@ -42,17 +42,17 @@ func InsertItems(database *sql.DB, item types.Banc) (int, error) {
 //   - currentPage: The current page number.
 //
 // Returns:
-//   - A slice of Banc items.
+//   - A slice of Bank items.
 //   - The total number of items in the database.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Banc, int, error) {
+func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Bank, int, error) {
 
-	var items []types.Banc
+	var items []types.Bank
 	var totalItems int
 
 	//BANCS
 	offset := perPage * (currentPage - 1)
-	query := fmt.Sprintf("SELECT * FROM bancs LIMIT %v OFFSET %v", perPage, offset)
+	query := fmt.Sprintf("SELECT * FROM Banks LIMIT %v OFFSET %v", perPage, offset)
 
 	rows, err := database.Query(query)
 	if err != nil {
@@ -64,7 +64,7 @@ func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Banc, int, er
 	}
 
 	for rows.Next() {
-		var item types.Banc
+		var item types.Bank
 		if err := rows.Scan(&item.Id, &item.Name, &item.AccountId); err != nil {
 			return nil, 0, err
 		}

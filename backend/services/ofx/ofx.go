@@ -18,26 +18,26 @@ import (
 //
 // Returns:
 //   - []types.Transaction: A slice of Transaction structs, each representing a transaction from the OFX file.
-//   - types.Banc: A Banc struct containing bank information extracted from the OFX file.
+//   - types.Bank: A Bank struct containing bank information extracted from the OFX file.
 //   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
-func ParseOfx(file multipart.File) ([]types.Transaction, types.Banc, error) {
+func ParseOfx(file multipart.File) ([]types.Transaction, types.Bank, error) {
 
 	var lines []types.Transaction
 
 	fileContent, err := io.ReadAll(file)
 	if err != nil {
-		return nil, types.Banc{}, fmt.Errorf("error reading file: %w", err)
+		return nil, types.Bank{}, fmt.Errorf("error reading file: %w", err)
 	}
 	fileString := string(fileContent)
 
 	stmttrn := getItensFromTag("STMTTRN", fileString)
-	banc := parseBancInfo(fileString)
+	Bank := parseBankInfo(fileString)
 	for _, item := range stmttrn {
 		line := parseSTMTTRNIntoTransaction(item)
 		lines = append(lines, line)
 	}
 
-	return lines, banc, nil
+	return lines, Bank, nil
 }
 
 // getItensFromTag extracts all occurrences of a tag and its content from a string.
@@ -108,20 +108,20 @@ func parseOfxDate(date string) (string, error) {
 
 }
 
-// parseBancInfo parses bank information from a string.
+// parseBankInfo parses bank information from a string.
 //
 // Parameters:
 //   - file: The string containing the bank information.
 //
 // Returns:
-//   - types.Banc: A Banc struct containing the parsed bank information.
-func parseBancInfo(file string) types.Banc {
+//   - types.Bank: A Bank struct containing the parsed bank information.
+func parseBankInfo(file string) types.Bank {
 
-	var banc types.Banc
+	var Bank types.Bank
 
-	banc.Name = getItensFromTag("ORG", file)[0]
-	banc.AccountId = getItensFromTag("ACCTID", file)[0]
+	Bank.Name = getItensFromTag("ORG", file)[0]
+	Bank.AccountId = getItensFromTag("ACCTID", file)[0]
 
-	return banc
+	return Bank
 
 }

@@ -4,7 +4,7 @@ import "database/sql"
 
 func CreatingTableBanc(db *sql.DB) {
 
-	sql := `CREATE TABLE bancs (
+	sql := `CREATE TABLE Banks (
 					id INTEGER PRIMARY KEY AUTOINCREMENT,
 					name STRING NOT NULL,
 					account_id STRING NOT NULL

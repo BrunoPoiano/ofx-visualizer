@@ -3,7 +3,7 @@ package transactionController
 import (
 	"database/sql"
 	"encoding/json"
-	bancService "main/services/banc"
+	BankService "main/services/bank"
 	ofxService "main/services/ofx"
 	transactionService "main/services/transaction"
 	"main/types"
@@ -42,19 +42,19 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transactions, banc, err := ofxService.ParseOfx(file)
+	transactions, Bank, err := ofxService.ParseOfx(file)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	bancId, err := bancService.InsertItems(database, banc)
+	BankId, err := BankService.InsertItems(database, Bank)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = transactionService.InsertTransaction(database, transactions, bancId)
+	err = transactionService.InsertTransaction(database, transactions, BankId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

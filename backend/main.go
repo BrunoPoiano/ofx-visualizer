@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	bancController "main/controller/banc"
+	BankController "main/controller/bank"
 	transactionController "main/controller/transaction"
 	"main/database"
 	"main/middleware"
@@ -28,7 +28,7 @@ func main() {
 	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transactionController.GetItems)).Methods("GET")
 	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transactionController.InsertItems)).Methods("POST")
 
-	router.HandleFunc("/bancs", middleware.DatabaseMiddleware(db, bancController.GetItems)).Methods("GET")
+	router.HandleFunc("/Banks", middleware.DatabaseMiddleware(db, BankController.GetItems)).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(handleCors())(router)))
 

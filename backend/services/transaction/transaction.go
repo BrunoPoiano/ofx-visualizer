@@ -14,15 +14,15 @@ import (
 //
 // Returns:
 //   - error: An error if the insertion fails, nil otherwise.
-func InsertTransaction(db *sql.DB, items []types.Transaction, bancId int) error {
+func InsertTransaction(db *sql.DB, items []types.Transaction, BankId int) error {
 
-	stmt, err := db.Prepare("INSERT INTO transactions(id,banc_id,date,value,desc,type) values(?,?,?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO transactions(id,Bank_id,date,value,desc,type) values(?,?,?,?,?,?)")
 	if err != nil {
 		return err
 	}
 
 	for _, item := range items {
-		_, err = stmt.Exec(item.Id, bancId, item.Date, item.Value, item.Desc, item.Type)
+		_, err = stmt.Exec(item.Id, BankId, item.Date, item.Value, item.Desc, item.Type)
 	}
 
 	return nil
@@ -60,7 +60,7 @@ func GetTransactions(database *sql.DB, perPage, currentPage int) ([]types.Transa
 
 	for rows.Next() {
 		var item types.Transaction
-		if err := rows.Scan(&item.Id, &item.BancId, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
+		if err := rows.Scan(&item.Id, &item.BankId, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
 			return nil, 0, err
 		}
 		items = append(items, item)

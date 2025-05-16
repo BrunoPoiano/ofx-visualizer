@@ -11,7 +11,7 @@ import (
 //	*sql.DB: The database connection.
 //	error: An error if the connection could not be opened.
 func ConnectDatabase() (*sql.DB, error) {
-	db, err := sql.Open("sqlite", "./analytics.db")
+	db, err := sql.Open("sqlite", "./database/analytics.db")
 	if err != nil {
 		return nil, err
 	}
