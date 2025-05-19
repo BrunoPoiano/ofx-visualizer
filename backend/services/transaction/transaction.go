@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"main/types"
+	"math"
 )
 
 // InsertTransaction inserts a slice of transactions into the database.
@@ -40,45 +41,92 @@ func InsertTransaction(db *sql.DB, items []types.Transaction, BankId int) error 
 //   - []types.Transaction: A slice of Transaction structs representing the transactions on the current page.
 //   - int: The total number of transactions in the database.
 //   - error: An error if the retrieval fails, nil otherwise.
-func GetTransactions(database *sql.DB, perPage, currentPage int) ([]types.Transaction, int, error) {
+func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.Transaction, int, int, error) {
 
 	var items []types.Transaction
 	var totalItems int
 
 	// TRANSACTION
-	offset := perPage * (currentPage - 1)
-	query := fmt.Sprintf("SELECT * FROM transactions LIMIT %v OFFSET %v", perPage, offset)
+	offset := filter.PerPage * (filter.CurrentPage - 1)
+	query := makeQuery("*", filter)
+	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
+
+	println(makeQuery("*", filter))
 
 	rows, err := database.Query(query)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
+	defer rows.Close()
 
 	if err := rows.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	for rows.Next() {
 		var item types.Transaction
 		if err := rows.Scan(&item.Id, &item.BankId, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		items = append(items, item)
 	}
-	defer rows.Close()
 
 	// TOTALITEMS
-	total, err := database.Query("SELECT count(id) as totalItems FROM transactions")
-	if err := total.Err(); err != nil {
-		return nil, 0, err
+	query = makeQuery("count(id) as totalItems", filter)
+	total, err := database.Query(query)
+	if err != nil {
+		return nil, 0, 0, err
 	}
+	defer total.Close()
 
+	if err := total.Err(); err != nil {
+		return nil, 0, 0, err
+	}
 	for total.Next() {
 		total.Scan(&totalItems)
 	}
 
-	defer total.Close()
+	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
 
-	return items, totalItems, nil
+	return items, totalItems, int(last_page), nil
+}
 
+func makeQuery(s string, filter types.TransactionSearch) string {
+
+	query := fmt.Sprintf("SELECT %s FROM transactions", s)
+
+	where := []string{}
+
+	if filter.Type != "" {
+		where = append(where, fmt.Sprintf("type = '%s'", filter.Type))
+	}
+
+	if filter.MaxValue != "" {
+		where = append(where, fmt.Sprintf("value < '%s'", filter.MaxValue))
+	}
+
+	if filter.MinValue != "" {
+		where = append(where, fmt.Sprintf("value > '%s'", filter.MinValue))
+	}
+
+	if filter.Date != "" {
+		where = append(where, fmt.Sprintf("date LIKE '%%%s%%'", filter.Date))
+	}
+
+	if filter.Search != "" {
+		where = append(where, fmt.Sprintf("desc LIKE '%%%s%%'", filter.Search))
+	}
+
+	if filter.Bank != "" {
+		where = append(where, fmt.Sprintf("bank_id = '%s'", filter.Bank))
+	}
+
+	if len(where) > 0 {
+		query = fmt.Sprintf("%s WHERE %s", query, where[0])
+		for i := 1; i < len(where); i++ {
+			query = fmt.Sprintf("%s AND %s", query, where[i])
+		}
+	}
+
+	return query
 }

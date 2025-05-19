@@ -18,6 +18,18 @@ type Bank struct {
 type ReturnPagination struct {
 	Data        any `json:"data"`
 	Total       int `json:"total_items"`
+	LastPage    int `json:"last_page"`
 	CurrentPage int `json:"current_page"`
 	PerPage     int `json:"per_page"`
+}
+
+type TransactionSearch struct {
+	CurrentPage int64
+	PerPage     int64
+	Search      string
+	MinValue    string
+	MaxValue    string
+	Date        string
+	Type        string
+	Bank        string
 }

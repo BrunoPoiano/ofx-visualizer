@@ -61,5 +61,6 @@ export const parsePagination = (data: unknown): Pagination => {
     current_page: isNumberOrDefault(typedItem.current_page, 1),
     per_page: isNumberOrDefault(typedItem.per_page, 5),
     total_items: isNumberOrDefault(typedItem.total_items, 0),
+    last_page: isNumberOrDefault(typedItem.last_page, 0),
   };
 };

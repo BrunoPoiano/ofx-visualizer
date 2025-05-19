@@ -1,0 +1,97 @@
+import type { PaginationType } from "@/types";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+
+export const AppPagination = ({
+  pagination,
+  setPagination,
+}: {
+  pagination: PaginationType;
+  setPagination: React.Dispatch<React.SetStateAction<PaginationType>>;
+}) => {
+  const { current_page, last_page, per_page } = pagination;
+
+  const changePage = (value: number) => {
+    setPagination((prev) => {
+      return {
+        ...prev,
+        current_page: value,
+      };
+    });
+  };
+  return (
+    <div className="grid gap-3.5 place-items-end">
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              aria-disabled={current_page === 1}
+              tabIndex={current_page === 1 ? -1 : undefined}
+              className={
+                current_page === 1
+                  ? "pointer-events-none opacity-50"
+                  : "cursor-pointer"
+              }
+              onClick={() => changePage(current_page - 1)}
+            />
+          </PaginationItem>
+          {Array.from({ length: last_page }, (_, i) => (
+            <PaginationItem key={i + 1}>
+              <PaginationLink href="#" onClick={() => changePage(i + 1)}>
+                {i + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          <PaginationItem>
+            <PaginationNext
+              aria-disabled={current_page === last_page}
+              tabIndex={current_page === last_page ? -1 : undefined}
+              className={
+                current_page === last_page
+                  ? "pointer-events-none opacity-50"
+                  : "cursor-pointer"
+              }
+              onClick={() => changePage(current_page + 1)}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+      <Select
+        value={per_page.toString()}
+        onValueChange={(e) =>
+          setPagination((prev) => {
+            return {
+              ...prev,
+              per_page: Number.parseInt(e),
+            };
+          })
+        }
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="5">5</SelectItem>
+          <SelectItem value="10">10</SelectItem>
+          <SelectItem value="25">25</SelectItem>
+          <SelectItem value="50">50</SelectItem>
+          <SelectItem value="100">100</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+};

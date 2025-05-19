@@ -75,17 +75,28 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	database := r.Context().Value("db").(*sql.DB)
 	params := r.URL.Query()
 
-	currentPage, err := strconv.ParseInt(params.Get("currentPage"), 10, 64)
+	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
 	if err != nil {
 		currentPage = 1
 	}
 
-	perPage, err := strconv.ParseInt(params.Get("perPage"), 10, 64)
+	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
 	if err != nil {
 		perPage = 5
 	}
 
-	items, totalItems, err := transactionService.GetTransactions(database, int(perPage), int(currentPage))
+	filter := types.TransactionSearch{
+		CurrentPage: currentPage,
+		PerPage:     perPage,
+		Search:      params.Get("search"),
+		MinValue:    params.Get("min_value"),
+		MaxValue:    params.Get("max_value"),
+		Date:        params.Get("date"),
+		Type:        params.Get("type"),
+		Bank:        params.Get("bank"),
+	}
+
+	items, totalItems, lastpage, err := transactionService.GetTransactions(database, filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -94,6 +105,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	response := types.ReturnPagination{
 		Data:        items,
 		Total:       totalItems,
+		LastPage:    lastpage,
 		CurrentPage: int(currentPage),
 		PerPage:     int(perPage),
 	}

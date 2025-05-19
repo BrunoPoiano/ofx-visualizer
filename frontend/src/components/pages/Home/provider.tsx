@@ -27,17 +27,30 @@ export function HomeProvider({ children }: HomeProviderProps) {
     type: undefined,
     bank: undefined,
   });
-  const [pagination, setPagination] = useState<PaginationType | null>(null);
+  const [pagination, setPagination] = useState<PaginationType>({
+    per_page: 5,
+    total_items: 0,
+    last_page: 1,
+    current_page: 1,
+  });
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
 
   const getTransactionsFunc = useCallback(async () => {
-    const { data, pagination } = await getTransactions();
-    setPagination(pagination);
+    const { data, paginationContent } = await getTransactions({
+      current_page: pagination.current_page.toString(),
+      per_page: pagination.per_page.toString(),
+      search: filter.search,
+      ...(filter.minValue ? { min_value: filter.minValue.toString() } : {}),
+      ...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
+      ...(filter.date
+        ? { to: filter.date.to?.toString(), from: filter.date.from?.toString() }
+        : {}),
+      ...(filter.type ? { type: filter.type.toString() } : {}),
+      ...(filter.bank ? { bank: filter.bank.toString() } : {}),
+    });
+    setPagination(paginationContent);
     setTransactions(data);
-    console.log("data", data);
-    console.log("pagination", pagination);
-    console.log("filter", filter);
-  }, [filter]);
+  }, [pagination.current_page, pagination.per_page, filter]);
 
   useEffect(() => {
     getTransactionsFunc();

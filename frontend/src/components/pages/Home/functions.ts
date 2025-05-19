@@ -6,15 +6,19 @@ import {
   isStringOrDefault,
   parsePagination,
 } from "@/lib/typeValidation";
+import type { DateRange } from "react-day-picker";
 
 export const getTransactions = async (
-  params?: { string: string }[],
-): Promise<{ data: TransactionType[]; pagination: PaginationType }> => {
+  params?: Record<string, string>,
+): Promise<{ data: TransactionType[]; paginationContent: PaginationType }> => {
   const { data } = await axiosInstance.get("/transactions", {
-    params: { params },
+    params: params,
   });
 
-  return { data: parseTransaction(data), pagination: parsePagination(data) };
+  return {
+    data: parseTransaction(data),
+    paginationContent: parsePagination(data),
+  };
 };
 
 const parseTransaction = (data: unknown): TransactionType[] => {
@@ -45,3 +49,5 @@ const parseTransaction = (data: unknown): TransactionType[] => {
     return prev;
   }, []);
 };
+
+const parseFilterDate = (date: DateRange) => {};

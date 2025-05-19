@@ -1,10 +1,11 @@
 import type { PaginationType } from "@/types";
+import type { DateRange } from "react-day-picker";
 
 export type FilterType = {
   search: string;
   minValue: number;
   maxValue: number;
-  date: Date | undefined;
+  date: DateRange | undefined;
   type: "CREDIT" | "DEBIT" | undefined;
   bank: string | undefined;
 };
@@ -12,8 +13,8 @@ export type FilterType = {
 export type HomeProviderState = {
   filter: [FilterType, React.Dispatch<React.SetStateAction<FilterType>>];
   pagination: [
-    PaginationType | null,
-    React.Dispatch<React.SetStateAction<PaginationType | null>>,
+    PaginationType,
+    React.Dispatch<React.SetStateAction<PaginationType>>,
   ];
   transactions: [
     TransactionType[],
@@ -28,7 +29,7 @@ export type HomeProviderProps = {
 export type TransactionType = {
   id: string;
   bank_id: number;
-  date: Date;
+  date: { from: undefined };
   type: string;
   value: number;
   desc: string;
