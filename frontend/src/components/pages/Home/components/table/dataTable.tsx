@@ -1,3 +1,4 @@
+import { AppEllipsis } from "@/components/global/appEllipsis";
 import {
   Table,
   TableBody,
@@ -6,7 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useHomeContext } from "../../provider";
+import { parseDate } from "@/lib/utils";
+import { useHomeContext } from "@/Pages/Home/provider";
 
 export const TransactionTable = () => {
   const {
@@ -18,6 +20,7 @@ export const TransactionTable = () => {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>Date</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Value</TableHead>
             <TableHead>Description</TableHead>
@@ -26,10 +29,17 @@ export const TransactionTable = () => {
         <TableBody>
           {transactions.map((item) => (
             <TableRow key={item.id}>
-              <TableCell className="text-left">{item.type}</TableCell>
-              <TableCell className="text-left">R$ {item.value}</TableCell>
+              <TableCell className="text-left" style={{ width: "10ch" }}>
+                {parseDate(item.date)}
+              </TableCell>
+              <TableCell className="text-left" style={{ width: "10ch" }}>
+                {item.type}
+              </TableCell>
+              <TableCell className="text-left" style={{ width: "15ch" }}>
+                R$ {item.value}
+              </TableCell>
               <TableCell className="text-left" style={{ maxWidth: "30ch" }}>
-                {item.desc}
+                <AppEllipsis width="max(30ch,100%)">{item.desc}</AppEllipsis>
               </TableCell>
             </TableRow>
           ))}

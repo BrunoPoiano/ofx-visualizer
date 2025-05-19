@@ -1,7 +1,7 @@
 import "./App.css";
 import { Route, BrowserRouter, Routes } from "react-router-dom";
 import { ThemeProvider } from "./components/theme/theme-provider";
-import { Home } from "./pages/home";
+import { Home } from "./Pages/Home";
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

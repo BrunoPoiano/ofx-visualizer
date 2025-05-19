@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -6,11 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useHomeContext } from "../../provider";
+import { useHomeContext } from "@/Pages/Home/provider";
 
 export const HomeFilter = () => {
   const {
     filter: [filter, setFilter],
+    clearFilter,
   } = useHomeContext();
 
   const changeTest = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,10 +74,13 @@ export const HomeFilter = () => {
           <SelectValue placeholder="Bank" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="bank1">Bank 1</SelectItem>
-          <SelectItem value="bank2">Bank 2</SelectItem>
+          <SelectItem value="1">Bank 1</SelectItem>
+          <SelectItem value="2">Bank 2</SelectItem>
         </SelectContent>
       </Select>
+      <Button variant="ghost" onClick={clearFilter}>
+        Clear filter
+      </Button>
     </div>
   );
 };

@@ -91,7 +91,8 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		Search:      params.Get("search"),
 		MinValue:    params.Get("min_value"),
 		MaxValue:    params.Get("max_value"),
-		Date:        params.Get("date"),
+		From:        params.Get("from"),
+		To:          params.Get("to"),
 		Type:        params.Get("type"),
 		Bank:        params.Get("bank"),
 	}

@@ -109,8 +109,12 @@ func makeQuery(s string, filter types.TransactionSearch) string {
 		where = append(where, fmt.Sprintf("value > '%s'", filter.MinValue))
 	}
 
-	if filter.Date != "" {
-		where = append(where, fmt.Sprintf("date LIKE '%%%s%%'", filter.Date))
+	if filter.From != "" {
+		where = append(where, fmt.Sprintf("date >= '%s 00:00:00'", filter.From))
+	}
+
+	if filter.To != "" {
+		where = append(where, fmt.Sprintf("date <= '%s 23:59:59'", filter.To))
 	}
 
 	if filter.Search != "" {

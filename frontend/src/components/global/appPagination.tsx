@@ -32,8 +32,19 @@ export const AppPagination = ({
       };
     });
   };
+
+  const changePerPage = (value: string) => {
+    setPagination((prev) => {
+      return {
+        ...prev,
+        current_page: 1,
+        per_page: Number.parseInt(value),
+      };
+    });
+  };
+
   return (
-    <div className="grid gap-3.5 place-items-end">
+    <div className="grid place-items-end gap-3.5">
       <Pagination>
         <PaginationContent>
           <PaginationItem>
@@ -72,14 +83,7 @@ export const AppPagination = ({
       </Pagination>
       <Select
         value={per_page.toString()}
-        onValueChange={(e) =>
-          setPagination((prev) => {
-            return {
-              ...prev,
-              per_page: Number.parseInt(e),
-            };
-          })
-        }
+        onValueChange={(e) => changePerPage(e)}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Type" />

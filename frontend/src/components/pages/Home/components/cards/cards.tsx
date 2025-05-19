@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
-
-import { useHomeContext } from "../../provider";
 import type { DateRange } from "react-day-picker";
+import { useHomeContext } from "@/Pages/Home/provider";
 
 export const HomeCards = () => {
   const {
@@ -11,7 +10,13 @@ export const HomeCards = () => {
   } = useHomeContext();
 
   return (
-    <div className="grid grid-cols-[1fr_auto] gap-2.5">
+    <div className="grid grid-cols-[1fr_1fr_auto] gap-2.5">
+      <Card>
+        <CardTitle>Total Expending</CardTitle>
+        <CardFooter>
+          <Button>Teste</Button>
+        </CardFooter>
+      </Card>
       <Card>
         <CardTitle>Total Earning</CardTitle>
         <CardFooter>

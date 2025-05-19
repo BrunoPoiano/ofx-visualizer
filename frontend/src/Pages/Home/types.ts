@@ -6,8 +6,8 @@ export type FilterType = {
   minValue: number;
   maxValue: number;
   date: DateRange | undefined;
-  type: "CREDIT" | "DEBIT" | undefined;
-  bank: string | undefined;
+  type: string;
+  bank: string;
 };
 
 export type HomeProviderState = {
@@ -20,6 +20,7 @@ export type HomeProviderState = {
     TransactionType[],
     React.Dispatch<React.SetStateAction<TransactionType[]>>,
   ];
+  clearFilter: () => void;
 };
 
 export type HomeProviderProps = {
@@ -29,7 +30,7 @@ export type HomeProviderProps = {
 export type TransactionType = {
   id: string;
   bank_id: number;
-  date: { from: undefined };
+  date: string;
   type: string;
   value: number;
   desc: string;

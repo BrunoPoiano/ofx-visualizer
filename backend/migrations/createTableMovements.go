@@ -7,7 +7,7 @@ func CreatingTableTransaction(db *sql.DB) {
 	sql := `CREATE TABLE transactions (
  					id STRING PRIMARY KEY,
 	        Bank_id INTEGER,
-  				date STRING NOT NULL,
+  				date DATETIME NOT NULL,
 					value REAL NOT NULL,
 					type STRING,
 					desc TEXT,

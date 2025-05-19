@@ -2,8 +2,8 @@ import { AppPagination } from "@/components/global/appPagination";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { HomeFilter } from "./components/filter";
 import { TransactionTable } from "./components/table/dataTable";
-import { useHomeContext } from "./provider";
 import { HomeCards } from "./components/cards/cards";
+import { useHomeContext } from "@/Pages/Home/provider";
 
 export const HomePage = () => {
   const {
@@ -17,9 +17,7 @@ export const HomePage = () => {
       </div>
       <HomeFilter />
       <HomeCards />
-      <div>
-        <TransactionTable />
-      </div>
+      <TransactionTable />
       <AppPagination pagination={pagination} setPagination={setPagination} />
     </section>
   );

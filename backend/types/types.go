@@ -29,7 +29,8 @@ type TransactionSearch struct {
 	Search      string
 	MinValue    string
 	MaxValue    string
-	Date        string
+	From        string
+	To          string
 	Type        string
 	Bank        string
 }

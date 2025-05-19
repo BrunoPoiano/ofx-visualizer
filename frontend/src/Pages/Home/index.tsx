@@ -1,5 +1,5 @@
 import { HomePage } from "@/components/pages/Home";
-import { HomeProvider } from "@/components/pages/Home/provider";
+import { HomeProvider } from "./provider";
 
 export const Home = () => {
   return (

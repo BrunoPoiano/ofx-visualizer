@@ -7,6 +7,7 @@ import {
   parsePagination,
 } from "@/lib/typeValidation";
 import type { DateRange } from "react-day-picker";
+import moment from "moment";
 
 export const getTransactions = async (
   params?: Record<string, string>,
@@ -39,7 +40,7 @@ const parseTransaction = (data: unknown): TransactionType[] => {
     const newItem: TransactionType = {
       id: isStringOrDefault(typedItem.id),
       bank_id: isNumberOrDefault(typedItem.bank_id),
-      date: new Date(typedItem.date as string),
+      date: isStringOrDefault(typedItem.date),
       type: isStringOrDefault(typedItem.type),
       value: isNumberOrDefault(typedItem.value),
       desc: isStringOrDefault(typedItem.desc),
@@ -50,4 +51,11 @@ const parseTransaction = (data: unknown): TransactionType[] => {
   }, []);
 };
 
-const parseFilterDate = (date: DateRange) => {};
+export const parseFilterDate = (
+  date: DateRange | undefined,
+): { from: string; to: string | undefined } | undefined => {
+  if (!date) return;
+  const from = moment(date.from).format("yyyy-MM-DD");
+  const to = date.to ? moment(date.to).format("yyyy-MM-DD") : undefined;
+  return { from, to };
+};

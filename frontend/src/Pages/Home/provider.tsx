@@ -11,7 +11,7 @@ import type {
   HomeProviderState,
   TransactionType,
 } from "./types";
-import { getTransactions } from "./functions";
+import { getTransactions, parseFilterDate } from "./functions";
 import type { PaginationType } from "@/types";
 
 const HomeProviderContext = createContext<HomeProviderState>(
@@ -24,8 +24,8 @@ export function HomeProvider({ children }: HomeProviderProps) {
     minValue: 0,
     maxValue: 0,
     date: undefined,
-    type: undefined,
-    bank: undefined,
+    type: "",
+    bank: "",
   });
   const [pagination, setPagination] = useState<PaginationType>({
     per_page: 5,
@@ -42,15 +42,24 @@ export function HomeProvider({ children }: HomeProviderProps) {
       search: filter.search,
       ...(filter.minValue ? { min_value: filter.minValue.toString() } : {}),
       ...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
-      ...(filter.date
-        ? { to: filter.date.to?.toString(), from: filter.date.from?.toString() }
-        : {}),
+      ...(filter.date ? parseFilterDate(filter.date) : {}),
       ...(filter.type ? { type: filter.type.toString() } : {}),
       ...(filter.bank ? { bank: filter.bank.toString() } : {}),
     });
     setPagination(paginationContent);
     setTransactions(data);
   }, [pagination.current_page, pagination.per_page, filter]);
+
+  const clearFilter = () => {
+    setFilter({
+      search: "",
+      minValue: 0,
+      maxValue: 0,
+      date: undefined,
+      type: "",
+      bank: "",
+    });
+  };
 
   useEffect(() => {
     getTransactionsFunc();
@@ -62,6 +71,7 @@ export function HomeProvider({ children }: HomeProviderProps) {
         filter: [filter, setFilter],
         pagination: [pagination, setPagination],
         transactions: [transactions, setTransactions],
+        clearFilter,
       }}
     >
       {children}
