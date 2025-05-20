@@ -26,6 +26,8 @@ type ReturnPagination struct {
 type TransactionSearch struct {
 	CurrentPage int64
 	PerPage     int64
+	Direction   string
+	Order       string
 	Search      string
 	MinValue    string
 	MaxValue    string

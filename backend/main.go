@@ -28,7 +28,7 @@ func main() {
 	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transactionController.GetItems)).Methods("GET")
 	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transactionController.InsertItems)).Methods("POST")
 
-	router.HandleFunc("/Banks", middleware.DatabaseMiddleware(db, BankController.GetItems)).Methods("GET")
+	router.HandleFunc("/banks", middleware.DatabaseMiddleware(db, BankController.GetItems)).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(handleCors())(router)))
 

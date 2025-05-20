@@ -49,6 +49,7 @@ func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.
 	// TRANSACTION
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 	query := makeQuery("*", filter)
+	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
 	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
 	println(makeQuery("*", filter))

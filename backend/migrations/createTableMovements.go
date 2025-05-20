@@ -6,12 +6,12 @@ func CreatingTableTransaction(db *sql.DB) {
 
 	sql := `CREATE TABLE transactions (
  					id STRING PRIMARY KEY,
-	        Bank_id INTEGER,
+	        bank_id INTEGER,
   				date DATETIME NOT NULL,
 					value REAL NOT NULL,
 					type STRING,
 					desc TEXT,
-					FOREIGN KEY (Bank_id) REFERENCES Banks(id)
+					FOREIGN KEY (bank_id) REFERENCES Banks(id)
 	);`
 
 	_, err := db.Exec(sql)

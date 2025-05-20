@@ -1,5 +1,5 @@
 import { axiosInstance } from "@/lib/axiosInstance";
-import type { TransactionType } from "./types";
+import type { BankType, TransactionType } from "./types";
 import type { PaginationType } from "@/types";
 import {
   isNumberOrDefault,
@@ -20,6 +20,45 @@ export const getTransactions = async (
     data: parseTransaction(data),
     paginationContent: parsePagination(data),
   };
+};
+
+export const getBanks = async (
+  params?: Record<string, string>,
+): Promise<{ data: BankType[]; paginationContent: PaginationType }> => {
+  const { data } = await axiosInstance.get("/banks", {
+    params: params,
+  });
+
+  return {
+    data: parseBanks(data),
+    paginationContent: parsePagination(data),
+  };
+};
+
+const parseBanks = (data: unknown): BankType[] => {
+  if (typeof data !== "object" || data === null) return [];
+
+  if (!("data" in (data as Record<string, unknown>))) return [];
+
+  const bankData = (data as Record<string, unknown[]>).data;
+  if (!Array.isArray(bankData)) return [];
+
+  return bankData.reduce<BankType[]>((prev, item) => {
+    if (typeof item !== "object" || item === null) {
+      return prev;
+    }
+
+    const typedItem = item as Record<string, unknown>;
+
+    const newItem: BankType = {
+      id: isNumberOrDefault(typedItem.id),
+      name: isStringOrDefault(typedItem.name),
+      account_id: isStringOrDefault(typedItem.account_id),
+    };
+
+    prev.push(newItem);
+    return prev;
+  }, []);
 };
 
 const parseTransaction = (data: unknown): TransactionType[] => {
@@ -58,4 +97,8 @@ export const parseFilterDate = (
   const from = moment(date.from).format("yyyy-MM-DD");
   const to = date.to ? moment(date.to).format("yyyy-MM-DD") : undefined;
   return { from, to };
+};
+
+export const postOfxFile = async (formData: FormData): Promise<void> => {
+  await axiosInstance.post("/transactions", formData);
 };

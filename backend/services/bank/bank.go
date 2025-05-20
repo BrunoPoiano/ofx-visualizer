@@ -16,6 +16,24 @@ import (
 //   - An error if the insertion fails, nil otherwise.
 func InsertItems(database *sql.DB, item types.Bank) (int, error) {
 
+	var account_id int
+	total, err := database.Query("SELECT id FROM Banks WHERE account_id = ?", item.AccountId)
+	if err != nil {
+		return 0, err
+	}
+	defer total.Close()
+
+	if err := total.Err(); err != nil {
+		return 0, err
+	}
+	for total.Next() {
+		total.Scan(&account_id)
+	}
+
+	if account_id != 0 {
+		return account_id, nil
+	}
+
 	stmt, err := database.Prepare("INSERT INTO Banks(name,account_id) values(?,?)")
 	if err != nil {
 		return 0, err
@@ -74,7 +92,7 @@ func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Bank, int, er
 	defer rows.Close()
 
 	// TOTALITEMS
-	total, err := database.Query("SELECT count(id) as totalItems FROM transactions")
+	total, err := database.Query("SELECT count(id) as totalItems FROM Banks")
 	if err := total.Err(); err != nil {
 		return nil, 0, err
 	}

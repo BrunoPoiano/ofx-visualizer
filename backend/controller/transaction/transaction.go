@@ -85,9 +85,21 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		perPage = 5
 	}
 
+	order := params.Get("order")
+	if order == "" {
+		order = "date"
+	}
+
+	direction := params.Get("direction")
+	if direction == "" {
+		direction = "ASC"
+	}
+
 	filter := types.TransactionSearch{
 		CurrentPage: currentPage,
 		PerPage:     perPage,
+		Order:       order,
+		Direction:   direction,
 		Search:      params.Get("search"),
 		MinValue:    params.Get("min_value"),
 		MaxValue:    params.Get("max_value"),

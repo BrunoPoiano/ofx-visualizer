@@ -11,17 +11,18 @@ import { useHomeContext } from "@/Pages/Home/provider";
 
 export const HomeFilter = () => {
   const {
+    banks: [banks],
     filter: [filter, setFilter],
     clearFilter,
   } = useHomeContext();
 
   const changeTest = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilter((prev) => {
-      if (e.type === "number") {
-        setFilter((prev) => ({
+      if (e.target.type === "number") {
+        return {
           ...prev,
-          [e.target.name]: Number.parseInt(e.target.value),
-        }));
+          [e.target.name]: e.target.value ? Number(e.target.value) : undefined,
+        };
       }
 
       return { ...prev, [e.target.name]: e.target.value };
@@ -41,17 +42,19 @@ export const HomeFilter = () => {
         onChange={changeTest}
       />
       <Input
-        placeholder="min Value"
+        className="w-[250px]"
+        placeholder="Min Value"
         type="number"
         name="minValue"
-        value={filter.minValue}
+        value={filter.minValue || ""}
         onChange={changeTest}
       />
       <Input
-        placeholder="max Value"
+        className="w-[250px]"
+        placeholder="Max Value"
         type="number"
         name="maxValue"
-        value={filter.maxValue}
+        value={filter.maxValue || ""}
         onChange={changeTest}
       />
       <Select
@@ -74,8 +77,11 @@ export const HomeFilter = () => {
           <SelectValue placeholder="Bank" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="1">Bank 1</SelectItem>
-          <SelectItem value="2">Bank 2</SelectItem>
+          {banks.map((item) => (
+            <SelectItem key={item.id} value={item.id.toString()}>
+              {item.name}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
       <Button variant="ghost" onClick={clearFilter}>
