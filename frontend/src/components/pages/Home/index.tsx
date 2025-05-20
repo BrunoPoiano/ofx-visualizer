@@ -13,7 +13,7 @@ export const HomePage = () => {
   return (
     <>
       <AppHeader />
-      <section className="w-full grid gap-3.5">
+      <section className="w-full grid gap-2.5">
         <HomeFilter />
         <HomeCards />
         <TransactionTable />

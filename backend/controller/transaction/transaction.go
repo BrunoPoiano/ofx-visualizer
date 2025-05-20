@@ -64,6 +64,24 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
+	database := r.Context().Value("db").(*sql.DB)
+
+	positive, negative, value, err := transactionService.GetTransactionInfos(database)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	returnInfo := types.ReturnTransactionInfo{
+		Positive: positive,
+		Negative: negative,
+		Value:    value,
+	}
+
+	json.NewEncoder(w).Encode(returnInfo)
+}
+
 // GetItems retrieves transactions from the database with pagination.
 // It fetches transactions based on the provided page number and items per page.
 // @Summary Get transaction items with pagination

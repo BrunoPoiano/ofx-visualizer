@@ -57,6 +57,13 @@ export const TransactionTable = () => {
           ))}
         </TableHeader>
         <TableBody>
+          {transactions.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                No transactions found.
+              </TableCell>
+            </TableRow>
+          )}
           {transactions.map((item) => (
             <TableRow key={item.id}>
               <TableCell className="text-left" style={{ width: "10ch" }}>

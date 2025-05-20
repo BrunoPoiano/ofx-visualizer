@@ -23,6 +23,12 @@ type ReturnPagination struct {
 	PerPage     int `json:"per_page"`
 }
 
+type ReturnTransactionInfo struct {
+	Positive float64 `json:"positive"`
+	Negative float64 `json:"negative"`
+	Value    float64 `json:"value"`
+}
+
 type TransactionSearch struct {
 	CurrentPage int64
 	PerPage     int64

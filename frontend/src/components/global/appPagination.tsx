@@ -22,7 +22,7 @@ export const AppPagination = ({
   pagination: PaginationType;
   setPagination: React.Dispatch<React.SetStateAction<PaginationType>>;
 }) => {
-  const { current_page, last_page, per_page } = pagination;
+  const { current_page, last_page, per_page, total_items } = pagination;
 
   const changePage = (value: number) => {
     setPagination((prev) => {
@@ -42,6 +42,10 @@ export const AppPagination = ({
       };
     });
   };
+
+  if (total_items === 0) {
+    return;
+  }
 
   return (
     <div className="grid place-items-end gap-3.5">

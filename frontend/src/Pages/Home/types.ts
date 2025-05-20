@@ -24,6 +24,10 @@ export type HomeProviderState = {
   ];
   banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>];
   showValue: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  transactionsInfo: [
+    TransactionInfoType | undefined,
+    React.Dispatch<React.SetStateAction<TransactionInfoType | undefined>>,
+  ];
   clearFilter: () => void;
   getTransactionsFunc: () => void;
 };
@@ -50,4 +54,10 @@ export type BankType = {
 export type TabelInfoType = {
   id: string;
   label: string;
+};
+
+export type TransactionInfoType = {
+  positive: number;
+  negative: number;
+  value: number;
 };

@@ -92,6 +92,31 @@ func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.
 	return items, totalItems, int(last_page), nil
 }
 
+func GetTransactionInfos(database *sql.DB) (float64, float64, float64, error) {
+
+	var positive, negative, value float64
+
+	positiveQuery := "SELECT SUM(value) from transactions where value > 0"
+	negativeQuery := "SELECT SUM(value) from transactions where value < 0"
+	valueQuery := "SELECT SUM(value) from transactions"
+
+	query := fmt.Sprintf("SELECT (%s) as positive, (%s) as negative, (%s) as value from transactions LIMIT 1", positiveQuery, negativeQuery, valueQuery)
+	querySearch, err := database.Query(query)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	defer querySearch.Close()
+
+	if err := querySearch.Err(); err != nil {
+		return 0, 0, 0, err
+	}
+	for querySearch.Next() {
+		querySearch.Scan(&positive, &negative, &value)
+	}
+
+	return positive, negative, value, nil
+}
+
 func makeQuery(s string, filter types.TransactionSearch) string {
 
 	query := fmt.Sprintf("SELECT %s FROM transactions", s)

@@ -34,59 +34,61 @@ export const HomeFilter = () => {
   };
 
   return (
-    <div className="flex gap-2.5">
+    <>
       <Input
         placeholder="Search"
         value={filter.search}
         name="search"
         onChange={changeTest}
       />
-      <Input
-        className="w-[250px]"
-        placeholder="Min Value"
-        type="number"
-        name="minValue"
-        value={filter.minValue || ""}
-        onChange={changeTest}
-      />
-      <Input
-        className="w-[250px]"
-        placeholder="Max Value"
-        type="number"
-        name="maxValue"
-        value={filter.maxValue || ""}
-        onChange={changeTest}
-      />
-      <Select
-        value={filter.type}
-        onValueChange={(e) => selectChange("type", e)}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="CREDIT">Credit</SelectItem>
-          <SelectItem value="DEBIT">Debit</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select
-        value={filter.bank}
-        onValueChange={(e) => selectChange("bank", e)}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Bank" />
-        </SelectTrigger>
-        <SelectContent>
-          {banks.map((item) => (
-            <SelectItem key={item.id} value={item.id.toString()}>
-              {item.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Button variant="ghost" onClick={clearFilter}>
-        Clear filter
-      </Button>
-    </div>
+      <div className="flex flex-wrap gap-2.5">
+        <Input
+          className="w-[250px]"
+          placeholder="Min Value"
+          type="number"
+          name="minValue"
+          value={filter.minValue || ""}
+          onChange={changeTest}
+        />
+        <Input
+          className="w-[250px]"
+          placeholder="Max Value"
+          type="number"
+          name="maxValue"
+          value={filter.maxValue || ""}
+          onChange={changeTest}
+        />
+        <Select
+          value={filter.type}
+          onValueChange={(e) => selectChange("type", e)}
+        >
+          <SelectTrigger style={{ width: "min(250px, 100%)" }}>
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="CREDIT">Credit</SelectItem>
+            <SelectItem value="DEBIT">Debit</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={filter.bank}
+          onValueChange={(e) => selectChange("bank", e)}
+        >
+          <SelectTrigger style={{ width: "min(250px, 100%)" }}>
+            <SelectValue placeholder="Bank" />
+          </SelectTrigger>
+          <SelectContent>
+            {banks.map((item) => (
+              <SelectItem key={item.id} value={item.id.toString()}>
+                {item.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button className="ml-auto" variant="ghost" onClick={clearFilter}>
+          Clear filter
+        </Button>
+      </div>
+    </>
   );
 };

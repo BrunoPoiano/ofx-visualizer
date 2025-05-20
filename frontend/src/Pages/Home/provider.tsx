@@ -10,10 +10,12 @@ import type {
   FilterType,
   HomeProviderProps,
   HomeProviderState,
+  TransactionInfoType,
   TransactionType,
 } from "./types";
-import { getBanks, getTransactions, parseFilterDate } from "./functions";
+import { getBanks, getTransactions, getTransactionsInfo } from "./functions";
 import type { PaginationType } from "@/types";
+import { parseFilterDate } from "./parsers";
 
 const HomeProviderContext = createContext<HomeProviderState>(
   {} as HomeProviderState,
@@ -21,6 +23,8 @@ const HomeProviderContext = createContext<HomeProviderState>(
 
 export function HomeProvider({ children }: HomeProviderProps) {
   const [showValue, setShowValue] = useState(true);
+  const [transactionsInfo, setTransactionsInfo] =
+    useState<TransactionInfoType>();
 
   const [filter, setFilter] = useState<FilterType>({
     search: "",
@@ -68,6 +72,11 @@ export function HomeProvider({ children }: HomeProviderProps) {
     setBanks(data);
   }, []);
 
+  const parseTransactionInfoFunc = useCallback(async () => {
+    const response = await getTransactionsInfo();
+    setTransactionsInfo(response);
+  }, []);
+
   const clearFilter = () => {
     setFilter({
       search: "",
@@ -83,8 +92,12 @@ export function HomeProvider({ children }: HomeProviderProps) {
 
   useEffect(() => {
     getTransactionsFunc();
+  }, [getTransactionsFunc]);
+
+  useEffect(() => {
+    parseTransactionInfoFunc();
     getBanksFunc();
-  }, [getTransactionsFunc, getBanksFunc]);
+  }, [getBanksFunc, parseTransactionInfoFunc]);
 
   return (
     <HomeProviderContext.Provider
@@ -94,6 +107,7 @@ export function HomeProvider({ children }: HomeProviderProps) {
         transactions: [transactions, setTransactions],
         showValue: [showValue, setShowValue],
         banks: [banks, setBanks],
+        transactionsInfo: [transactionsInfo, setTransactionsInfo],
         clearFilter,
         getTransactionsFunc,
       }}
