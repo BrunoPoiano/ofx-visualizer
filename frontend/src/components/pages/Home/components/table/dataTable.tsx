@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/table";
 import { parseDate } from "@/lib/utils";
 import { useHomeContext } from "@/Pages/Home/provider";
-import { TableInfo } from "./table";
+import { TableInfo, TableInfoSmall } from "./table";
+import type { TransactionType } from "@/Pages/Home/types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-export const TransactionTable = () => {
+export const TransactionTable = ({ small = false }: { small?: boolean }) => {
   const {
     transactions: [transactions],
     showValue: [showValue],
@@ -34,54 +36,69 @@ export const TransactionTable = () => {
 
   return (
     <div className="rounded-md border" style={{ maxWidth: "1280px" }}>
-      <Table>
-        <TableHeader>
-          {TableInfo.map((item) => (
-            <TableHead key={item.id}>
-              <Button
-                variant="ghost"
-                className="w-full
-                t-al"
-                onClick={() => changeOrderBy(item.id)}
-              >
-                {item.label}{" "}
-                <ArrowSVG
-                  direction={
-                    filter.order === item.id && filter.direction === "ASC"
-                      ? "up"
-                      : "down"
-                  }
-                />
-              </Button>
-            </TableHead>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {transactions.length === 0 && (
+      <ScrollArea className="h-96 w-full">
+        <Table>
+          <TableHeader className="sticky top-0">
             <TableRow>
-              <TableCell colSpan={4} className="text-center">
-                No transactions found.
-              </TableCell>
+              {(small ? TableInfoSmall : TableInfo).map((item) => (
+                <TableHead key={item.id}>
+                  <Button
+                    variant="ghost"
+                    className="t-al w-full"
+                    onClick={() => changeOrderBy(item.id)}
+                  >
+                    {item.label}{" "}
+                    <ArrowSVG
+                      direction={
+                        filter.order === item.id && filter.direction === "ASC"
+                          ? "up"
+                          : "down"
+                      }
+                    />
+                  </Button>
+                </TableHead>
+              ))}
             </TableRow>
-          )}
-          {transactions.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="text-left" style={{ width: "10ch" }}>
-                {parseDate(item.date)}
-              </TableCell>
-              <TableCell className="text-left" style={{ width: "10ch" }}>
-                {showValue ? item.type : "****"}
-              </TableCell>
-              <TableCell className="text-left" style={{ width: "15ch" }}>
-                R$ {showValue ? item.value : "****"}
-              </TableCell>
-              <TableCell className="text-left" style={{ maxWidth: "30ch" }}>
-                <AppEllipsis>{showValue ? item.desc : "****"}</AppEllipsis>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {transactions.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  No transactions found.
+                </TableCell>
+              </TableRow>
+            )}
+            {transactions.map((item) => (
+              <TableRow key={item.id}>
+                {(small ? TableInfoSmall : TableInfo).map((info) => (
+                  <TableCell
+                    key={info.id}
+                    className="text-left"
+                    style={
+                      info.id === "desc"
+                        ? { maxWidth: "30ch" }
+                        : { width: "10ch" }
+                    }
+                  >
+                    {showValue ? (
+                      info.id === "date" ? (
+                        parseDate(item.date)
+                      ) : (
+                        <AppEllipsis>
+                          {info.id === "value" ? "R$ " : ""}
+                          {(item as TransactionType)[info.id]}
+                        </AppEllipsis>
+                      )
+                    ) : (
+                      "****"
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   );
 };

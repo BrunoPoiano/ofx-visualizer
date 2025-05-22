@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { generateKey } from "@/lib/utils";
 
 export const AppPagination = ({
   pagination,
@@ -64,7 +65,7 @@ export const AppPagination = ({
             />
           </PaginationItem>
           {Array.from({ length: last_page }, (_, i) => (
-            <PaginationItem key={i + 1}>
+            <PaginationItem key={generateKey(i + 1)}>
               <PaginationLink href="#" onClick={() => changePage(i + 1)}>
                 {i + 1}
               </PaginationLink>

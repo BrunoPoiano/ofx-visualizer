@@ -1,6 +1,6 @@
-import type { TabelInfoType } from "@/Pages/Home/types";
+import type { TableInfoType } from "@/Pages/Home/types";
 
-export const TableInfo = <TabelInfoType[]>[
+export const TableInfo = <TableInfoType[]>[
   {
     label: "Date",
     id: "date",
@@ -16,5 +16,20 @@ export const TableInfo = <TabelInfoType[]>[
   {
     label: "Description",
     id: "desc",
+  },
+];
+
+export const TableInfoSmall = <TableInfoType[]>[
+  {
+    label: "Date",
+    id: "date",
+  },
+  {
+    label: "Type",
+    id: "type",
+  },
+  {
+    label: "Value",
+    id: "value",
   },
 ];

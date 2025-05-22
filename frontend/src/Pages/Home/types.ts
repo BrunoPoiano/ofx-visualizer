@@ -51,8 +51,8 @@ export type BankType = {
   account_id: string;
 };
 
-export type TabelInfoType = {
-  id: string;
+export type TableInfoType = {
+  id: keyof TransactionType;
   label: string;
 };
 

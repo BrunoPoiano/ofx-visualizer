@@ -24,7 +24,7 @@ export const AppHeader = () => {
   };
 
   return (
-    <div className="w-full flex gap-2.5 justify-end">
+    <div className="flex w-full justify-end gap-2.5">
       <Input type="file" placeholder="Upload File" onChange={inportFIle} />
       <Button variant="outline" onClick={() => setShowValue(!showValue)}>
         {showValue ? <EyeSvg /> : <EyeClosedSvg />}

@@ -1,4 +1,4 @@
-import type { Pagination } from "@/types";
+import type { PaginationType } from "@/types";
 
 export const isString = (value: unknown): value is string => {
   return typeof value === "string";
@@ -46,12 +46,13 @@ export const isBooleanOrDefault = (
   return defaultValue;
 };
 
-export const parsePagination = (data: unknown): Pagination => {
+export const parsePagination = (data: unknown): PaginationType => {
   if (typeof data !== "object" || data === null) {
     return {
       current_page: 1,
       per_page: 5,
       total_items: 0,
+      last_page: 1,
     };
   }
 
