@@ -52,8 +52,6 @@ func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.
 	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
 	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
-	println(makeQuery("*", filter))
-
 	rows, err := database.Query(query)
 	if err != nil {
 		return nil, 0, 0, err
@@ -120,7 +118,6 @@ func GetTransactionInfos(database *sql.DB) (float64, float64, float64, error) {
 func DeleteTransaction(database *sql.DB, bankId int64) error {
 
 	query := fmt.Sprintf("DELETE FROM transactions WHERE bank_id = '%v'", bankId)
-	println(query)
 	_, err := database.Exec(query)
 	if err != nil {
 		return err

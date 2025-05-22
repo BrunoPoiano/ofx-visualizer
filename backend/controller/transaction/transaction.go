@@ -32,8 +32,6 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 
 	files := r.MultipartForm.File["file"]
 
-	println(len(files))
-
 	if len(files) == 0 {
 		http.Error(w, "No files uploaded", http.StatusBadRequest)
 		return
@@ -46,8 +44,6 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer file.Close()
-
-		println(fileHeader.Filename)
 
 		if !strings.Contains(fileHeader.Filename, ".ofx") {
 			http.Error(w, "File should be .ofx", http.StatusBadRequest)

@@ -2,15 +2,12 @@ package main
 
 import (
 	"log"
-	BankController "main/controller/bank"
-	transactionController "main/controller/transaction"
 	"main/database"
-	"main/middleware"
+	"main/router"
 	"net/http"
 
 	_ "github.com/glebarez/go-sqlite"
 	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -20,17 +17,12 @@ func main() {
 		println(err.Error())
 		return
 	}
-
-	database.RunMigrations(db)
 	defer db.Close()
 
-	router := mux.NewRouter()
-	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transactionController.GetItems)).Methods("GET")
-	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, transactionController.InsertItems)).Methods("POST")
-	router.HandleFunc("/transactions_info", middleware.DatabaseMiddleware(db, transactionController.GetTransactionInfos)).Methods("GET")
-	router.HandleFunc("/transaction/{bank_id}", middleware.DatabaseMiddleware(db, transactionController.DeleteTransactions)).Methods("DELETE")
-
-	router.HandleFunc("/banks", middleware.DatabaseMiddleware(db, BankController.GetItems)).Methods("GET")
+	database.RunMigrations(db)
+	router := router.AppRoutes(db)
+	fs := http.FileServer(http.Dir("./frontend/dist"))
+	router.PathPrefix("/").Handler(fs)
 
 	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(handleCors())(router)))
 
