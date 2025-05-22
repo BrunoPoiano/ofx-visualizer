@@ -45,14 +45,15 @@ export const AreaChartComponent = ({
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-            {Object.values(chartConfig).map((item) => (
+            {Object.entries(chartConfig).map(([key, item]) => (
               <Line
                 key={generateKey()}
-                dataKey={item.label as string}
+                dataKey={key}
                 type="linear"
-                stroke={`var(--color-${item.label})`}
+                stroke={item.color}
                 strokeWidth={2}
                 dot={false}
+                name={item.label as string}
               />
             ))}
           </LineChart>

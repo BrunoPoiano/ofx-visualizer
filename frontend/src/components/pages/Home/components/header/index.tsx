@@ -10,22 +10,39 @@ export const AppHeader = () => {
   const formData = new FormData();
   const {
     getTransactionsFunc,
+    getTransactionInfoFunc,
+    getBanksFunc,
     showValue: [showValue, setShowValue],
   } = useHomeContext();
 
   const inportFIle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      formData.append("file", files[0]);
+    if (!files?.length) return;
+
+    for (let i = 0; i <= files.length - 1; i++) {
+      formData.append("file", files[i]);
     }
-    postOfxFile(formData).then(() => {
-      getTransactionsFunc();
-    });
+
+    postOfxFile(formData)
+      .then(() => {
+        getTransactionsFunc();
+        getBanksFunc();
+        getTransactionInfoFunc();
+      })
+      .finally(() => {
+        e.target.value = "";
+      });
   };
 
   return (
     <div className="flex w-full justify-end gap-2.5">
-      <Input type="file" placeholder="Upload File" onChange={inportFIle} />
+      <Input
+        multiple
+        type="file"
+        placeholder="Upload File"
+        accept=".ofx"
+        onChange={inportFIle}
+      />
       <Button variant="outline" onClick={() => setShowValue(!showValue)}>
         {showValue ? <EyeSvg /> : <EyeClosedSvg />}
       </Button>

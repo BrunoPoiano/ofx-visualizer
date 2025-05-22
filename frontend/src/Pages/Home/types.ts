@@ -30,6 +30,8 @@ export type HomeProviderState = {
   ];
   clearFilter: () => void;
   getTransactionsFunc: () => void;
+  getTransactionInfoFunc: () => void;
+  getBanksFunc: () => void;
 };
 
 export type HomeProviderProps = {

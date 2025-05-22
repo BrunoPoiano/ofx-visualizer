@@ -1,18 +1,18 @@
 import type { ReactNode } from "react";
 
 export const AppEllipsis = ({
-  children,
-  width,
+	children,
+	width,
 }: {
-  children: ReactNode;
-  width?: string;
+	children: ReactNode;
+	width?: string;
 }) => {
-  return (
-    <p
-      className="overflow-clip text-ellipsis"
-      style={{ maxWidth: width ? width : "100%" }}
-    >
-      {children}
-    </p>
-  );
+	return (
+		<p
+			className="overflow-clip text-ellipsis"
+			style={{ maxWidth: width ? width : "100%" }}
+		>
+			{children}
+		</p>
+	);
 };

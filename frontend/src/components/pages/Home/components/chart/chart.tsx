@@ -18,15 +18,15 @@ export const HomeChart = () => {
   const [chartData, setChartData] = useState<ChartType[]>([]);
   const chartConfig = {
     positive: {
-      label: "positive",
+      label: "Positive",
       color: "var(--chart-2)",
     },
     negative: {
-      label: "negative",
+      label: "Negative",
       color: "var(--destructive)",
     },
     total: {
-      label: "total",
+      label: "Total",
       color: "var(--default)",
     },
   } satisfies ChartConfig;
@@ -41,7 +41,7 @@ export const HomeChart = () => {
         if (item.value > 0) {
           month.positive += item.value;
         } else {
-          month.negative += item.value;
+          month.negative += Math.abs(item.value);
         }
         month.total += item.value;
       } else {
@@ -56,12 +56,19 @@ export const HomeChart = () => {
           cData.push({
             month: date,
             positive: 0,
-            negative: item.value,
+            negative: Math.abs(item.value),
             total: item.value,
           });
         }
       }
     }
+
+    // Sort the data by month
+    cData.sort((a, b) => {
+      const monthA = moment(a.month, "MMMM").month();
+      const monthB = moment(b.month, "MMMM").month();
+      return monthA - monthB;
+    });
 
     setChartData(cData);
   }, [transactions]);

@@ -72,7 +72,7 @@ export function HomeProvider({ children }: HomeProviderProps) {
     setBanks(data);
   }, []);
 
-  const parseTransactionInfoFunc = useCallback(async () => {
+  const getTransactionInfoFunc = useCallback(async () => {
     const response = await getTransactionsInfo();
     setTransactionsInfo(response);
   }, []);
@@ -95,9 +95,9 @@ export function HomeProvider({ children }: HomeProviderProps) {
   }, [getTransactionsFunc]);
 
   useEffect(() => {
-    parseTransactionInfoFunc();
+    getTransactionInfoFunc();
     getBanksFunc();
-  }, [getBanksFunc, parseTransactionInfoFunc]);
+  }, [getBanksFunc, getTransactionInfoFunc]);
 
   return (
     <HomeProviderContext.Provider
@@ -110,6 +110,8 @@ export function HomeProvider({ children }: HomeProviderProps) {
         transactionsInfo: [transactionsInfo, setTransactionsInfo],
         clearFilter,
         getTransactionsFunc,
+        getTransactionInfoFunc,
+        getBanksFunc,
       }}
     >
       {children}

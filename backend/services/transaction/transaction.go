@@ -117,6 +117,18 @@ func GetTransactionInfos(database *sql.DB) (float64, float64, float64, error) {
 	return positive, negative, value, nil
 }
 
+func DeleteTransaction(database *sql.DB, bankId int64) error {
+
+	query := fmt.Sprintf("DELETE FROM transactions WHERE bank_id = '%v'", bankId)
+	println(query)
+	_, err := database.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func makeQuery(s string, filter types.TransactionSearch) string {
 
 	query := fmt.Sprintf("SELECT %s FROM transactions", s)

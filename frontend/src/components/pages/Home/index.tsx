@@ -6,53 +6,53 @@ import { useHomeContext } from "@/Pages/Home/provider";
 import { AppHeader } from "./components/header";
 import { HomeChart } from "./components/chart/chart";
 import { useState } from "react";
-import { Switch } from "@/components/ui/switch";
+import { AppToggle } from "@/components/global/appToggle";
 
 export const HomePage = () => {
-  const {
-    pagination: [pagination, setPagination],
-  } = useHomeContext();
-
-  const [toggle, settoggle] = useState(false);
+  const [toggle, setToggle] = useState(false);
 
   return (
     <>
       <AppHeader />
-      <section className="grid w-full gap-2.5">
+      <section className="@container grid w-full gap-2.5">
         <HomeFilter />
         <HomeCards />
-        <div className="flex items-center space-x-2">
-          <label htmlFor="airplane-mode">Graph Mode</label>
-          <Switch
-            id="airplane-mode"
-            checked={toggle}
-            onCheckedChange={() => settoggle(!toggle)}
+        <div className="flex justify-end">
+          <AppToggle
+            toggle={[toggle, setToggle]}
+            frontLabel="Graph Mode"
+            backLabel="Table Mode"
           />
-          <label htmlFor="airplane-mode">Table Mode</label>
         </div>
-        {toggle ? (
-          <>
-            <TransactionTable />
-            <AppPagination
-              pagination={pagination}
-              setPagination={setPagination}
-            />
-          </>
-        ) : (
-          <div className="grid grid-cols-2 gap-2.5">
-            <div>
-              <HomeChart />
-            </div>
-            <div>
-              <TransactionTable small={true} />
-              <AppPagination
-                pagination={pagination}
-                setPagination={setPagination}
-              />
-            </div>
-          </div>
-        )}
+        <TableSection toggle={toggle} />
       </section>
     </>
+  );
+};
+
+const TableSection = ({ toggle }: { toggle: boolean }) => {
+  const {
+    pagination: [pagination, setPagination],
+  } = useHomeContext();
+
+  if (toggle) {
+    return (
+      <>
+        <TransactionTable />
+        <AppPagination pagination={pagination} setPagination={setPagination} />
+      </>
+    );
+  }
+
+  return (
+    <div className=" grid @4xl:grid-cols-1 @5xl:grid-cols-2 gap-2.5">
+      <div>
+        <HomeChart />
+      </div>
+      <div>
+        <TransactionTable small={true} />
+        <AppPagination pagination={pagination} setPagination={setPagination} />
+      </div>
+    </div>
   );
 };
