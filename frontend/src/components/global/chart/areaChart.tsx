@@ -5,6 +5,8 @@ import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -31,15 +33,15 @@ export const AreaChartComponent = ({
     <Card>
       {header}
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
           <LineChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey={dataKey}
               tickLine={false}
               axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickMargin={10}
+              tickFormatter={(value) => value.slice(0, 7)}
             />
             <ChartTooltip
               cursor={false}
@@ -56,6 +58,7 @@ export const AreaChartComponent = ({
                 name={item.label as string}
               />
             ))}
+            <ChartLegend content={<ChartLegendContent />} />
           </LineChart>
         </ChartContainer>
       </CardContent>

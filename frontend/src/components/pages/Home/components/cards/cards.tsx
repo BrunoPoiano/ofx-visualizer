@@ -115,7 +115,12 @@ const CardWrapper = ({ label, value, color }: CardWrapperType) => {
             color: color,
           }}
         >
-          {showValue ? `R$ ${value.toFixed(2)}` : "****"}
+          {showValue
+            ? `${value.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })}`
+            : "****"}
         </span>
       </CardContent>
     </Card>

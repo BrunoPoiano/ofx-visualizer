@@ -27,7 +27,7 @@ export const HomeChart = () => {
     },
     total: {
       label: "Total",
-      color: "var(--default)",
+      color: "var(--chart-1)",
     },
   } satisfies ChartConfig;
 
@@ -35,7 +35,7 @@ export const HomeChart = () => {
     const cData: ChartType[] = [];
 
     for (const item of transactions) {
-      const date = moment(item.date).format("MMMM");
+      const date = moment(item.date).format("YYYY/MM");
       const month = cData.find((el) => el.month === date);
       if (month) {
         if (item.value > 0) {
@@ -65,8 +65,8 @@ export const HomeChart = () => {
 
     // Sort the data by month
     cData.sort((a, b) => {
-      const monthA = moment(a.month, "MMMM").month();
-      const monthB = moment(b.month, "MMMM").month();
+      const monthA = moment(a.month, "YYYY/MMMM").month();
+      const monthB = moment(b.month, "YYYY/MMMM").month();
       return monthA - monthB;
     });
 

@@ -25,8 +25,8 @@ func main() {
 	router := router.AppRoutes(db)
 
 	println("Serving frontend")
-	fs := http.FileServer(http.Dir("./frontend/dist"))
-	router.PathPrefix("/").Handler(fs)
+	// fs := http.FileServer(http.Dir("./frontend/dist"))
+	// router.PathPrefix("/").Handler(fs)
 
 	println("Serving on port 8080")
 	log.Fatal(http.ListenAndServe("0.0.0.0:8080", handlers.CORS(handleCors())(router)))

@@ -82,9 +82,13 @@ export const TransactionTable = ({ small = false }: { small?: boolean }) => {
                     {showValue ? (
                       info.id === "date" ? (
                         parseDate(item.date)
+                      ) : info.id === "value" ? (
+                        item.value.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })
                       ) : (
                         <AppEllipsis>
-                          {info.id === "value" ? "R$ " : ""}
                           {(item as TransactionType)[info.id]}
                         </AppEllipsis>
                       )

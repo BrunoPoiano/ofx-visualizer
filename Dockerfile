@@ -5,25 +5,21 @@ COPY frontend/ ./
 RUN npm install --force
 RUN npm run build
 
+FROM golang:1.24.3-alpine3.21 AS backend
 
-FROM golang:1.24.3-alpine3.21 AS builder
-
-WORKDIR /build
-COPY /backend .
-
+WORKDIR /app
+COPY backend/ .
 COPY --from=frontend /app/frontend/dist ./frontend/dist
-
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o ofxvisualizer .
 
 FROM alpine:3.21
 
-WORKDIR /app/ofxvisualizer
-
-COPY --from=builder /build/ofxvisualizer ./
-
-# Create database directory with proper permissions
-RUN mkdir -p /app/ofxvisualizer/database && chmod 777 /app/ofxvisualizer/database
-
+WORKDIR /app
+COPY --from=backend /app/ofxvisualizer ./
+RUN mkdir -p /app/database && chmod 777 /app/database
+RUN mkdir -p /app/frontend/dist && chmod 777 /app/frontend/dist
+COPY --from=backend /app/ofxvisualizer .
+COPY --from=backend /app/frontend/dist ./frontend/dist
 EXPOSE 8080
 
 CMD ["./ofxvisualizer"]
