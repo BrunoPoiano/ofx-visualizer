@@ -12,6 +12,7 @@ import (
 
 func main() {
 
+	println("Connecting to database")
 	db, err := database.ConnectDatabase()
 	if err != nil {
 		println(err.Error())
@@ -19,12 +20,16 @@ func main() {
 	}
 	defer db.Close()
 
+	println("Running migrations")
 	database.RunMigrations(db)
 	router := router.AppRoutes(db)
+
+	println("Serving frontend")
 	fs := http.FileServer(http.Dir("./frontend/dist"))
 	router.PathPrefix("/").Handler(fs)
 
-	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(handleCors())(router)))
+	println("Serving on port 8080")
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", handlers.CORS(handleCors())(router)))
 
 }
 
