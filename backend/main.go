@@ -25,17 +25,17 @@ func main() {
 	router := router.AppRoutes(db)
 
 	println("Serving frontend")
-	// fs := http.FileServer(http.Dir("./frontend/dist"))
-	// router.PathPrefix("/").Handler(fs)
+	fs := http.FileServer(http.Dir("./frontend/dist"))
+	router.PathPrefix("/").Handler(fs)
 
-	println("Serving on port 8080")
-	log.Fatal(http.ListenAndServe("0.0.0.0:8080", handlers.CORS(handleCors())(router)))
+	println("Serving on port 8247")
+	log.Fatal(http.ListenAndServe("0.0.0.0:8247", handlers.CORS(handleCors())(router)))
 
 }
 
 func handleCors() (handlers.CORSOption, handlers.CORSOption, handlers.CORSOption) {
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	origins := handlers.AllowedOrigins([]string{"http://localhost:5173"})
+	origins := handlers.AllowedOrigins([]string{"*"})
 	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	return headers, origins, methods
