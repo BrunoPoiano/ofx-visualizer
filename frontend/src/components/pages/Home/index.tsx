@@ -4,9 +4,11 @@ import { TransactionTable } from "./components/table/dataTable";
 import { HomeCards } from "./components/cards/cards";
 import { useHomeContext } from "@/Pages/Home/provider";
 import { AppHeader } from "./components/header";
-import { HomeChart } from "./components/chart/chart";
 import { useState } from "react";
 import { AppToggle } from "@/components/global/appToggle";
+import { AreaChart } from "./components/charts/AreaChart";
+import { PieChartCredit } from "./components/charts/PieChartCredit";
+import { PieChartDebit } from "./components/charts/PieChartDebit";
 
 export const HomePage = () => {
   const [toggle, setToggle] = useState(false);
@@ -39,6 +41,7 @@ const TableSection = ({ toggle }: { toggle: boolean }) => {
     return (
       <>
         <TransactionTable />
+
         <AppPagination pagination={pagination} setPagination={setPagination} />
       </>
     );
@@ -46,9 +49,9 @@ const TableSection = ({ toggle }: { toggle: boolean }) => {
 
   return (
     <div className=" grid @4xl:grid-cols-1 @5xl:grid-cols-2 gap-2.5">
-      <div>
-        <HomeChart />
-      </div>
+      <AreaChart />
+      <PieChartCredit />
+      <PieChartDebit />
       <div>
         <TransactionTable small={true} />
         <AppPagination pagination={pagination} setPagination={setPagination} />

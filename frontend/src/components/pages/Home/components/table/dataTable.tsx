@@ -12,7 +12,6 @@ import {
 import { parseDate } from "@/lib/utils";
 import { useHomeContext } from "@/Pages/Home/provider";
 import { TableInfo, TableInfoSmall } from "./table";
-import type { TransactionType } from "@/Pages/Home/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const TransactionTable = ({ small = false }: { small?: boolean }) => {
@@ -21,6 +20,20 @@ export const TransactionTable = ({ small = false }: { small?: boolean }) => {
     showValue: [showValue],
     filter: [filter, setFilter],
   } = useHomeContext();
+
+  const tableData = transactions.map((item) => {
+    return {
+      id: item.id,
+      date: parseDate(item.date),
+      type: item.type,
+      value: item.value.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }),
+      desc: item.desc,
+      bank_id: item.bank_id,
+    };
+  });
 
   const changeOrderBy = (order: string) => {
     let direction = filter.direction;
@@ -67,7 +80,7 @@ export const TransactionTable = ({ small = false }: { small?: boolean }) => {
                 </TableCell>
               </TableRow>
             )}
-            {transactions.map((item) => (
+            {tableData.map((item) => (
               <TableRow key={item.id}>
                 {(small ? TableInfoSmall : TableInfo).map((info) => (
                   <TableCell
@@ -80,18 +93,9 @@ export const TransactionTable = ({ small = false }: { small?: boolean }) => {
                     }
                   >
                     {showValue ? (
-                      info.id === "date" ? (
-                        parseDate(item.date)
-                      ) : info.id === "value" ? (
-                        item.value.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })
-                      ) : (
-                        <AppEllipsis>
-                          {(item as TransactionType)[info.id]}
-                        </AppEllipsis>
-                      )
+                      <AppEllipsis>
+                        {(item as (typeof tableData)[0])[info.id]}
+                      </AppEllipsis>
                     ) : (
                       "****"
                     )}

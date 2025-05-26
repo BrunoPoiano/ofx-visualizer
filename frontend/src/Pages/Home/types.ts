@@ -42,7 +42,7 @@ export type TransactionType = {
   id: string;
   bank_id: number;
   date: string;
-  type: string;
+  type: "CREDIT" | "DEBIT";
   value: number;
   desc: string;
 };

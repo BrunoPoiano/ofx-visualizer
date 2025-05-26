@@ -11,7 +11,7 @@ type ChartType = {
   total: number;
 };
 
-export const HomeChart = () => {
+export const AreaChart = () => {
   const {
     transactions: [transactions],
   } = useHomeContext();
