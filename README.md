@@ -13,11 +13,12 @@ A web application for visualizing and managing OFX (Open Financial Exchange) fil
 - Responsive design
 
 ## Docker Deploy (Recomended)
+You can find the Docker image here: [ofx-visualizer image](https://hub.docker.com/r/brunopoiano/ofx-visualizer)
 
 Build and run using Docker:
 
 ```sh
-docker Command
+docker run -d -p 8247:8247 --name ofxvisualizer docker.io/brunopoiano/ofx-visualizer:latest
 ```
 
 ### from source
