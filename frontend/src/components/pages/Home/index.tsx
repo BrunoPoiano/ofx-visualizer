@@ -1,17 +1,15 @@
-import { AppPagination } from "@/components/global/appPagination";
 import { HomeFilter } from "./components/filter";
 import { TransactionTable } from "./components/table/dataTable";
 import { HomeCards } from "./components/cards/cards";
-import { useHomeContext } from "@/Pages/Home/provider";
 import { AppHeader } from "./components/header";
-import { useState } from "react";
 import { AppToggle } from "@/components/global/appToggle";
 import { AreaChart } from "./components/charts/AreaChart";
 import { PieChartCredit } from "./components/charts/PieChartCredit";
 import { PieChartDebit } from "./components/charts/PieChartDebit";
+import useLocalStorage from "@/lib/localstorage";
 
 export const HomePage = () => {
-  const [toggle, setToggle] = useState(false);
+  const [toggle, setToggle] = useLocalStorage("toggle", false);
 
   return (
     <>
@@ -33,28 +31,25 @@ export const HomePage = () => {
 };
 
 const TableSection = ({ toggle }: { toggle: boolean }) => {
-  const {
-    pagination: [pagination, setPagination],
-  } = useHomeContext();
-
   if (toggle) {
-    return (
-      <>
-        <TransactionTable />
-
-        <AppPagination pagination={pagination} setPagination={setPagination} />
-      </>
-    );
+    return <TransactionTable />;
   }
 
+  const card = "w-full max-h-[500px] p-0 mb-[20px]  break-inside-avoid";
+
   return (
-    <div className=" grid @4xl:grid-cols-1 @5xl:grid-cols-2 gap-2.5">
-      <AreaChart />
-      <PieChartCredit />
-      <PieChartDebit />
-      <div>
+    <div className="gap-x-2.5 p-0 md:columns-1 lg:columns-2">
+      <div className={card}>
+        <AreaChart />
+      </div>
+      <div className={card}>
+        <PieChartCredit />
+      </div>
+      <div className={card}>
         <TransactionTable small={true} />
-        <AppPagination pagination={pagination} setPagination={setPagination} />
+      </div>
+      <div className={card}>
+        <PieChartDebit />
       </div>
     </div>
   );

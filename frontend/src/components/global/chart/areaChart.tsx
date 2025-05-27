@@ -32,7 +32,7 @@ export const AreaChartComponent = ({
   return (
     <Card>
       {header}
-      <CardContent>
+      <CardContent className="max-w-[750px] ">
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
           <LineChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />

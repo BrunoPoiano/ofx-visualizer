@@ -76,7 +76,43 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 	database := r.Context().Value("db").(*sql.DB)
 
-	positive, negative, value, err := transactionService.GetTransactionInfos(database)
+	params := r.URL.Query()
+
+	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
+	if err != nil {
+		currentPage = 1
+	}
+
+	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
+	if err != nil {
+		perPage = 5
+	}
+
+	order := params.Get("order")
+	if order == "" {
+		order = "date"
+	}
+
+	direction := params.Get("direction")
+	if direction == "" {
+		direction = "ASC"
+	}
+
+	filter := types.TransactionSearch{
+		CurrentPage: currentPage,
+		PerPage:     perPage,
+		Order:       order,
+		Direction:   direction,
+		Search:      params.Get("search"),
+		MinValue:    params.Get("min_value"),
+		MaxValue:    params.Get("max_value"),
+		From:        params.Get("from"),
+		To:          params.Get("to"),
+		Type:        params.Get("type"),
+		Bank:        params.Get("bank"),
+	}
+
+	positive, negative, value, err := transactionService.GetTransactionInfos(database, filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
