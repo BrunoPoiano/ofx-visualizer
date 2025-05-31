@@ -20,24 +20,29 @@ import (
 //   - []types.Transaction: A slice of Transaction structs, each representing a transaction from the OFX file.
 //   - types.Bank: A Bank struct containing bank information extracted from the OFX file.
 //   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
-func ParseOfx(file multipart.File) ([]types.Transaction, types.Bank, error) {
+func ParseOfx(file multipart.File) ([]types.Transaction, types.Bank, types.Statement, error) {
 
 	var lines []types.Transaction
 
 	fileContent, err := io.ReadAll(file)
 	if err != nil {
-		return nil, types.Bank{}, fmt.Errorf("error reading file: %w", err)
+		return nil, types.Bank{}, types.Statement{}, fmt.Errorf("error reading file: %w", err)
 	}
 	fileString := string(fileContent)
 
-	stmttrn := getItensFromTag("STMTTRN", fileString)
+	statement, err := parseStatement(fileString)
+	if err != nil {
+		return nil, types.Bank{}, types.Statement{}, fmt.Errorf("error parsing statements: %w", err)
+	}
+
 	Bank := parseBankInfo(fileString)
+	stmttrn := getItensFromTag("STMTTRN", fileString)
 	for _, item := range stmttrn {
 		line := parseSTMTTRNIntoTransaction(item)
 		lines = append(lines, line)
 	}
 
-	return lines, Bank, nil
+	return lines, Bank, statement, nil
 }
 
 // getItensFromTag extracts all occurrences of a tag and its content from a string.
@@ -105,7 +110,6 @@ func parseOfxDate(date string) (string, error) {
 	}
 
 	return t.Format("2006-01-02 15:04:05"), nil
-
 }
 
 // parseBankInfo parses bank information from a string.
@@ -116,12 +120,70 @@ func parseOfxDate(date string) (string, error) {
 // Returns:
 //   - types.Bank: A Bank struct containing the parsed bank information.
 func parseBankInfo(file string) types.Bank {
-
-	var Bank types.Bank
-
-	Bank.Name = getItensFromTag("ORG", file)[0]
-	Bank.AccountId = getItensFromTag("ACCTID", file)[0]
-
+	Bank := types.Bank{
+		Name:        getItensFromTag("ORG", file)[0],
+		AccountId:   getItensFromTag("ACCTID", file)[0],
+		FId:         getItensFromTag("FID", file)[0],
+		BankId:      getItensFromTag("BANKID", file)[0],
+		BranchId:    getItensFromTag("BRANCHID", file)[0],
+		AccountType: getItensFromTag("ACCTTYPE", file)[0],
+	}
 	return Bank
+}
 
+func parseStatement(fileString string) (types.Statement, error) {
+
+	var statement types.Statement
+
+	dtStart, err := parseOfxDate(getItensFromTag("DTSTART", fileString)[0])
+	if err != nil {
+		return statement, err
+	}
+	dtEnd, err := parseOfxDate(getItensFromTag("DTEND", fileString)[0])
+	if err != nil {
+		return statement, err
+	}
+	dtasof, err := parseOfxDate(getItensFromTag("DTASOF", fileString)[0])
+	if err != nil {
+		return statement, err
+	}
+	dtserver, err := parseOfxDate(getItensFromTag("DTSERVER", fileString)[0])
+	if err != nil {
+		return statement, err
+	}
+
+	balamt, err := strconv.ParseFloat(getItensFromTag("BALAMT", fileString)[0], 64)
+	if err != nil {
+		return statement, err
+	}
+
+	statement.StartDate = dtStart
+	statement.EndDate = dtEnd
+	statement.BalanceDate = dtasof
+	statement.ServerDate = dtserver
+	statement.LedgerBalance = balamt
+	statement.Language = getItensFromTag("LANGUAGE", fileString)[0]
+
+	statement.Yields = parseBalance(fileString)
+	return statement, nil
+}
+
+func parseBalance(fileString string) []types.Balance {
+
+	balItems := getItensFromTag("BAL", fileString)
+	var balances []types.Balance
+	for _, balItem := range balItems {
+
+		value, _ := strconv.ParseFloat(getItensFromTag("VALUE", balItem)[0], 64)
+
+		balance := types.Balance{
+			Name:    getItensFromTag("NAME", balItem)[0],
+			Desc:    getItensFromTag("DESC", balItem)[0],
+			BalType: getItensFromTag("BALTYPE", balItem)[0],
+			Value:   value,
+		}
+		balances = append(balances, balance)
+	}
+
+	return balances
 }

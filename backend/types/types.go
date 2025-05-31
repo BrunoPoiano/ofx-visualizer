@@ -10,9 +10,13 @@ type Transaction struct {
 }
 
 type Bank struct {
-	Id        int    `json:"id"`
-	Name      string `json:"name"`
-	AccountId string `json:"account_id"`
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	AccountId   string `json:"account_id"`
+	AccountType string `json:"account_type"`
+	FId         string `json:"f_id"`
+	BankId      string `json:"bank_id"`
+	BranchId    string `json:"branch_id"`
 }
 
 type ReturnPagination struct {
@@ -29,16 +33,41 @@ type ReturnTransactionInfo struct {
 	Value    float64 `json:"value"`
 }
 
-type TransactionSearch struct {
+type Statement struct {
+	Id            int       `json:"id"`
+	BankId        int       `json:"bank_id"`
+	StartDate     string    `json:"start_date"`
+	EndDate       string    `json:"end_date"`
+	LedgerBalance float64   `json:"ledger_balance"`
+	BalanceDate   string    `json:"balance_date"`
+	ServerDate    string    `json:"server_date"`
+	Language      string    `json:"language"`
+	Yields        []Balance `json:"yields"`
+}
+
+type Balance struct {
+	Id          int     `json:"id"`
+	StatementId int     `json:"statement_id"`
+	Name        string  `json:"name"`
+	Desc        string  `json:"desc"`
+	BalType     string  `json:"bal_type"`
+	Value       float64 `json:"value"`
+}
+
+type DefaultSearch struct {
 	CurrentPage int64
 	PerPage     int64
 	Direction   string
 	Order       string
 	Search      string
-	MinValue    string
-	MaxValue    string
-	From        string
-	To          string
-	Type        string
-	Bank        string
+}
+
+type TransactionSearch struct {
+	DefaultSearch
+	MinValue string
+	MaxValue string
+	From     string
+	To       string
+	Type     string
+	Bank     string
 }

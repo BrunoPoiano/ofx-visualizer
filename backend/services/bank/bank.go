@@ -17,7 +17,7 @@ import (
 func InsertItems(database *sql.DB, item types.Bank) (int, error) {
 
 	var account_id int
-	total, err := database.Query("SELECT id FROM Banks WHERE account_id = ?", item.AccountId)
+	total, err := database.Query("SELECT id FROM banks WHERE account_id = ?", item.AccountId)
 	if err != nil {
 		return 0, err
 	}
@@ -34,12 +34,12 @@ func InsertItems(database *sql.DB, item types.Bank) (int, error) {
 		return account_id, nil
 	}
 
-	stmt, err := database.Prepare("INSERT INTO Banks(name,account_id) values(?,?)")
+	stmt, err := database.Prepare("INSERT INTO banks(name,account_id,account_type,f_id,bank_id,branch_id) values(?,?,?,?,?,?)")
 	if err != nil {
 		return 0, err
 	}
 
-	result, err := stmt.Exec(item.Name, item.AccountId)
+	result, err := stmt.Exec(item.Name, item.AccountId, item.AccountType, item.FId, item.BankId, item.BranchId)
 	if err != nil {
 		return 0, err
 	}
@@ -70,7 +70,7 @@ func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Bank, int, er
 
 	//BANCS
 	offset := perPage * (currentPage - 1)
-	query := fmt.Sprintf("SELECT * FROM Banks LIMIT %v OFFSET %v", perPage, offset)
+	query := fmt.Sprintf("SELECT * FROM banks LIMIT %v OFFSET %v", perPage, offset)
 
 	rows, err := database.Query(query)
 	if err != nil {
@@ -83,7 +83,7 @@ func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Bank, int, er
 
 	for rows.Next() {
 		var item types.Bank
-		if err := rows.Scan(&item.Id, &item.Name, &item.AccountId); err != nil {
+		if err := rows.Scan(&item.Id, &item.Name, &item.AccountId, &item.AccountType, &item.FId, &item.BankId, &item.BranchId); err != nil {
 			return nil, 0, err
 		}
 		items = append(items, item)
@@ -92,7 +92,7 @@ func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Bank, int, er
 	defer rows.Close()
 
 	// TOTALITEMS
-	total, err := database.Query("SELECT count(id) as totalItems FROM Banks")
+	total, err := database.Query("SELECT count(id) as totalItems FROM banks")
 	if err := total.Err(); err != nil {
 		return nil, 0, err
 	}

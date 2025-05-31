@@ -1,10 +1,12 @@
-package transactionController
+package TransactionController
 
 import (
 	"database/sql"
 	"encoding/json"
+	BalanceService "main/services/balance"
 	BankService "main/services/bank"
 	ofxService "main/services/ofx"
+	StatementService "main/services/statement"
 	transactionService "main/services/transaction"
 	"main/types"
 	"net/http"
@@ -50,7 +52,7 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		transactions, Bank, err := ofxService.ParseOfx(file)
+		transactions, Bank, statement, err := ofxService.ParseOfx(file)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -67,6 +69,21 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		StatementId, err := StatementService.InsertItems(database, statement, BankId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		for _, item := range statement.Yields {
+			err = BalanceService.InsertItems(database, item, StatementId)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+
 	}
 
 	json.NewEncoder(w)
@@ -99,17 +116,19 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filter := types.TransactionSearch{
-		CurrentPage: currentPage,
-		PerPage:     perPage,
-		Order:       order,
-		Direction:   direction,
-		Search:      params.Get("search"),
-		MinValue:    params.Get("min_value"),
-		MaxValue:    params.Get("max_value"),
-		From:        params.Get("from"),
-		To:          params.Get("to"),
-		Type:        params.Get("type"),
-		Bank:        params.Get("bank"),
+		DefaultSearch: types.DefaultSearch{
+			CurrentPage: currentPage,
+			PerPage:     perPage,
+			Order:       order,
+			Direction:   direction,
+			Search:      params.Get("search"),
+		},
+		MinValue: params.Get("min_value"),
+		MaxValue: params.Get("max_value"),
+		From:     params.Get("from"),
+		To:       params.Get("to"),
+		Type:     params.Get("type"),
+		Bank:     params.Get("bank"),
 	}
 
 	positive, negative, value, err := transactionService.GetTransactionInfos(database, filter)
@@ -178,17 +197,19 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filter := types.TransactionSearch{
-		CurrentPage: currentPage,
-		PerPage:     perPage,
-		Order:       order,
-		Direction:   direction,
-		Search:      params.Get("search"),
-		MinValue:    params.Get("min_value"),
-		MaxValue:    params.Get("max_value"),
-		From:        params.Get("from"),
-		To:          params.Get("to"),
-		Type:        params.Get("type"),
-		Bank:        params.Get("bank"),
+		DefaultSearch: types.DefaultSearch{
+			CurrentPage: currentPage,
+			PerPage:     perPage,
+			Order:       order,
+			Direction:   direction,
+			Search:      params.Get("search"),
+		},
+		MinValue: params.Get("min_value"),
+		MaxValue: params.Get("max_value"),
+		From:     params.Get("from"),
+		To:       params.Get("to"),
+		Type:     params.Get("type"),
+		Bank:     params.Get("bank"),
 	}
 
 	items, totalItems, lastpage, err := transactionService.GetTransactions(database, filter)
@@ -206,5 +227,4 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(response)
-
 }

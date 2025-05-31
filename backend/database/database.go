@@ -24,5 +24,7 @@ func ConnectDatabase() (*sql.DB, error) {
 //	db: The database connection.
 func RunMigrations(db *sql.DB) {
 	migrations.CreatingTableTransaction(db)
-	migrations.CreatingTableBanc(db)
+	migrations.CreatingTableBank(db)
+	migrations.CreatingTableStatements(db)
+	migrations.CreatingTableBalance(db)
 }
