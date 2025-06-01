@@ -1,6 +1,7 @@
-import { AppEllipsis } from "@/components/global/appEllipsis";
-import { ArrowSVG } from "@/components/icons/arrowUp";
-import { Button } from "@/components/ui/button";
+import type { OrderBy } from "@/Pages/Home/types";
+import { ArrowSVG } from "../icons/arrowUp";
+import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -8,54 +9,61 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { parseDate } from "@/lib/utils";
-import { useHomeContext } from "@/Pages/Home/provider";
-import { TableInfo, TableInfoSmall } from "./table";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { AppPagination } from "@/components/global/appPagination";
+} from "../ui/table";
+import { AppEllipsis } from "./appEllipsis";
+import { AppPagination } from "./appPagination";
+import { generateKey } from "@/lib/utils";
+import type { PaginationType } from "@/types";
 
-export const TransactionTable = ({ small = false }: { small?: boolean }) => {
-  const {
-    transactions: [transactions],
-    showValue: [showValue],
-    filter: [filter, setFilter],
-    pagination: [pagination, setPagination],
-  } = useHomeContext();
+type TableContent = {
+  label: string;
+  id: string;
+};
 
-  const tableData = transactions.map((item) => {
-    return {
-      id: item.id,
-      date: parseDate(item.date),
-      type: item.type,
-      value: item.value.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }),
-      desc: item.desc,
-      bank_id: item.bank_id,
-    };
-  });
+type AppTableProps<T extends { [key: string]: string }> = {
+  small?: boolean | undefined;
+  tableContentSmall?: TableContent[];
+  tableContent: TableContent[];
+  orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>];
+  showValue: boolean;
+  pagination: [
+    PaginationType,
+    React.Dispatch<React.SetStateAction<PaginationType>>,
+  ];
+  tableData: T[];
+};
 
+export const AppTable = <T extends { [key: string]: string }>({
+  small = false,
+  tableContentSmall,
+  tableContent,
+  orderBy: [orderBy, setOrderBy],
+  pagination: [pagination, setPagination],
+  showValue,
+  tableData,
+}: AppTableProps<T>) => {
   const changeOrderBy = (order: string) => {
-    let direction = filter.direction;
-    if (filter.order === order) {
+    let direction = orderBy.direction;
+    if (orderBy.order === order) {
       direction = direction === "ASC" ? "DESC" : "ASC";
     } else {
       direction = "ASC";
     }
 
-    setFilter((prev) => ({ ...prev, order, direction }));
+    setOrderBy(() => ({ direction, order }));
   };
 
   return (
     <div className="grid gap-3.5">
       <div className="rounded-md border" style={{ maxWidth: "1280px" }}>
-        <Table>
-          <ScrollArea className={`${small ? "h-76" : "h-150"} w-full`}>
+        <ScrollArea className={`${small ? "h-76" : "h-150"} w-full`}>
+          <Table>
             <TableHeader className="sticky top-0 bg-background">
               <TableRow>
-                {(small ? TableInfoSmall : TableInfo).map((item) => (
+                {(small && tableContentSmall
+                  ? tableContentSmall
+                  : tableContent
+                ).map((item) => (
                   <TableHead key={item.id}>
                     <Button
                       variant="ghost"
@@ -65,7 +73,8 @@ export const TransactionTable = ({ small = false }: { small?: boolean }) => {
                       {item.label}{" "}
                       <ArrowSVG
                         direction={
-                          filter.order === item.id && filter.direction === "ASC"
+                          orderBy.order === item.id &&
+                          orderBy.direction === "ASC"
                             ? "up"
                             : "down"
                         }
@@ -76,16 +85,19 @@ export const TransactionTable = ({ small = false }: { small?: boolean }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.length === 0 && (
+              {tableData.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center">
-                    No transactions found.
+                    No content found.
                   </TableCell>
                 </TableRow>
               )}
               {tableData.map((item) => (
-                <TableRow key={item.id}>
-                  {(small ? TableInfoSmall : TableInfo).map((info) => (
+                <TableRow key={generateKey()}>
+                  {(small && tableContentSmall
+                    ? tableContentSmall
+                    : tableContent
+                  ).map((info) => (
                     <TableCell
                       key={info.id}
                       className="text-left"
@@ -96,9 +108,7 @@ export const TransactionTable = ({ small = false }: { small?: boolean }) => {
                       }
                     >
                       {showValue ? (
-                        <AppEllipsis>
-                          {(item as (typeof tableData)[0])[info.id]}
-                        </AppEllipsis>
+                        <AppEllipsis>{(item as T)[info.id]}</AppEllipsis>
                       ) : (
                         "****"
                       )}
@@ -107,8 +117,8 @@ export const TransactionTable = ({ small = false }: { small?: boolean }) => {
                 </TableRow>
               ))}
             </TableBody>
-          </ScrollArea>
-        </Table>
+          </Table>
+        </ScrollArea>
       </div>
       <AppPagination pagination={pagination} setPagination={setPagination} />
     </div>

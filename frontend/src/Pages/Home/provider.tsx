@@ -10,10 +10,17 @@ import type {
   FilterType,
   HomeProviderProps,
   HomeProviderState,
+  OrderBy,
+  StatementType,
   TransactionInfoType,
   TransactionType,
 } from "./types";
-import { getBanks, getTransactions, getTransactionsInfo } from "./functions";
+import {
+  getBanks,
+  getStatesments,
+  getTransactions,
+  getTransactionsInfo,
+} from "./functions";
 import type { PaginationType } from "@/types";
 import { parseFilterDate } from "./parsers";
 import { useDebounce } from "@/lib/debounce";
@@ -35,8 +42,11 @@ export function HomeProvider({ children }: HomeProviderProps) {
     date: undefined,
     type: "",
     bank: "",
-    order: "date",
-    direction: "DESC",
+  });
+
+  const [orderBy, setOrderBy] = useLocalStorage<OrderBy>("ORDERBY", {
+    direction: "ASC",
+    order: "id",
   });
 
   const [pagination, setPagination] = useState<PaginationType>({
@@ -47,6 +57,7 @@ export function HomeProvider({ children }: HomeProviderProps) {
   });
 
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
+  const [statements, setStatements] = useState<StatementType[]>([]);
   const [banks, setBanks] = useState<BankType[]>([]);
 
   const getTransactionsFunc = useDebounce(
@@ -60,12 +71,33 @@ export function HomeProvider({ children }: HomeProviderProps) {
         ...(filter.date ? parseFilterDate(filter.date) : {}),
         ...(filter.type ? { type: filter.type } : {}),
         ...(filter.bank ? { bank: filter.bank } : {}),
-        ...(filter.order ? { order: filter.order } : {}),
-        ...(filter.direction ? { direction: filter.direction } : {}),
+        ...(orderBy.order ? { order: orderBy.order } : {}),
+        ...(orderBy.direction ? { direction: orderBy.direction } : {}),
       });
       setPagination(paginationContent);
       setTransactions(data);
-    }, [pagination.current_page, pagination.per_page, filter]),
+    }, [pagination.current_page, pagination.per_page, filter, orderBy]),
+    500,
+  );
+
+  const getStatementFunc = useDebounce(
+    useCallback(async () => {
+      const { data, paginationContent } = await getStatesments({
+        current_page: pagination.current_page.toString(),
+        per_page: pagination.per_page.toString(),
+        search: filter.search,
+        ...(filter.minValue ? { min_value: filter.minValue.toString() } : {}),
+        ...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
+        ...(filter.date ? parseFilterDate(filter.date) : {}),
+        ...(filter.type ? { type: filter.type } : {}),
+        ...(filter.bank ? { bank: filter.bank } : {}),
+        ...(orderBy.order ? { order: orderBy.order } : {}),
+        ...(orderBy.direction ? { direction: orderBy.direction } : {}),
+      });
+      console.log(data);
+      setPagination(paginationContent);
+      setStatements(data);
+    }, [pagination.current_page, pagination.per_page, filter, orderBy]),
     500,
   );
 
@@ -100,8 +132,11 @@ export function HomeProvider({ children }: HomeProviderProps) {
       date: undefined,
       type: "",
       bank: banks[0].id.toString() || "",
-      order: "date",
-      direction: "DESC",
+    });
+
+    setOrderBy({
+      order: "id",
+      direction: "ASC",
     });
   };
 
@@ -113,7 +148,8 @@ export function HomeProvider({ children }: HomeProviderProps) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     getTransactionsFunc();
-  }, [pagination.current_page, pagination.per_page, filter]);
+    getStatementFunc();
+  }, [pagination.current_page, pagination.per_page, filter, orderBy]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Every change on the filters, the pagination returns to page 1
   useEffect(() => {
@@ -123,9 +159,11 @@ export function HomeProvider({ children }: HomeProviderProps) {
   return (
     <HomeProviderContext.Provider
       value={{
+        orderBy: [orderBy, setOrderBy],
         filter: [filter, setFilter],
         pagination: [pagination, setPagination],
         transactions: [transactions, setTransactions],
+        statements: [statements, setStatements],
         showValue: [showValue, setShowValue],
         banks: [banks, setBanks],
         transactionsInfo: [transactionsInfo, setTransactionsInfo],

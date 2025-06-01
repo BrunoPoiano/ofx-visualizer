@@ -18,6 +18,24 @@ import (
 //   - An error if the insertion fails, nil otherwise.
 func InsertItems(database *sql.DB, item types.Statement, BankId int) (int, error) {
 
+	var account_id int
+	total, err := database.Query("SELECT id FROM statements WHERE start_date = ? AND end_date = ? AND ledger_balance = ?", item.StartDate, item.EndDate, item.LedgerBalance)
+	if err != nil {
+		return 0, err
+	}
+	defer total.Close()
+
+	if err := total.Err(); err != nil {
+		return 0, err
+	}
+	for total.Next() {
+		total.Scan(&account_id)
+	}
+
+	if account_id != 0 {
+		return account_id, nil
+	}
+
 	stmt, err := database.Prepare("INSERT INTO statements(bank_id,start_date,end_date,ledger_balance,balance_date,server_date,language) values(?,?,?,?,?,?,?)")
 	if err != nil {
 		return 0, err

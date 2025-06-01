@@ -1,6 +1,12 @@
 import moment from "moment";
 import type { DateRange } from "react-day-picker";
-import type { BankType, TransactionInfoType, TransactionType } from "./types";
+import type {
+  balanceType,
+  BankType,
+  StatementType,
+  TransactionInfoType,
+  TransactionType,
+} from "./types";
 import { isNumberOrDefault, isStringOrDefault } from "@/lib/typeValidation";
 
 export const parseBanks = (data: unknown): BankType[] => {
@@ -74,6 +80,65 @@ export const parseTransactionInfo = (data: unknown): TransactionInfoType => {
     negative: isNumberOrDefault(typedItem.negative),
     value: isNumberOrDefault(typedItem.value),
   };
+};
+
+export const parseStatement = (data: unknown[]): StatementType[] => {
+  if (!Array(data)) return [];
+
+  return data.reduce<StatementType[]>((prev, item) => {
+    if (typeof item !== "object" || item === null) {
+      return prev;
+    }
+
+    let yields: balanceType[] = [];
+
+    const typedItem = item as Record<string, unknown>;
+
+    if (!Array(typedItem.yields)) {
+      yields = [];
+    } else {
+      yields = parseBalance(typedItem.yields as unknown[]);
+    }
+
+    const newItem: StatementType = {
+      id: isNumberOrDefault(typedItem.id),
+      bank_id: isNumberOrDefault(typedItem.bank_id),
+      start_date: isStringOrDefault(typedItem.start_date),
+      end_date: isStringOrDefault(typedItem.end_date),
+      ledger_balance: isNumberOrDefault(typedItem.ledger_balance),
+      balance_date: isStringOrDefault(typedItem.balance_date),
+      server_date: isStringOrDefault(typedItem.server_date),
+      language: isStringOrDefault(typedItem.language),
+      yields: yields,
+    };
+
+    prev.push(newItem);
+    return prev;
+  }, []);
+};
+
+export const parseBalance = (data: unknown[]): balanceType[] => {
+  if (!Array(data)) return [];
+
+  return data.reduce<balanceType[]>((prev, item) => {
+    if (typeof item !== "object" || item === null) {
+      return prev;
+    }
+
+    const typedItem = item as Record<string, unknown>;
+
+    const newItem: balanceType = {
+      id: isNumberOrDefault(typedItem.id),
+      statement_id: isNumberOrDefault(typedItem.statement_id),
+      name: isStringOrDefault(typedItem.name),
+      desc: isStringOrDefault(typedItem.desc),
+      bal_type: isStringOrDefault(typedItem.bal_type),
+      value: isNumberOrDefault(typedItem.value),
+    };
+
+    prev.push(newItem);
+    return prev;
+  }, []);
 };
 
 export const parseFilterDate = (

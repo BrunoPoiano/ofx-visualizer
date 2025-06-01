@@ -17,6 +17,24 @@ import (
 //   - An error if the insertion fails, nil otherwise.
 func InsertItems(database *sql.DB, item types.Balance, StatementId int) error {
 
+	var account_id int
+	total, err := database.Query("SELECT id FROM balances WHERE statement_id = ? AND name = ? AND value = ?", StatementId, item.Name, item.Value)
+	if err != nil {
+		return err
+	}
+	defer total.Close()
+
+	if err := total.Err(); err != nil {
+		return err
+	}
+	for total.Next() {
+		total.Scan(&account_id)
+	}
+
+	if account_id != 0 {
+		return nil
+	}
+
 	stmt, err := database.Prepare("INSERT INTO balances(statement_id,name,description,balance_type,value) values(?,?,?,?,?)")
 	if err != nil {
 		return err
