@@ -1,4 +1,4 @@
-import type { TransactionType } from "@/Pages/Home/types";
+import type { TransactionType } from "@/components/pages/Home/types";
 
 export type TableInfoType = {
   id: keyof TransactionType;

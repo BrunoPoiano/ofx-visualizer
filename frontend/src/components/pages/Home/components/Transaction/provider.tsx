@@ -6,48 +6,53 @@ import {
   useState,
 } from "react";
 import type {
-  BankType,
-  FilterType,
-  HomeProviderProps,
-  HomeProviderState,
-  OrderBy,
-  StatementType,
-  TransactionInfoType,
-  TransactionType,
+  TransactionProviderProps,
+  TransactionProviderState,
 } from "./types";
 import {
   getBanks,
-  getStatesments,
   getTransactions,
   getTransactionsInfo,
-} from "./functions";
+} from "../../functions";
 import type { PaginationType } from "@/types";
-import { parseFilterDate } from "./parsers";
+import { parseFilterDate } from "../../parsers";
 import { useDebounce } from "@/lib/debounce";
 import useLocalStorage from "@/lib/localstorage";
+import type {
+  BankType,
+  FilterType,
+  OrderBy,
+  TransactionInfoType,
+  TransactionType,
+} from "../../types";
 
-const HomeProviderContext = createContext<HomeProviderState>(
-  {} as HomeProviderState,
+const TransactionProviderContext = createContext<TransactionProviderState>(
+  {} as TransactionProviderState,
 );
 
-export function HomeProvider({ children }: HomeProviderProps) {
-  const [showValue, setShowValue] = useState(true);
+export function TransactionProvider({ children }: TransactionProviderProps) {
   const [transactionsInfo, setTransactionsInfo] =
     useState<TransactionInfoType>();
 
-  const [filter, setFilter] = useLocalStorage<FilterType>("FILTER", {
-    search: "",
-    minValue: undefined,
-    maxValue: undefined,
-    date: undefined,
-    type: "",
-    bank: "",
-  });
+  const [filter, setFilter] = useLocalStorage<FilterType>(
+    "FILTER_TRANSACTION",
+    {
+      search: "",
+      minValue: undefined,
+      maxValue: undefined,
+      date: undefined,
+      type: "",
+      bank: "",
+    },
+  );
 
-  const [orderBy, setOrderBy] = useLocalStorage<OrderBy>("ORDERBY", {
-    direction: "ASC",
-    order: "id",
-  });
+  const [orderBy, setOrderBy] = useLocalStorage<OrderBy>(
+    "ORDERBY_TRANSACTION",
+    {
+      direction: "ASC",
+      order: "date",
+    },
+  );
 
   const [pagination, setPagination] = useState<PaginationType>({
     per_page: 5,
@@ -57,7 +62,6 @@ export function HomeProvider({ children }: HomeProviderProps) {
   });
 
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
-  const [statements, setStatements] = useState<StatementType[]>([]);
   const [banks, setBanks] = useState<BankType[]>([]);
 
   const getTransactionsFunc = useDebounce(
@@ -76,27 +80,6 @@ export function HomeProvider({ children }: HomeProviderProps) {
       });
       setPagination(paginationContent);
       setTransactions(data);
-    }, [pagination.current_page, pagination.per_page, filter, orderBy]),
-    500,
-  );
-
-  const getStatementFunc = useDebounce(
-    useCallback(async () => {
-      const { data, paginationContent } = await getStatesments({
-        current_page: pagination.current_page.toString(),
-        per_page: pagination.per_page.toString(),
-        search: filter.search,
-        ...(filter.minValue ? { min_value: filter.minValue.toString() } : {}),
-        ...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
-        ...(filter.date ? parseFilterDate(filter.date) : {}),
-        ...(filter.type ? { type: filter.type } : {}),
-        ...(filter.bank ? { bank: filter.bank } : {}),
-        ...(orderBy.order ? { order: orderBy.order } : {}),
-        ...(orderBy.direction ? { direction: orderBy.direction } : {}),
-      });
-      console.log(data);
-      setPagination(paginationContent);
-      setStatements(data);
     }, [pagination.current_page, pagination.per_page, filter, orderBy]),
     500,
   );
@@ -148,7 +131,6 @@ export function HomeProvider({ children }: HomeProviderProps) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     getTransactionsFunc();
-    getStatementFunc();
   }, [pagination.current_page, pagination.per_page, filter, orderBy]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Every change on the filters, the pagination returns to page 1
@@ -157,14 +139,12 @@ export function HomeProvider({ children }: HomeProviderProps) {
   }, [filter]);
 
   return (
-    <HomeProviderContext.Provider
+    <TransactionProviderContext.Provider
       value={{
         orderBy: [orderBy, setOrderBy],
         filter: [filter, setFilter],
         pagination: [pagination, setPagination],
         transactions: [transactions, setTransactions],
-        statements: [statements, setStatements],
-        showValue: [showValue, setShowValue],
         banks: [banks, setBanks],
         transactionsInfo: [transactionsInfo, setTransactionsInfo],
         clearFilter,
@@ -174,15 +154,17 @@ export function HomeProvider({ children }: HomeProviderProps) {
       }}
     >
       {children}
-    </HomeProviderContext.Provider>
+    </TransactionProviderContext.Provider>
   );
 }
 
-export const useHomeContext = () => {
-  const context = useContext(HomeProviderContext);
+export const useTransactionContext = () => {
+  const context = useContext(TransactionProviderContext);
 
   if (context === undefined)
-    throw new Error("useHomeContext must be used within a HomeProviderContext");
+    throw new Error(
+      "useTransactionContext must be used within a TransactionProviderContext",
+    );
 
   return context;
 };

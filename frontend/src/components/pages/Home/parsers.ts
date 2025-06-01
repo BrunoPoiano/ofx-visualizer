@@ -1,5 +1,6 @@
 import moment from "moment";
 import type { DateRange } from "react-day-picker";
+import { isNumberOrDefault, isStringOrDefault } from "@/lib/typeValidation";
 import type {
   balanceType,
   BankType,
@@ -7,7 +8,6 @@ import type {
   TransactionInfoType,
   TransactionType,
 } from "./types";
-import { isNumberOrDefault, isStringOrDefault } from "@/lib/typeValidation";
 
 export const parseBanks = (data: unknown): BankType[] => {
   if (typeof data !== "object" || data === null) return [];
@@ -82,6 +82,15 @@ export const parseTransactionInfo = (data: unknown): TransactionInfoType => {
   };
 };
 
+export const parseFilterDate = (
+  date: DateRange | undefined,
+): { from: string; to: string | undefined } | undefined => {
+  if (!date) return;
+  const from = moment(date.from).format("yyyy-MM-DD");
+  const to = date.to ? moment(date.to).format("yyyy-MM-DD") : undefined;
+  return { from, to };
+};
+
 export const parseStatement = (data: unknown[]): StatementType[] => {
   if (!Array(data)) return [];
 
@@ -139,13 +148,4 @@ export const parseBalance = (data: unknown[]): balanceType[] => {
     prev.push(newItem);
     return prev;
   }, []);
-};
-
-export const parseFilterDate = (
-  date: DateRange | undefined,
-): { from: string; to: string | undefined } | undefined => {
-  if (!date) return;
-  const from = moment(date.from).format("yyyy-MM-DD");
-  const to = date.to ? moment(date.to).format("yyyy-MM-DD") : undefined;
-  return { from, to };
 };

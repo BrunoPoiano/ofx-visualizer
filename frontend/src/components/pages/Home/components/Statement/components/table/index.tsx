@@ -1,14 +1,18 @@
 import { parseDate } from "@/lib/utils";
-import { useHomeContext } from "@/Pages/Home/provider";
+
 import { AppTable } from "@/components/global/appTable";
 import { TableInfo } from "./table";
+import { useStatementContext } from "../../provider";
+import { useHomeContext } from "@/components/pages/Home/provider";
 
 export const StatementsTable = ({ small = false }: { small?: boolean }) => {
   const {
     statements: [statements],
-    showValue: [showValue],
     orderBy: [orderBy, setOrderBy],
     pagination: [pagination, setPagination],
+  } = useStatementContext();
+  const {
+    showValue: [showValue],
   } = useHomeContext();
 
   const tableData = statements.map((item) => {

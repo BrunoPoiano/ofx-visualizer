@@ -1,8 +1,9 @@
 import { PieChartComponent } from "@/components/global/chart/piechart";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChartConfig } from "@/components/ui/chart";
-import { useHomeContext } from "@/Pages/Home/provider";
+
 import { useEffect, useState } from "react";
+import { useTransactionContext } from "../../provider";
 
 type ChartType = {
   to: string;
@@ -13,7 +14,7 @@ type ChartType = {
 export const PieChartCredit = () => {
   const {
     transactions: [transactions],
-  } = useHomeContext();
+  } = useTransactionContext();
   const [chartData, setChartData] = useState<ChartType[]>([]);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({});
 

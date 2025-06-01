@@ -100,7 +100,9 @@ export const AppTable = <T extends { [key: string]: string }>({
                   ).map((info) => (
                     <TableCell
                       key={info.id}
-                      className="text-left"
+                      className={
+                        info.id === "desc" ? "text-left" : "text-center"
+                      }
                       style={
                         info.id === "desc"
                           ? { maxWidth: "30ch" }

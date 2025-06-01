@@ -1,4 +1,4 @@
-import type { StatementType } from "@/Pages/Home/types";
+import type { StatementType } from "@/components/pages/Home/types";
 
 type TableInfoType = {
   id: keyof StatementType;

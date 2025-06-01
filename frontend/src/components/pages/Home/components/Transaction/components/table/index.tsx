@@ -1,14 +1,18 @@
 import { parseDate } from "@/lib/utils";
-import { useHomeContext } from "@/Pages/Home/provider";
+
 import { AppTable } from "@/components/global/appTable";
 import { TableInfo, TableInfoSmall } from "./table";
+import { useHomeContext } from "@/components/pages/Home/provider";
+import { useTransactionContext } from "../../provider";
 
 export const TransactionTable = ({ small = false }: { small?: boolean }) => {
   const {
     transactions: [transactions],
-    showValue: [showValue],
     orderBy: [orderBy, setOrderBy],
     pagination: [pagination, setPagination],
+  } = useTransactionContext();
+  const {
+    showValue: [showValue],
   } = useHomeContext();
 
   const tableData = transactions.map((item) => {
