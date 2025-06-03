@@ -7,19 +7,15 @@ type TableInfoType = {
 
 export const TableInfo = <TableInfoType[]>[
   {
-    label: "Balance date",
-    id: "balance_date",
-  },
-  {
-    label: "Start date",
+    label: "Date",
     id: "start_date",
-  },
-  {
-    label: "End date",
-    id: "end_date",
   },
   {
     label: "Ledger balance",
     id: "ledger_balance",
+  },
+  {
+    label: "Balance",
+    id: "balance",
   },
 ];

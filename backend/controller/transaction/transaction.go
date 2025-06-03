@@ -112,7 +112,7 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 
 	direction := params.Get("direction")
 	if direction == "" {
-		direction = "ASC"
+		direction = "DESC"
 	}
 
 	filter := types.TransactionSearch{

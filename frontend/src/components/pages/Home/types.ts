@@ -1,11 +1,7 @@
 import type { DateRange } from "react-day-picker";
 
-export type FilterType = {
-  search: string;
-  minValue: number | undefined;
-  maxValue: number | undefined;
+export type DefaultFilterType = {
   date: DateRange | undefined;
-  type: string;
   bank: string;
 };
 

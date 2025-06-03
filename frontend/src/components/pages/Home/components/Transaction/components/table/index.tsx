@@ -5,7 +5,7 @@ import { TableInfo, TableInfoSmall } from "./table";
 import { useHomeContext } from "@/components/pages/Home/provider";
 import { useTransactionContext } from "../../provider";
 
-export const TransactionTable = ({ small = false }: { small?: boolean }) => {
+export const Table = ({ small = false }: { small?: boolean }) => {
   const {
     transactions: [transactions],
     orderBy: [orderBy, setOrderBy],

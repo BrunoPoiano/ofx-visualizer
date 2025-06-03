@@ -1,5 +1,5 @@
 import type { PaginationType } from "@/types";
-import type { BankType, FilterType, OrderBy, StatementType } from "../../types";
+import type { OrderBy, StatementType } from "../../types";
 
 export type StatementProviderState = {
   orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>];
@@ -12,7 +12,13 @@ export type StatementProviderState = {
     StatementType[],
     React.Dispatch<React.SetStateAction<StatementType[]>>,
   ];
-  banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>];
+  currentBalance: StatementType | null;
+  largestBalance: StatementType | null;
   clearFilter: () => void;
-  getBanksFunc: () => void;
+};
+
+export type FilterType = {
+  search: string;
+  minValue: number | undefined;
+  maxValue: number | undefined;
 };

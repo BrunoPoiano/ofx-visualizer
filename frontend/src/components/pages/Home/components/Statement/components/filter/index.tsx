@@ -7,14 +7,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTransactionContext } from "../../provider";
 import { useHomeContext } from "@/components/pages/Home/provider";
+import { useStatementContext } from "../../provider";
 
 export const Filter = () => {
   const {
     filter: [filter, setFilter],
     clearFilter,
-  } = useTransactionContext();
+  } = useStatementContext();
+
   const {
     banks: [banks],
     defaultFilter: [defaultFilter, setDefaultFilter],
@@ -35,12 +36,6 @@ export const Filter = () => {
 
   return (
     <>
-      <Input
-        placeholder="Search"
-        value={filter.search}
-        name="search"
-        onChange={changeFilter}
-      />
       <div className="flex flex-wrap gap-2.5">
         <Input
           className="w-[250px]"
@@ -58,18 +53,7 @@ export const Filter = () => {
           value={filter.maxValue || ""}
           onChange={changeFilter}
         />
-        <Select
-          value={filter.type}
-          onValueChange={(e) => setFilter((prev) => ({ ...prev, type: e }))}
-        >
-          <SelectTrigger style={{ width: "min(250px, 100%)" }}>
-            <SelectValue placeholder="Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="CREDIT">Credit</SelectItem>
-            <SelectItem value="DEBIT">Debit</SelectItem>
-          </SelectContent>
-        </Select>
+
         <Select
           value={defaultFilter.bank}
           onValueChange={(e) =>

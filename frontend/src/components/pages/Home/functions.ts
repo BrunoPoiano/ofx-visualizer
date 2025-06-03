@@ -10,6 +10,7 @@ import { parsePagination } from "@/lib/typeValidation";
 import {
   parseBanks,
   parseStatement,
+  parseStatementObj,
   parseTransaction,
   parseTransactionInfo,
 } from "./parsers";
@@ -47,6 +48,27 @@ export const getStatesments = async (
   return {
     data: parseStatement(data.data),
     paginationContent: parsePagination(data),
+  };
+};
+
+export const getStatesmentsInfo = async (
+  bankId: string,
+  params?: Record<string, string>,
+): Promise<{
+  currentBalance: StatementType;
+  largestBalance: StatementType;
+}> => {
+  const { data } = await axiosInstance.get(`/statements/${bankId}/info`, {
+    params: params,
+  });
+
+  if (!data.currentBalance || !data.currentBalance) {
+    throw new Error("No content");
+  }
+
+  return {
+    currentBalance: parseStatementObj(data.currentBalance),
+    largestBalance: parseStatementObj(data.largestBalance),
   };
 };
 

@@ -18,12 +18,15 @@ type CardWrapperType = {
   color: string;
 };
 
-export const HomeCards = () => {
+export const Cards = () => {
   const {
-    filter: [filter, setFilter],
     transactionsInfo: [transactionsInfo],
     transactions: [transactions],
   } = useTransactionContext();
+
+  const {
+    defaultFilter: [defaultFilter, setDefaultFilter],
+  } = useHomeContext();
 
   const filteredTransaction = transactions.reduce<FilteredTransactionType>(
     (acc, item) => {
@@ -82,12 +85,13 @@ export const HomeCards = () => {
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2.5">
       <Calendar
+        defaultMonth={defaultFilter.date?.from || new Date()}
         mode="range"
         className="rounded-md border shadow"
         style={{ gridArea: "span 2 / 1" }}
-        selected={filter.date}
+        selected={defaultFilter.date}
         onSelect={(e: DateRange | undefined) => {
-          setFilter((prev) => ({ ...prev, date: e }));
+          setDefaultFilter((prev) => ({ ...prev, date: e }));
         }}
       />
       {cards.map((card) => (

@@ -1,5 +1,6 @@
-import type { OrderBy } from "@/Pages/Home/types";
+import React from "react";
 import { ArrowSVG } from "../icons/arrowUp";
+import type { OrderBy } from "../pages/Home/types";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import {
@@ -20,7 +21,7 @@ type TableContent = {
   id: string;
 };
 
-type AppTableProps<T extends { [key: string]: string }> = {
+type AppTableProps<T extends { [key: string]: string | React.ReactNode }> = {
   small?: boolean | undefined;
   tableContentSmall?: TableContent[];
   tableContent: TableContent[];
@@ -33,7 +34,9 @@ type AppTableProps<T extends { [key: string]: string }> = {
   tableData: T[];
 };
 
-export const AppTable = <T extends { [key: string]: string }>({
+export const AppTable = <
+  T extends { [key: string]: string | React.ReactNode },
+>({
   small = false,
   tableContentSmall,
   tableContent,
@@ -65,21 +68,25 @@ export const AppTable = <T extends { [key: string]: string }>({
                   : tableContent
                 ).map((item) => (
                   <TableHead key={item.id}>
-                    <Button
-                      variant="ghost"
-                      className="t-al w-full"
-                      onClick={() => changeOrderBy(item.id)}
-                    >
-                      {item.label}{" "}
-                      <ArrowSVG
-                        direction={
-                          orderBy.order === item.id &&
-                          orderBy.direction === "ASC"
-                            ? "up"
-                            : "down"
-                        }
-                      />
-                    </Button>
+                    {React.isValidElement(tableData[0]?.[item.id]) ? (
+                      <p className="w-full text-center">{item.label}</p>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        className="t-al w-full"
+                        onClick={() => changeOrderBy(item.id)}
+                      >
+                        {item.label}{" "}
+                        <ArrowSVG
+                          direction={
+                            orderBy.order === item.id &&
+                            orderBy.direction === "ASC"
+                              ? "up"
+                              : "down"
+                          }
+                        />
+                      </Button>
+                    )}
                   </TableHead>
                 ))}
               </TableRow>

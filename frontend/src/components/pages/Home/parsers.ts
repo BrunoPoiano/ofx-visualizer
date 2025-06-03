@@ -91,6 +91,28 @@ export const parseFilterDate = (
   return { from, to };
 };
 
+export const parseStatementObj = (
+  item: Record<string, unknown>,
+): StatementType => {
+  let yields: balanceType[] = [];
+
+  if (item.yields) {
+    yields = parseBalance(item.yields as unknown[]);
+  }
+
+  return {
+    id: isNumberOrDefault(item.id),
+    bank_id: isNumberOrDefault(item.bank_id),
+    start_date: isStringOrDefault(item.start_date),
+    end_date: isStringOrDefault(item.end_date),
+    ledger_balance: isNumberOrDefault(item.ledger_balance),
+    balance_date: isStringOrDefault(item.balance_date),
+    server_date: isStringOrDefault(item.server_date),
+    language: isStringOrDefault(item.language),
+    yields: yields,
+  };
+};
+
 export const parseStatement = (data: unknown[]): StatementType[] => {
   if (!Array(data)) return [];
 
@@ -99,35 +121,14 @@ export const parseStatement = (data: unknown[]): StatementType[] => {
       return prev;
     }
 
-    let yields: balanceType[] = [];
-
     const typedItem = item as Record<string, unknown>;
-
-    if (!Array(typedItem.yields)) {
-      yields = [];
-    } else {
-      yields = parseBalance(typedItem.yields as unknown[]);
-    }
-
-    const newItem: StatementType = {
-      id: isNumberOrDefault(typedItem.id),
-      bank_id: isNumberOrDefault(typedItem.bank_id),
-      start_date: isStringOrDefault(typedItem.start_date),
-      end_date: isStringOrDefault(typedItem.end_date),
-      ledger_balance: isNumberOrDefault(typedItem.ledger_balance),
-      balance_date: isStringOrDefault(typedItem.balance_date),
-      server_date: isStringOrDefault(typedItem.server_date),
-      language: isStringOrDefault(typedItem.language),
-      yields: yields,
-    };
-
-    prev.push(newItem);
+    prev.push(parseStatementObj(typedItem));
     return prev;
   }, []);
 };
 
 export const parseBalance = (data: unknown[]): balanceType[] => {
-  if (!Array(data)) return [];
+  if (!data || data === null || !Array(data)) return [];
 
   return data.reduce<balanceType[]>((prev, item) => {
     if (typeof item !== "object" || item === null) {

@@ -1,7 +1,5 @@
 import type { PaginationType } from "@/types";
 import type {
-  BankType,
-  FilterType,
   OrderBy,
   TransactionInfoType,
   TransactionType,
@@ -19,7 +17,6 @@ export type TransactionProviderState = {
     React.Dispatch<React.SetStateAction<TransactionType[]>>,
   ];
 
-  banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>];
   transactionsInfo: [
     TransactionInfoType | undefined,
     React.Dispatch<React.SetStateAction<TransactionInfoType | undefined>>,
@@ -27,9 +24,15 @@ export type TransactionProviderState = {
   clearFilter: () => void;
   getTransactionsFunc: () => void;
   getTransactionInfoFunc: () => void;
-  getBanksFunc: () => void;
 };
 
 export type TransactionProviderProps = {
   children: React.ReactNode;
+};
+
+export type FilterType = {
+  search: string;
+  minValue: number | undefined;
+  maxValue: number | undefined;
+  type: string;
 };

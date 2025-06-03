@@ -1,19 +1,19 @@
 import { AppToggle } from "@/components/global/appToggle";
-import { HomeCards } from "./components/cards/cards";
-import { HomeFilter } from "./components/filter";
+import { Cards } from "./components/cards/cards";
+import { Filter } from "./components/filter";
 import useLocalStorage from "@/lib/localstorage";
 import { AreaChart } from "./components/charts/AreaChart";
 import { PieChartCredit } from "./components/charts/PieChartCredit";
 import { PieChartDebit } from "./components/charts/PieChartDebit";
 import { TransactionProvider } from "./provider";
-import { TransactionTable } from "./components/table";
+import { Table } from "./components/table";
 
 export const TransactionSection = () => {
   return (
     <TransactionProvider>
       <section className="@container grid w-full gap-2.5">
-        <HomeFilter />
-        <HomeCards />
+        <Filter />
+        <Cards />
 
         <TransactionsSection />
       </section>
@@ -36,7 +36,7 @@ const TransactionsSection = () => {
         />
       </div>
       {toggle ? (
-        <TransactionTable />
+        <Table />
       ) : (
         <div className="gap-x-2.5 p-0 md:columns-1 lg:columns-2">
           <div className={card}>
@@ -46,7 +46,7 @@ const TransactionsSection = () => {
             <PieChartCredit />
           </div>
           <div className={card}>
-            <TransactionTable small={true} />
+            <Table small={true} />
           </div>
           <div className={card}>
             <PieChartDebit />

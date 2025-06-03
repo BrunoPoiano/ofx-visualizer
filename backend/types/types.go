@@ -62,6 +62,15 @@ type DefaultSearch struct {
 	Search      string
 }
 
+type StatementSearch struct {
+	DefaultSearch
+	From     string
+	To       string
+	MinValue string
+	MaxValue string
+	Bank     string
+}
+
 type TransactionSearch struct {
 	DefaultSearch
 	MinValue string

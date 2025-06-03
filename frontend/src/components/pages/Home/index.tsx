@@ -3,10 +3,10 @@ import { AppHeader } from "./components/header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HomeProvider } from "./provider";
 import { StatementsSection } from "./components/Statement";
-import { useState } from "react";
+import useLocalStorage from "@/lib/localstorage";
 
 export const HomePage = () => {
-  const [tab, setTab] = useState("transaction");
+  const [tab, setTab] = useLocalStorage("TAB", "transaction");
 
   const onTabChange = (value: string) => {
     setTab(value);

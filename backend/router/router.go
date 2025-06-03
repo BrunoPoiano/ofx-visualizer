@@ -41,6 +41,7 @@ func banks(db *sql.DB, router *mux.Router) {
 func statements(db *sql.DB, router *mux.Router) {
 	router.HandleFunc("/statements", middleware.DatabaseMiddleware(db, StatementsController.GetStatements)).Methods("GET")
 	router.HandleFunc("/statements/{bank_id}", middleware.DatabaseMiddleware(db, StatementsController.GetStatements)).Methods("GET")
+	router.HandleFunc("/statements/{bank_id}/info", middleware.DatabaseMiddleware(db, StatementsController.GetStatementsInfo)).Methods("GET")
 }
 
 func balances(db *sql.DB, router *mux.Router) {

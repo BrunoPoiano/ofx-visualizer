@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	BalanceService "main/services/balance"
+	"main/services/utils"
 	"main/types"
 	"math"
 )
@@ -65,19 +66,13 @@ func InsertItems(database *sql.DB, item types.Statement, BankId int) (int, error
 //   - A slice of Statement items.
 //   - The total number of items in the database.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(database *sql.DB, filter types.DefaultSearch, bankId int64) ([]types.Statement, int, int, error) {
+func GetItems(database *sql.DB, filter types.StatementSearch, bankId int64) ([]types.Statement, int, int, error) {
 
 	var items []types.Statement
 	var totalItems int
 
 	offset := filter.PerPage * (filter.CurrentPage - 1)
-
-	query := fmt.Sprintf("SELECT * FROM statements")
-
-	if bankId > 0 {
-		query = fmt.Sprintf("%s WHERE bank_id = '%v'", query, bankId)
-	}
-
+	query := makeQuery("*", filter)
 	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
 	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
@@ -112,7 +107,8 @@ func GetItems(database *sql.DB, filter types.DefaultSearch, bankId int64) ([]typ
 	defer rows.Close()
 
 	// TOTALITEMS
-	total, err := database.Query("SELECT count(id) as totalItems FROM statements")
+	query = makeQuery("count(id) as totalItems", filter)
+	total, err := database.Query(query)
 	if err := total.Err(); err != nil {
 		return nil, 0, 0, err
 	}
@@ -127,4 +123,68 @@ func GetItems(database *sql.DB, filter types.DefaultSearch, bankId int64) ([]typ
 
 	return items, totalItems, int(last_page), nil
 
+}
+
+func GetInfo(database *sql.DB, bankId int64) (types.Statement, types.Statement, error) {
+
+	var largestBalance, currentBalance types.Statement
+
+	largestBalanceQuery := fmt.Sprintf("SELECT id, bank_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements WHERE bank_id = %v ORDER BY ledger_balance DESC LIMIT 1", bankId)
+	largestBalance, err := utils.MakeQueryCall(database, largestBalanceQuery, utils.ScanStatement)
+	if err != nil {
+		return largestBalance, currentBalance, err
+	}
+
+	currentBalanceQuery := fmt.Sprintf("SELECT id, bank_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements WHERE bank_id = %v ORDER BY balance_date DESC LIMIT 1", bankId)
+	currentBalance, err = utils.MakeQueryCall(database, currentBalanceQuery, utils.ScanStatement)
+	if err != nil {
+		return largestBalance, currentBalance, err
+	}
+
+	return largestBalance, currentBalance, nil
+}
+
+func makeQuery(s string, filter types.StatementSearch) string {
+
+	query := fmt.Sprintf("SELECT %s FROM statements", s)
+
+	where := []string{}
+
+	if filter.MaxValue != "" {
+		where = append(where, fmt.Sprintf("ledger_balance < '%s'", filter.MaxValue))
+	}
+
+	if filter.MinValue != "" {
+		where = append(where, fmt.Sprintf("ledger_balance > '%s'", filter.MinValue))
+	}
+
+	if filter.From != "" {
+		if filter.To == "" {
+			where = append(where, fmt.Sprintf("start_date >= '%s 00:00:00'", filter.From))
+			where = append(where, fmt.Sprintf("start_date <= '%s 23:59:59'", filter.From))
+		} else {
+			where = append(where, fmt.Sprintf("start_date >= '%s 00:00:00'", filter.From))
+		}
+	}
+
+	if filter.To != "" {
+		where = append(where, fmt.Sprintf("end_date <= '%s 23:59:59'", filter.To))
+	}
+
+	// if filter.Search != "" {
+	// 	where = append(where, fmt.Sprintf("desc LIKE '%%%s%%'", filter.Search))
+	// }
+
+	if filter.Bank != "" {
+		where = append(where, fmt.Sprintf("bank_id = '%s'", filter.Bank))
+	}
+
+	if len(where) > 0 {
+		query = fmt.Sprintf("%s WHERE %s", query, where[0])
+		for i := 1; i < len(where); i++ {
+			query = fmt.Sprintf("%s AND %s", query, where[i])
+		}
+	}
+
+	return query
 }

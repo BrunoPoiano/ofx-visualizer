@@ -8,28 +8,31 @@ import {
 import type { PaginationType } from "@/types";
 import { useDebounce } from "@/lib/debounce";
 import useLocalStorage from "@/lib/localstorage";
-import { getBanks, getStatesments } from "../../functions";
+import { getStatesments, getStatesmentsInfo } from "../../functions";
 import { parseFilterDate } from "../../parsers";
-import type { StatementProviderState } from "./types";
-import type { BankType, FilterType, OrderBy, StatementType } from "../../types";
+import type { FilterType, StatementProviderState } from "./types";
+import type { OrderBy, StatementType } from "../../types";
+import { useHomeContext } from "../../provider";
 
 const StatementProviderContext = createContext<StatementProviderState>(
   {} as StatementProviderState,
 );
 
 export function StatementProvider({ children }: { children: React.ReactNode }) {
+  const {
+    defaultFilter: [defaultFilter, setDefaultFilter],
+    banks: [banks],
+  } = useHomeContext();
+
   const [filter, setFilter] = useLocalStorage<FilterType>("FILTER_STATEMENT", {
     search: "",
-    minValue: undefined,
     maxValue: undefined,
-    date: undefined,
-    type: "",
-    bank: "",
+    minValue: undefined,
   });
 
   const [orderBy, setOrderBy] = useLocalStorage<OrderBy>("ORDERBY_STATEMENT", {
-    direction: "ASC",
-    order: "id",
+    direction: "DESC",
+    order: "start_date",
   });
 
   const [pagination, setPagination] = useLocalStorage<PaginationType>(
@@ -43,7 +46,12 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
   );
 
   const [statements, setStatements] = useState<StatementType[]>([]);
-  const [banks, setBanks] = useState<BankType[]>([]);
+  const [currentBalance, setCurrentBalance] = useState<StatementType | null>(
+    null,
+  );
+  const [largestBalance, setLargestBalance] = useState<StatementType | null>(
+    null,
+  );
 
   const getStatementFunc = useDebounce(
     useCallback(async () => {
@@ -51,17 +59,18 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
         current_page: pagination.current_page.toString(),
         per_page: pagination.per_page.toString(),
         search: filter.search,
+        ...(defaultFilter.date ? parseFilterDate(defaultFilter.date) : {}),
+        ...(defaultFilter.bank ? { bank: defaultFilter.bank } : {}),
         ...(filter.minValue ? { min_value: filter.minValue.toString() } : {}),
         ...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
-        ...(filter.date ? parseFilterDate(filter.date) : {}),
-        ...(filter.type ? { type: filter.type } : {}),
-        ...(filter.bank ? { bank: filter.bank } : {}),
         ...(orderBy.order ? { order: orderBy.order } : {}),
         ...(orderBy.direction ? { direction: orderBy.direction } : {}),
       });
       setPagination(paginationContent);
       setStatements(data);
     }, [
+      defaultFilter.bank,
+      defaultFilter.date,
       pagination.current_page,
       pagination.per_page,
       filter,
@@ -71,48 +80,48 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
     500,
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  const getBanksFunc = useCallback(async () => {
-    const { data } = await getBanks({
-      current_page: "1",
-      per_page: "1000",
-    });
-    setBanks(() => {
-      if (filter.bank === "") {
-        setFilter((prev_filter) => ({
-          ...prev_filter,
-          bank: data[0].id.toString(),
-        }));
-      }
-
-      return data;
-    });
-  }, [filter]);
-
   const clearFilter = () => {
     setFilter({
       search: "",
-      minValue: undefined,
       maxValue: undefined,
-      date: undefined,
-      type: "",
-      bank: banks[0].id.toString() || "",
+      minValue: undefined,
     });
 
     setOrderBy({
-      order: "id",
-      direction: "ASC",
+      order: "start_date",
+      direction: "DESC",
+    });
+
+    setDefaultFilter({
+      date: undefined,
+      bank: banks[0].id.toString() || "",
     });
   };
 
+  const getStatesmentsInfoFunc = useCallback(async () => {
+    if (!defaultFilter.bank) return;
+
+    const { currentBalance, largestBalance } = await getStatesmentsInfo(
+      defaultFilter.bank,
+    );
+    setCurrentBalance(currentBalance);
+    setLargestBalance(largestBalance);
+  }, [defaultFilter.bank]);
+
   useEffect(() => {
-    getBanksFunc();
-  }, [getBanksFunc]);
+    getStatesmentsInfoFunc();
+  }, [getStatesmentsInfoFunc]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     getStatementFunc();
-  }, [pagination.current_page, pagination.per_page, filter, orderBy]);
+  }, [
+    pagination.current_page,
+    pagination.per_page,
+    filter,
+    orderBy,
+    defaultFilter,
+  ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Every change on the filters, the pagination returns to page 1
   useEffect(() => {
@@ -126,9 +135,9 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
         filter: [filter, setFilter],
         pagination: [pagination, setPagination],
         statements: [statements, setStatements],
-        banks: [banks, setBanks],
         clearFilter,
-        getBanksFunc,
+        currentBalance,
+        largestBalance,
       }}
     >
       {children}
