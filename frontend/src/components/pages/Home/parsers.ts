@@ -114,7 +114,7 @@ export const parseStatementObj = (
 };
 
 export const parseStatement = (data: unknown[]): StatementType[] => {
-  if (!Array(data)) return [];
+  if (data === null || !Array(data)) return [];
 
   return data.reduce<StatementType[]>((prev, item) => {
     if (typeof item !== "object" || item === null) {

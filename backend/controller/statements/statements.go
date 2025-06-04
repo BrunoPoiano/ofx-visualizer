@@ -61,7 +61,9 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	bankIdParam, err := strconv.ParseInt(vars["bank_id"], 10, 64)
-	search.BankId = fmt.Sprintf("%v", bankIdParam)
+	if bankIdParam > 0 {
+		search.BankId = fmt.Sprintf("%v", bankIdParam)
+	}
 
 	items, totalItems, lastpage, err := StatementService.GetItems(database, search)
 
