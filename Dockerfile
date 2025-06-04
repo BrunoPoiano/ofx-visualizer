@@ -20,6 +20,6 @@ RUN mkdir -p /app/database && chmod 777 /app/database
 RUN mkdir -p /app/frontend/dist && chmod 777 /app/frontend/dist
 COPY --from=backend /app/ofxvisualizer .
 COPY --from=backend /app/frontend/dist ./frontend/dist
-EXPOSE 8080
+EXPOSE 8247
 
 CMD ["./ofxvisualizer"]

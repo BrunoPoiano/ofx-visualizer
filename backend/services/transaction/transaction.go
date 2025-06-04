@@ -103,7 +103,6 @@ func GetTransactionInfos(database *sql.DB, filter types.TransactionSearch) (floa
 	valueQuery := queryFilter
 
 	query := fmt.Sprintf("SELECT (%s) as positive, (%s) as negative, (%s) as value from transactions LIMIT 1", positiveQuery, negativeQuery, valueQuery)
-	println(query)
 	_, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) (int, error) {
 		for rows.Next() {
 			rows.Scan(&positive, &negative, &value)
@@ -179,8 +178,8 @@ func makeQuery(s string, filter types.TransactionSearch) string {
 		where = append(where, fmt.Sprintf("desc LIKE '%%%s%%'", filter.Search))
 	}
 
-	if filter.Bank != "" {
-		where = append(where, fmt.Sprintf("bank_id = '%s'", filter.Bank))
+	if filter.BankId != "" {
+		where = append(where, fmt.Sprintf("bank_id = '%s'", filter.BankId))
 	}
 
 	if len(where) > 0 {

@@ -66,7 +66,7 @@ func InsertItems(database *sql.DB, item types.Statement, BankId int) (int, error
 //   - A slice of Statement items.
 //   - The total number of items in the database.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(database *sql.DB, filter types.StatementSearch, bankId int64) ([]types.Statement, int, int, error) {
+func GetItems(database *sql.DB, filter types.StatementSearch) ([]types.Statement, int, int, error) {
 
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 	query := makeQuery("*", filter)
@@ -202,8 +202,8 @@ func makeQuery(s string, filter types.StatementSearch) string {
 	// 	where = append(where, fmt.Sprintf("desc LIKE '%%%s%%'", filter.Search))
 	// }
 
-	if filter.Bank != "" {
-		where = append(where, fmt.Sprintf("bank_id = '%s'", filter.Bank))
+	if filter.BankId != "" {
+		where = append(where, fmt.Sprintf("bank_id = '%s'", filter.BankId))
 	}
 
 	if len(where) > 0 {

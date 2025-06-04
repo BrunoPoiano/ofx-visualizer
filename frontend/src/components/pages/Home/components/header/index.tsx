@@ -12,6 +12,7 @@ export const AppHeader = () => {
 
   const {
     showValue: [showValue, setShowValue],
+    getBanksFunc,
   } = useHomeContext();
 
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,8 @@ export const AppHeader = () => {
       e.target.value = "";
       setLoading(false);
     });
+
+    getBanksFunc();
   };
 
   return (

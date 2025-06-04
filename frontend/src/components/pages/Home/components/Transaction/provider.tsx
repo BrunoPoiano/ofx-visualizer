@@ -72,7 +72,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
         ...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
         ...(defaultFilter.date ? parseFilterDate(defaultFilter.date) : {}),
         ...(filter.type ? { type: filter.type } : {}),
-        ...(defaultFilter.bank ? { bank: defaultFilter.bank } : {}),
+        ...(defaultFilter.bank_id ? { bank: defaultFilter.bank_id } : {}),
         ...(orderBy.order ? { order: orderBy.order } : {}),
         ...(orderBy.direction ? { direction: orderBy.direction } : {}),
       });
@@ -89,12 +89,12 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
   );
 
   const getTransactionInfoFunc = useCallback(async () => {
-    if (!defaultFilter.bank) return;
+    if (!defaultFilter.bank_id) return;
     const response = await getTransactionsInfo({
-      bank: defaultFilter.bank,
+      bank_id: defaultFilter.bank_id,
     });
     setTransactionsInfo(response);
-  }, [defaultFilter.bank]);
+  }, [defaultFilter.bank_id]);
 
   const clearFilter = () => {
     setFilter({
@@ -111,7 +111,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 
     setDefaultFilter({
       date: undefined,
-      bank: banks[0].id.toString() || "",
+      bank_id: banks[0].id.toString() || "",
     });
   };
 

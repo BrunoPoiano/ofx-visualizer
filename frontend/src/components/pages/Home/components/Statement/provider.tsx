@@ -60,7 +60,7 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
         per_page: pagination.per_page.toString(),
         search: filter.search,
         ...(defaultFilter.date ? parseFilterDate(defaultFilter.date) : {}),
-        ...(defaultFilter.bank ? { bank: defaultFilter.bank } : {}),
+        ...(defaultFilter.bank_id ? { bank_id: defaultFilter.bank_id } : {}),
         ...(filter.minValue ? { min_value: filter.minValue.toString() } : {}),
         ...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
         ...(orderBy.order ? { order: orderBy.order } : {}),
@@ -69,7 +69,7 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
       setPagination(paginationContent);
       setStatements(data);
     }, [
-      defaultFilter.bank,
+      defaultFilter.bank_id,
       defaultFilter.date,
       pagination.current_page,
       pagination.per_page,
@@ -94,19 +94,19 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 
     setDefaultFilter({
       date: undefined,
-      bank: banks[0].id.toString() || "",
+      bank_id: banks[0].id.toString() || "",
     });
   };
 
   const getStatesmentsInfoFunc = useCallback(async () => {
-    if (!defaultFilter.bank) return;
+    if (!defaultFilter.bank_id) return;
 
     const { currentBalance, largestBalance } = await getStatesmentsInfo(
-      defaultFilter.bank,
+      defaultFilter.bank_id,
     );
     setCurrentBalance(currentBalance);
     setLargestBalance(largestBalance);
-  }, [defaultFilter.bank]);
+  }, [defaultFilter.bank_id]);
 
   useEffect(() => {
     getStatesmentsInfoFunc();

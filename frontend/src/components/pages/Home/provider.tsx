@@ -16,6 +16,7 @@ export type HomeProviderState = {
     React.Dispatch<React.SetStateAction<DefaultFilterType>>,
   ];
   banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>];
+  getBanksFunc: () => void;
 };
 
 const HomeProviderContext = createContext<HomeProviderState>(
@@ -29,7 +30,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
     "DEFAULT_FILTER",
     {
       date: undefined,
-      bank: "",
+      bank_id: "",
     },
   );
 
@@ -39,13 +40,12 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
       per_page: "1000",
     });
     setBanks(() => {
-      if (defaultFilter.bank === "") {
+      if (defaultFilter.bank_id === "") {
         setDefaultFilter((prev_filter) => ({
           ...prev_filter,
-          bank: data[0].id.toString(),
+          bank_id: data[0].id.toString(),
         }));
       }
-
       return data;
     });
   }, []);
@@ -60,6 +60,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
         showValue: [showValue, setShowValue],
         defaultFilter: [defaultFilter, setDefaultFilter],
         banks: [banks, setBanks],
+        getBanksFunc,
       }}
     >
       {children}

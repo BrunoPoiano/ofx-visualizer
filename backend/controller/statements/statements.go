@@ -3,6 +3,7 @@ package StatementsController
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	StatementService "main/services/statement"
 	"main/types"
 	"net/http"
@@ -42,12 +43,6 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 		direction = "DESC"
 	}
 
-	bank := params.Get("bank")
-	if bank == "" {
-		http.Error(w, "bank_id is required", http.StatusBadRequest)
-		return
-	}
-
 	search := types.StatementSearch{
 		DefaultSearch: types.DefaultSearch{
 			CurrentPage: currentPage,
@@ -56,7 +51,7 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 			Direction:   direction,
 			Search:      params.Get("search"),
 		},
-		Bank:     bank,
+		BankId:   params.Get("bank_id"),
 		MinValue: params.Get("min_value"),
 		MaxValue: params.Get("max_value"),
 		From:     params.Get("from"),
@@ -65,13 +60,10 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	bankId, err := strconv.ParseInt(vars["bank_id"], 10, 64)
-	if err != nil {
-		http.Error(w, "bank_id is required", http.StatusBadRequest)
-		return
-	}
+	bankIdParam, err := strconv.ParseInt(vars["bank_id"], 10, 64)
+	search.BankId = fmt.Sprintf("%v", bankIdParam)
 
-	items, totalItems, lastpage, err := StatementService.GetItems(database, search, bankId)
+	items, totalItems, lastpage, err := StatementService.GetItems(database, search)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -68,7 +68,7 @@ type StatementSearch struct {
 	To       string
 	MinValue string
 	MaxValue string
-	Bank     string
+	BankId   string
 }
 
 type TransactionSearch struct {
@@ -78,5 +78,5 @@ type TransactionSearch struct {
 	From     string
 	To       string
 	Type     string
-	Bank     string
+	BankId   string
 }

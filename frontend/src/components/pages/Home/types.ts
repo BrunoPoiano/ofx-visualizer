@@ -2,7 +2,7 @@ import type { DateRange } from "react-day-picker";
 
 export type DefaultFilterType = {
   date: DateRange | undefined;
-  bank: string;
+  bank_id: string;
 };
 
 export type OrderBy = {

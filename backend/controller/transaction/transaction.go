@@ -135,7 +135,7 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 		From:     params.Get("from"),
 		To:       params.Get("to"),
 		Type:     params.Get("type"),
-		Bank:     params.Get("bank"),
+		BankId:   params.Get("bank_id"),
 	}
 
 	positive, negative, value, err := transactionService.GetTransactionInfos(database, filter)
@@ -222,7 +222,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		From:     params.Get("from"),
 		To:       params.Get("to"),
 		Type:     params.Get("type"),
-		Bank:     params.Get("bank"),
+		BankId:   params.Get("bank_id"),
 	}
 
 	items, totalItems, lastpage, err := transactionService.GetTransactions(database, filter)

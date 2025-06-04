@@ -55,9 +55,9 @@ export const Filter = () => {
         />
 
         <Select
-          value={defaultFilter.bank}
+          value={defaultFilter.bank_id}
           onValueChange={(e) =>
-            setDefaultFilter((prev) => ({ ...prev, bank: e }))
+            setDefaultFilter((prev) => ({ ...prev, bank_id: e }))
           }
         >
           <SelectTrigger style={{ width: "min(250px, 100%)" }}>
