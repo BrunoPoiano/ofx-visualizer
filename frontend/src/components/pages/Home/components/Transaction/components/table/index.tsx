@@ -4,6 +4,7 @@ import { AppTable } from "@/components/global/appTable";
 import { TableInfo, TableInfoSmall } from "./table";
 import { useHomeContext } from "@/components/pages/Home/provider";
 import { useTransactionContext } from "../../provider";
+import { DialogInfo } from "./components/DialogInfo";
 
 export const Table = ({ small = false }: { small?: boolean }) => {
   const {
@@ -26,6 +27,7 @@ export const Table = ({ small = false }: { small?: boolean }) => {
       }),
       desc: item.desc,
       bank_id: item.bank_id.toString(),
+      comp: <DialogInfo item={item} />,
     };
   });
 

@@ -15,7 +15,6 @@ func AppRoutes(db *sql.DB) *mux.Router {
 
 	router := mux.NewRouter()
 
-	transactionsInfo(db, router)
 	transactions(db, router)
 	statements(db, router)
 	balances(db, router)
@@ -27,11 +26,8 @@ func AppRoutes(db *sql.DB) *mux.Router {
 func transactions(db *sql.DB, router *mux.Router) {
 	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, TransactionController.GetItems)).Methods("GET")
 	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, TransactionController.InsertItems)).Methods("POST")
+	router.HandleFunc("/transactions/info", middleware.DatabaseMiddleware(db, TransactionController.GetTransactionInfos)).Methods("GET")
 	router.HandleFunc("/transaction/{bank_id}", middleware.DatabaseMiddleware(db, TransactionController.DeleteTransactions)).Methods("DELETE")
-}
-
-func transactionsInfo(db *sql.DB, router *mux.Router) {
-	router.HandleFunc("/transactions_info", middleware.DatabaseMiddleware(db, TransactionController.GetTransactionInfos)).Methods("GET")
 }
 
 func banks(db *sql.DB, router *mux.Router) {

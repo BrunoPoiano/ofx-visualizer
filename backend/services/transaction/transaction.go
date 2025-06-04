@@ -3,6 +3,7 @@ package transactionService
 import (
 	"database/sql"
 	"fmt"
+	"main/services/utils"
 	"main/types"
 	"math"
 )
@@ -43,46 +44,37 @@ func InsertTransaction(db *sql.DB, items []types.Transaction, BankId int) error 
 //   - error: An error if the retrieval fails, nil otherwise.
 func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.Transaction, int, int, error) {
 
-	var items []types.Transaction
-	var totalItems int
-
 	// TRANSACTION
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 	query := makeQuery("*", filter)
 	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
 	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
-	rows, err := database.Query(query)
-	if err != nil {
-		return nil, 0, 0, err
-	}
-	defer rows.Close()
-
-	if err := rows.Err(); err != nil {
-		return nil, 0, 0, err
-	}
-
-	for rows.Next() {
-		var item types.Transaction
-		if err := rows.Scan(&item.Id, &item.BankId, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
-			return nil, 0, 0, err
+	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.Transaction, error) {
+		var s []types.Transaction
+		for rows.Next() {
+			var item types.Transaction
+			if err := rows.Scan(&item.Id, &item.BankId, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
+				return nil, err
+			}
+			s = append(s, item)
 		}
-		items = append(items, item)
-	}
-
-	// TOTALITEMS
-	query = makeQuery("count(id) as totalItems", filter)
-	total, err := database.Query(query)
+		return s, nil
+	})
 	if err != nil {
 		return nil, 0, 0, err
 	}
-	defer total.Close()
 
-	if err := total.Err(); err != nil {
+	totalQuery := makeQuery("count(id) as totalItems", filter)
+	totalItems, err := utils.MakeQueryCall(database, totalQuery, func(rows *sql.Rows) (int, error) {
+		var s int
+		for rows.Next() {
+			rows.Scan(&s)
+		}
+		return s, nil
+	})
+	if err != nil {
 		return nil, 0, 0, err
-	}
-	for total.Next() {
-		total.Scan(&totalItems)
 	}
 
 	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
@@ -90,6 +82,17 @@ func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.
 	return items, totalItems, int(last_page), nil
 }
 
+// GetTransactionInfos retrieves sum of positive, negative and total transaction values from the database.
+//
+// Parameters:
+//   - database: A pointer to the database connection.
+//   - filter: A TransactionSearch struct containing filter criteria.
+//
+// Returns:
+//   - float64: The sum of positive transaction values.
+//   - float64: The sum of negative transaction values.
+//   - float64: The sum of all transaction values.
+//   - error: An error if the retrieval fails, nil otherwise.
 func GetTransactionInfos(database *sql.DB, filter types.TransactionSearch) (float64, float64, float64, error) {
 
 	var positive, negative, value float64
@@ -100,22 +103,28 @@ func GetTransactionInfos(database *sql.DB, filter types.TransactionSearch) (floa
 	valueQuery := queryFilter
 
 	query := fmt.Sprintf("SELECT (%s) as positive, (%s) as negative, (%s) as value from transactions LIMIT 1", positiveQuery, negativeQuery, valueQuery)
-	querySearch, err := database.Query(query)
+	println(query)
+	_, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) (int, error) {
+		for rows.Next() {
+			rows.Scan(&positive, &negative, &value)
+		}
+		return 0, nil
+	})
 	if err != nil {
 		return 0, 0, 0, err
-	}
-	defer querySearch.Close()
-
-	if err := querySearch.Err(); err != nil {
-		return 0, 0, 0, err
-	}
-	for querySearch.Next() {
-		querySearch.Scan(&positive, &negative, &value)
 	}
 
 	return positive, negative, value, nil
 }
 
+// DeleteTransaction deletes transactions from the database based on bankId.
+//
+// Parameters:
+//   - database: A pointer to the database connection.
+//   - bankId: The ID of the bank whose transactions are to be deleted.
+//
+// Returns:
+//   - error: An error if the deletion fails, nil otherwise.
 func DeleteTransaction(database *sql.DB, bankId int64) error {
 
 	query := fmt.Sprintf("DELETE FROM transactions WHERE bank_id = '%v'", bankId)
@@ -127,6 +136,14 @@ func DeleteTransaction(database *sql.DB, bankId int64) error {
 	return nil
 }
 
+// makeQuery constructs a SQL query based on the provided filter criteria.
+//
+// Parameters:
+//   - s: The SELECT clause of the query.
+//   - filter: A TransactionSearch struct containing filter criteria.
+//
+// Returns:
+//   - string: The constructed SQL query string.
 func makeQuery(s string, filter types.TransactionSearch) string {
 
 	query := fmt.Sprintf("SELECT %s FROM transactions", s)

@@ -31,7 +31,7 @@ export const getTransactions = async (
 export const getTransactionsInfo = async (
   params?: Record<string, string>,
 ): Promise<TransactionInfoType> => {
-  const { data } = await axiosInstance.get("/transactions_info", {
+  const { data } = await axiosInstance.get("/transactions/info", {
     params: params,
   });
 

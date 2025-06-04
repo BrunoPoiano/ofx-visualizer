@@ -68,22 +68,10 @@ func InsertItems(database *sql.DB, item types.Statement, BankId int) (int, error
 //   - An error if the retrieval fails, nil otherwise.
 func GetItems(database *sql.DB, filter types.StatementSearch, bankId int64) ([]types.Statement, int, int, error) {
 
-	var items []types.Statement
-	var totalItems int
-
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 	query := makeQuery("*", filter)
 	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
 	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
-
-	rows, err := database.Query(query)
-	if err != nil {
-		return nil, 0, 0, err
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, 0, 0, err
-	}
 
 	defaultSearch := types.DefaultSearch{
 		PerPage:     100,
@@ -92,51 +80,82 @@ func GetItems(database *sql.DB, filter types.StatementSearch, bankId int64) ([]t
 		Direction:   "ASC",
 	}
 
-	for rows.Next() {
-		var item types.Statement
-		if err := rows.Scan(&item.Id, &item.BankId, &item.StartDate, &item.EndDate, &item.LedgerBalance, &item.BalanceDate, &item.ServerDate, &item.Language); err != nil {
-			return nil, 0, 0, err
+	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.Statement, error) {
+		var s []types.Statement
+		for rows.Next() {
+			var item types.Statement
+			if err := rows.Scan(&item.Id, &item.BankId, &item.StartDate, &item.EndDate, &item.LedgerBalance, &item.BalanceDate, &item.ServerDate, &item.Language); err != nil {
+				return nil, err
+			}
+
+			balances, _, _, _ := BalanceService.GetItems(database, defaultSearch, int64(item.Id))
+			item.Yields = balances
+			s = append(s, item)
 		}
-
-		balances, _, _, _ := BalanceService.GetItems(database, defaultSearch, int64(item.Id))
-		item.Yields = balances
-
-		items = append(items, item)
-	}
-
-	defer rows.Close()
-
-	// TOTALITEMS
-	query = makeQuery("count(id) as totalItems", filter)
-	total, err := database.Query(query)
-	if err := total.Err(); err != nil {
+		return s, rows.Err()
+	})
+	if err != nil {
 		return nil, 0, 0, err
 	}
 
-	for total.Next() {
-		total.Scan(&totalItems)
+	totalQuery := makeQuery("count(id) as totalItems", filter)
+	totalItems, err := utils.MakeQueryCall(database, totalQuery, func(rows *sql.Rows) (int, error) {
+		var s int
+		for rows.Next() {
+			rows.Scan(&s)
+		}
+		return s, nil
+	})
+	if err != nil {
+		return nil, 0, 0, err
 	}
 
-	defer total.Close()
-
 	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
-
 	return items, totalItems, int(last_page), nil
-
 }
 
+// GetInfo retrieves the largest and latest Statement items for a given bank ID.
+//
+// Parameters:
+//   - database: A pointer to the database connection.
+//   - bankId: The ID of the bank to retrieve statements for.
+//
+// Returns:
+//   - The largest Statement item.
+//   - The latest Statement item.
+//   - An error if the retrieval fails, nil otherwise.
 func GetInfo(database *sql.DB, bankId int64) (types.Statement, types.Statement, error) {
 
 	var largestBalance, currentBalance types.Statement
 
+	scanStatement := func(rows *sql.Rows) (types.Statement, error) {
+		var s types.Statement
+		for rows.Next() {
+			err := rows.Scan(
+				&s.Id,
+				&s.BankId,
+				&s.StartDate,
+				&s.EndDate,
+				&s.LedgerBalance,
+				&s.BalanceDate,
+				&s.ServerDate,
+				&s.Language,
+			)
+			if err != nil {
+				return s, err
+			}
+		}
+		return s, rows.Err()
+	}
+
 	largestBalanceQuery := fmt.Sprintf("SELECT id, bank_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements WHERE bank_id = %v ORDER BY ledger_balance DESC LIMIT 1", bankId)
-	largestBalance, err := utils.MakeQueryCall(database, largestBalanceQuery, utils.ScanStatement)
+	largestBalance, err := utils.MakeQueryCall(database, largestBalanceQuery, scanStatement)
 	if err != nil {
 		return largestBalance, currentBalance, err
 	}
 
 	currentBalanceQuery := fmt.Sprintf("SELECT id, bank_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements WHERE bank_id = %v ORDER BY balance_date DESC LIMIT 1", bankId)
-	currentBalance, err = utils.MakeQueryCall(database, currentBalanceQuery, utils.ScanStatement)
+	currentBalance, err = utils.MakeQueryCall(database, currentBalanceQuery, scanStatement)
 	if err != nil {
 		return largestBalance, currentBalance, err
 	}
@@ -144,6 +163,14 @@ func GetInfo(database *sql.DB, bankId int64) (types.Statement, types.Statement, 
 	return largestBalance, currentBalance, nil
 }
 
+// makeQuery generates a SQL query based on the provided filter criteria.
+//
+// Parameters:
+//   - s: The SELECT clause of the query.
+//   - filter: A StatementSearch struct containing filter criteria.
+//
+// Returns:
+//   - A string containing the generated SQL query.
 func makeQuery(s string, filter types.StatementSearch) string {
 
 	query := fmt.Sprintf("SELECT %s FROM statements", s)

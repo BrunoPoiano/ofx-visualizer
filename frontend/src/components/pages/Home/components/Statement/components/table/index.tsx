@@ -1,21 +1,10 @@
-import { generateKey, parseDate } from "@/lib/utils";
+import { parseDate } from "@/lib/utils";
 
 import { AppTable } from "@/components/global/appTable";
 import { TableInfo } from "./table";
 import { useStatementContext } from "../../provider";
 import { useHomeContext } from "@/components/pages/Home/provider";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { DialogInfo } from "./components/DialogIngfo";
 
 export const Table = ({ small = false }: { small?: boolean }) => {
   const {
@@ -34,39 +23,7 @@ export const Table = ({ small = false }: { small?: boolean }) => {
         style: "currency",
         currency: "BRL",
       }),
-      balance: (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline">Open</Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Balances</AlertDialogTitle>
-              <AlertDialogDescription>
-                <div className="grid gap-2.5">
-                  {item.yields.map((yieldItem) => (
-                    <Card key={generateKey()}>
-                      <CardTitle className="px-6">{yieldItem.name}</CardTitle>
-                      <CardContent>
-                        <p>{yieldItem.desc}</p>
-                        <p>
-                          {yieldItem.value.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          })}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction>OK</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      ),
+      balance: <DialogInfo item={item} />,
     };
   });
 

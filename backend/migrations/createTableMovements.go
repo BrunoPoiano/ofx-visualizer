@@ -4,7 +4,7 @@ import "database/sql"
 
 func CreatingTableTransaction(db *sql.DB) {
 
-	sql := `CREATE TABLE transactions (
+	sql := `CREATE TABLE IF NOT EXISTS transactions (
  					id STRING PRIMARY KEY,
 	        bank_id INTEGER,
   				date DATETIME NOT NULL,

@@ -90,6 +90,13 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// GetTransactionInfos retrieves aggregate transaction information (positive, negative, total value) from the database based on provided filters.
+// It handles pagination, sorting, and filtering of transactions.
+// @Summary Get aggregate transaction information
+// @Description Retrieve summary information about transactions based on various filters.
+// @Param w http.ResponseWriter - The response writer
+// @Param r *http.Request - The request object, containing filter parameters
+// @Return void
 func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 	database := r.Context().Value("db").(*sql.DB)
 
@@ -146,6 +153,12 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(returnInfo)
 }
 
+// DeleteTransactions handles the deletion of transactions from the database based on bank ID.
+// @Summary Delete transactions by bank ID
+// @Description Delete transactions associated with a specific bank from the database.
+// @Param w http.ResponseWriter - The response writer
+// @Param r *http.Request - The request object, containing the bank ID
+// @Return void
 func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
 	database := r.Context().Value("db").(*sql.DB)
 	vars := mux.Vars(r)

@@ -4,7 +4,7 @@ import "database/sql"
 
 func CreatingTableStatements(db *sql.DB) {
 
-	sql := `CREATE TABLE statements (
+	sql := `CREATE TABLE IF NOT EXISTS statements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     bank_id INTEGER,
     start_date DATETIME NOT NULL,

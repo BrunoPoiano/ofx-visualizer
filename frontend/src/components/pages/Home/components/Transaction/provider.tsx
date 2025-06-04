@@ -89,8 +89,9 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
   );
 
   const getTransactionInfoFunc = useCallback(async () => {
+    if (!defaultFilter.bank) return;
     const response = await getTransactionsInfo({
-      bank: defaultFilter.bank || "",
+      bank: defaultFilter.bank,
     });
     setTransactionsInfo(response);
   }, [defaultFilter.bank]);

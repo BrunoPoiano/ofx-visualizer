@@ -4,7 +4,7 @@ import "database/sql"
 
 func CreatingTableBalance(db *sql.DB) {
 
-	sql := `CREATE TABLE balances (
+	sql := `CREATE TABLE IF NOT EXISTS balances (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     statement_id INTEGER,
     name STRING NOT NULL,

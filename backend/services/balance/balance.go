@@ -3,6 +3,7 @@ package BalanceService
 import (
 	"database/sql"
 	"fmt"
+	"main/services/utils"
 	"main/types"
 	"math"
 )
@@ -61,53 +62,43 @@ func InsertItems(database *sql.DB, item types.Balance, StatementId int) error {
 //   - An error if the retrieval fails, nil otherwise.
 func GetItems(database *sql.DB, filter types.DefaultSearch, statementId int64) ([]types.Balance, int, int, error) {
 
-	var items []types.Balance
-	var totalItems int
-
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 
 	query := fmt.Sprintf("SELECT * FROM balances")
-
 	if statementId > 0 {
 		query = fmt.Sprintf("%s WHERE statement_id = '%v'", query, statementId)
 	}
-
 	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
 	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
-	rows, err := database.Query(query)
+	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.Balance, error) {
+		var s []types.Balance
+		for rows.Next() {
+			var item types.Balance
+			if err := rows.Scan(&item.Id, &item.StatementId, &item.Name, &item.Desc, &item.BalType, &item.Value); err != nil {
+				return nil, err
+			}
+			s = append(s, item)
+		}
+		return s, nil
+	})
 	if err != nil {
 		return nil, 0, 0, err
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, 0, 0, err
-	}
-
-	for rows.Next() {
-		var item types.Balance
-		if err := rows.Scan(&item.Id, &item.StatementId, &item.Name, &item.Desc, &item.BalType, &item.Value); err != nil {
-			return nil, 0, 0, err
+	totalQuery := "SELECT count(id) as totalItems FROM balances"
+	totalItems, err := utils.MakeQueryCall(database, totalQuery, func(rows *sql.Rows) (int, error) {
+		var s int
+		for rows.Next() {
+			rows.Scan(&s)
 		}
-		items = append(items, item)
-	}
-
-	defer rows.Close()
-
-	// TOTALITEMS
-	total, err := database.Query("SELECT count(id) as totalItems FROM balances")
-	if err := total.Err(); err != nil {
+		return s, nil
+	})
+	if err != nil {
 		return nil, 0, 0, err
 	}
-
-	for total.Next() {
-		total.Scan(&totalItems)
-	}
-
-	defer total.Close()
 
 	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
 
 	return items, totalItems, int(last_page), nil
-
 }

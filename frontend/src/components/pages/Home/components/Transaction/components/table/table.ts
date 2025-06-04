@@ -22,6 +22,10 @@ export const TableInfo = <TableInfoType[]>[
     label: "Description",
     id: "desc",
   },
+  {
+    label: "Complete",
+    id: "comp",
+  },
 ];
 
 export const TableInfoSmall = <TableInfoType[]>[

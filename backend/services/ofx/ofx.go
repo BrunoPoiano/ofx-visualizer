@@ -131,6 +131,14 @@ func parseBankInfo(file string) types.Bank {
 	return Bank
 }
 
+// parseStatement parses statement information from an OFX file string.
+//
+// Parameters:
+//   - fileString: The string containing the OFX data.
+//
+// Returns:
+//   - types.Statement: A Statement struct containing the parsed statement information.
+//   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
 func parseStatement(fileString string) (types.Statement, error) {
 
 	var statement types.Statement
@@ -168,6 +176,13 @@ func parseStatement(fileString string) (types.Statement, error) {
 	return statement, nil
 }
 
+// parseBalance parses balance information from an OFX file string.
+//
+// Parameters:
+//   - fileString: The string containing the OFX data.
+//
+// Returns:
+//   - []types.Balance: A slice of Balance structs containing the parsed balance information.
 func parseBalance(fileString string) []types.Balance {
 
 	balItems := getItensFromTag("BAL", fileString)

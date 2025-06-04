@@ -11,6 +11,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// GetBalances handles the retrieval of balances from the database with pagination and sorting.
+// @Summary Get balances
+// @Description Retrieves a paginated list of balances, allowing for sorting and searching.
+// @Param w http.ResponseWriter - The response writer
+// @Param r *http.Request - The request object, containing pagination, sorting, and search parameters
+// @Param statement_id path int true "Statement ID"
+// @Return 200 {object} types.ReturnPagination
 func GetBalances(w http.ResponseWriter, r *http.Request) {
 	database := r.Context().Value("db").(*sql.DB)
 
