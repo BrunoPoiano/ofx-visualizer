@@ -28,7 +28,7 @@ Build and run using Docker:
 git clone https://github.com/BrunoPoiano/ofx-visualizer
 cd ofx-visualizer
 docker build -t ofx-visualizer .
-docker run -p 8080:8080 ofx-visualizer
+docker run -p 8247:8247 ofx-visualizer
 ```
 
 ## Tech Stack
