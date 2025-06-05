@@ -1,6 +1,5 @@
 # OFX Visualizer
-
-A web application for visualizing and managing OFX (Open Financial Exchange) files. This project allows users to upload OFX files, view transactions in a table or chart format, and analyze financial data.
+A open-source, self-hosted web application for visualizing OFX (Open Financial Exchange) files for privacy-conscious users. This project allows users to upload OFX files, view and filter transactions in a table or chart format, and analyze financial data
 
 ## Features
 
