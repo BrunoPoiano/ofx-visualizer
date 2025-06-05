@@ -72,7 +72,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
         ...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
         ...(defaultFilter.date ? parseFilterDate(defaultFilter.date) : {}),
         ...(filter.type ? { type: filter.type } : {}),
-        ...(defaultFilter.bank_id ? { bank: defaultFilter.bank_id } : {}),
+        ...(defaultFilter.bank_id ? { bank_id: defaultFilter.bank_id } : {}),
         ...(orderBy.order ? { order: orderBy.order } : {}),
         ...(orderBy.direction ? { direction: orderBy.direction } : {}),
       });
