@@ -1,9 +1,9 @@
+import { useId, useState } from 'react';
 import { EyeClosedSvg } from '@/components/icons/eyeClosedSvg';
 import { EyeSvg } from '@/components/icons/eyeSvg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ModeToggle } from '@/components/ui/mode-toggle';
-import { useState } from 'react';
 import { postOfxFile } from '../../functions';
 import { useHomeContext } from '../../provider';
 
@@ -35,23 +35,21 @@ export const AppHeader = () => {
 	};
 
 	return (
-		<>
-			<div className="flex w-full justify-end gap-2.5">
-				<Input
-					multiple
-					type="file"
-					id="formFileMultiple"
-					className="file:-mx-3 file:-my-[0.32rem] m-0 block w-full min-w-0 flex-auto cursor-pointer content-center rounded border border-secondary-500 border-solid bg-transparent bg-clip-padding px-3 py-[0.32rem] font-normal text-base text-surface transition duration-300 ease-in-out file:me-3 file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-inherit file:border-e file:border-solid file:bg-transparent file:px-3 file:py-[0.32rem] file:text-surface "
-					accept=".ofx"
-					placeholder="Upload File"
-					loading={loading}
-					onChange={inportFIle}
-				/>
-				<Button variant="outline" onClick={() => setShowValue(!showValue)}>
-					{showValue ? <EyeSvg /> : <EyeClosedSvg />}
-				</Button>
-				<ModeToggle />
-			</div>
-		</>
+		<div className="flex w-full justify-end gap-2.5">
+			<Input
+				multiple
+				type="file"
+				id={useId()}
+				className="file:-mx-3 file:-my-[0.32rem] m-0 block w-full min-w-0 flex-auto cursor-pointer content-center rounded border border-secondary-500 border-solid bg-transparent bg-clip-padding px-3 py-[0.32rem] font-normal text-base text-surface transition duration-300 ease-in-out file:me-3 file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-inherit file:border-e file:border-solid file:bg-transparent file:px-3 file:py-[0.32rem] file:text-surface"
+				accept=".ofx"
+				placeholder="Upload File"
+				loading={loading}
+				onChange={inportFIle}
+			/>
+			<Button variant="outline" onClick={() => setShowValue(!showValue)}>
+				{showValue ? <EyeSvg /> : <EyeClosedSvg />}
+			</Button>
+			<ModeToggle />
+		</div>
 	);
 };

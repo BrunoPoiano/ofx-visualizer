@@ -1,6 +1,5 @@
 import { axiosInstance } from '@/lib/axiosInstance';
 import { parsePagination } from '@/lib/typeValidation';
-import type { PaginationType } from '@/types';
 import {
 	parseBanks,
 	parseStatement,
@@ -8,16 +7,8 @@ import {
 	parseTransaction,
 	parseTransactionInfo,
 } from './parsers';
-import type {
-	BankType,
-	StatementType,
-	TransactionInfoType,
-	TransactionType,
-} from './types';
 
-export const getTransactions = async (
-	params?: Record<string, string>,
-): Promise<{ data: TransactionType[]; paginationContent: PaginationType }> => {
+export const getTransactions = async (params?: Record<string, string>) => {
 	const { data } = await axiosInstance.get('/transactions', {
 		params: params,
 	});
@@ -28,9 +19,7 @@ export const getTransactions = async (
 	};
 };
 
-export const getTransactionsInfo = async (
-	params?: Record<string, string>,
-): Promise<TransactionInfoType> => {
+export const getTransactionsInfo = async (params?: Record<string, string>) => {
 	const { data } = await axiosInstance.get('/transactions/info', {
 		params: params,
 	});
@@ -38,9 +27,7 @@ export const getTransactionsInfo = async (
 	return parseTransactionInfo(data);
 };
 
-export const getStatesments = async (
-	params?: Record<string, string>,
-): Promise<{ data: StatementType[]; paginationContent: PaginationType }> => {
+export const getStatesments = async (params?: Record<string, string>) => {
 	const { data } = await axiosInstance.get('/statements', {
 		params: params,
 	});
@@ -54,10 +41,7 @@ export const getStatesments = async (
 export const getStatesmentsInfo = async (
 	bankId: string,
 	params?: Record<string, string>,
-): Promise<{
-	currentBalance: StatementType;
-	largestBalance: StatementType;
-}> => {
+) => {
 	const { data } = await axiosInstance.get(`/statements/${bankId}/info`, {
 		params: params,
 	});
@@ -72,9 +56,7 @@ export const getStatesmentsInfo = async (
 	};
 };
 
-export const getBanks = async (
-	params?: Record<string, string>,
-): Promise<{ data: BankType[]; paginationContent: PaginationType }> => {
+export const getBanks = async (params?: Record<string, string>) => {
 	const { data } = await axiosInstance.get('/banks', {
 		params: params,
 	});
@@ -85,6 +67,6 @@ export const getBanks = async (
 	};
 };
 
-export const postOfxFile = async (formData: FormData): Promise<void> => {
+export const postOfxFile = async (formData: FormData) => {
 	await axiosInstance.post('/transactions', formData);
 };

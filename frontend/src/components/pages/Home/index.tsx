@@ -1,9 +1,28 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useLocalStorage from '@/lib/localstorage';
+import { AppHeader } from './components/header';
 import { StatementsSection } from './components/Statement';
 import { TransactionSection } from './components/Transaction';
-import { AppHeader } from './components/header';
 import { HomeProvider } from './provider';
+import type { HomeTabs } from './types';
+
+const homePageTabs: (HomeTabs & { label: string })[] = [
+	{
+		label: 'Transactions',
+		tab: 'transaction',
+		content: <TransactionSection />,
+	},
+	{
+		label: 'Statements',
+		tab: 'statement',
+		content: <StatementsSection />,
+	},
+	{
+		label: 'Banks',
+		tab: 'banks',
+		content: <>Aqui</>,
+	},
+];
 
 export const HomePage = () => {
 	const [tab, setTab] = useLocalStorage('TAB', 'transaction');
@@ -11,6 +30,7 @@ export const HomePage = () => {
 	const onTabChange = (value: string) => {
 		setTab(value);
 	};
+
 	return (
 		<HomeProvider>
 			<AppHeader />
@@ -21,15 +41,18 @@ export const HomePage = () => {
 				className="w-full"
 			>
 				<TabsList>
-					<TabsTrigger value="transaction">Transactions</TabsTrigger>
-					<TabsTrigger value="statement">Statements</TabsTrigger>
+					{homePageTabs.map((item) => (
+						<TabsTrigger key={item.tab} value={item.tab}>
+							{item.label}
+						</TabsTrigger>
+					))}
 				</TabsList>
-				<TabsContent value="transaction">
-					{tab === 'transaction' ? <TransactionSection /> : ''}
-				</TabsContent>
-				<TabsContent value="statement">
-					{tab === 'statement' ? <StatementsSection /> : ''}
-				</TabsContent>
+
+				{homePageTabs.map((item) => (
+					<TabsContent key={item.tab} value={item.tab}>
+						{item.content}
+					</TabsContent>
+				))}
 			</Tabs>
 		</HomeProvider>
 	);

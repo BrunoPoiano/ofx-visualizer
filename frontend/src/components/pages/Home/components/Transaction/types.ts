@@ -32,7 +32,7 @@ export type TransactionProviderProps = {
 
 export type FilterType = {
 	search: string;
-	minValue: number | undefined;
-	maxValue: number | undefined;
+	minValue?: number;
+	maxValue?: number;
 	type: string;
 };

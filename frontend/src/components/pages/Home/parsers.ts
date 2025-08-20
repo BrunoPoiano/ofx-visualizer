@@ -1,15 +1,15 @@
-import { isNumberOrDefault, isStringOrDefault } from '@/lib/typeValidation';
 import moment from 'moment';
 import type { DateRange } from 'react-day-picker';
+import { isNumberOrDefault, isStringOrDefault } from '@/lib/typeValidation';
 import type {
 	BankType,
+	balanceType,
 	StatementType,
 	TransactionInfoType,
 	TransactionType,
-	balanceType,
 } from './types';
 
-export const parseBanks = (data: unknown): BankType[] => {
+export const parseBanks = (data: unknown) => {
 	if (typeof data !== 'object' || data === null) return [];
 
 	if (!('data' in (data as Record<string, unknown>))) return [];
@@ -35,7 +35,7 @@ export const parseBanks = (data: unknown): BankType[] => {
 	}, []);
 };
 
-export const parseTransaction = (data: unknown): TransactionType[] => {
+export const parseTransaction = (data: unknown) => {
 	if (typeof data !== 'object' || data === null) return [];
 
 	if (!('data' in (data as Record<string, unknown>))) return [];
@@ -64,7 +64,7 @@ export const parseTransaction = (data: unknown): TransactionType[] => {
 	}, []);
 };
 
-export const parseTransactionInfo = (data: unknown): TransactionInfoType => {
+export const parseTransactionInfo = (data: unknown) => {
 	if (typeof data !== 'object' || data === null) {
 		return {
 			positive: 0,
@@ -82,18 +82,14 @@ export const parseTransactionInfo = (data: unknown): TransactionInfoType => {
 	};
 };
 
-export const parseFilterDate = (
-	date: DateRange | undefined,
-): { from: string; to: string | undefined } | undefined => {
+export const parseFilterDate = (date: DateRange | undefined) => {
 	if (!date) return;
 	const from = moment(date.from).format('yyyy-MM-DD');
 	const to = date.to ? moment(date.to).format('yyyy-MM-DD') : undefined;
 	return { from, to };
 };
 
-export const parseStatementObj = (
-	item: Record<string, unknown>,
-): StatementType => {
+export const parseStatementObj = (item: Record<string, unknown>) => {
 	let yields: balanceType[] = [];
 
 	if (item.yields) {
@@ -113,7 +109,7 @@ export const parseStatementObj = (
 	};
 };
 
-export const parseStatement = (data: unknown[]): StatementType[] => {
+export const parseStatement = (data: unknown[]) => {
 	if (data === null || !Array(data)) return [];
 
 	return data.reduce<StatementType[]>((prev, item) => {
@@ -127,7 +123,7 @@ export const parseStatement = (data: unknown[]): StatementType[] => {
 	}, []);
 };
 
-export const parseBalance = (data: unknown[]): balanceType[] => {
+export const parseBalance = (data: unknown[]) => {
 	if (!data || data === null || !Array(data)) return [];
 
 	return data.reduce<balanceType[]>((prev, item) => {

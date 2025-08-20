@@ -1,4 +1,7 @@
+import type { JSX } from 'react';
 import type { DateRange } from 'react-day-picker';
+
+type Tabs = 'transaction' | 'statement' | 'banks';
 
 export type DefaultFilterType = {
 	date: DateRange | undefined;
@@ -50,4 +53,9 @@ export type balanceType = {
 	desc: string;
 	bal_type: string;
 	value: number;
+};
+
+export type HomeTabs = {
+	tab: Tabs;
+	content: JSX.Element;
 };
