@@ -1,5 +1,5 @@
-import { axiosInstance } from "@/lib/axiosInstance";
+import { axiosInstance } from '@/lib/axiosInstance';
 
 export const postOfxFile = async (formData: FormData): Promise<void> => {
-  await axiosInstance.post("/transactions", formData);
+	await axiosInstance.post('/transactions', formData);
 };

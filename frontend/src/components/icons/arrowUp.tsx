@@ -1,28 +1,28 @@
 type ArrowSVGType = {
 	width?: string;
-	direction?: "up" | "down" | "left" | "right";
+	direction?: 'up' | 'down' | 'left' | 'right';
 };
 
-export const ArrowSVG = ({ width = "10", direction = "up" }: ArrowSVGType) => {
-	let dir = "";
+export const ArrowSVG = ({ width = '10', direction = 'up' }: ArrowSVGType) => {
+	let dir = '';
 
 	switch (direction) {
-		case "down":
-			dir = "180deg";
+		case 'down':
+			dir = '180deg';
 			break;
-		case "left":
-			dir = "270deg";
+		case 'left':
+			dir = '270deg';
 			break;
-		case "right":
-			dir = "90deg";
+		case 'right':
+			dir = '90deg';
 			break;
 		default:
-			dir = "0deg";
+			dir = '0deg';
 	}
 
 	return (
 		<svg
-			style={{ fill: "var(--foreground)", rotate: dir }}
+			style={{ fill: 'var(--foreground)', rotate: dir }}
 			viewBox="0 0 24 24"
 			xmlns="http://www.w3.org/2000/svg"
 			width={width}

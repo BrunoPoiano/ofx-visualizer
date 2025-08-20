@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { AreaChart, CartesianGrid, XAxis } from "recharts";
+import { AreaChart, CartesianGrid, XAxis } from 'recharts';
 
 import {
+	type ChartConfig,
 	ChartContainer,
 	ChartLegend,
 	ChartLegendContent,
 	ChartTooltip,
 	ChartTooltipContent,
-	type ChartConfig,
-} from "@/components/ui/chart";
-import type { ReactNode } from "react";
+} from '@/components/ui/chart';
+import type { ReactNode } from 'react';
 
 type BarChartComponentType = {
 	chartData: object[];
@@ -29,7 +29,7 @@ export const BarChartComponent: React.FC<BarChartComponentType> = ({
 		<ChartContainer
 			config={chartConfig}
 			className="w-full"
-			style={{ height: "min(400px, 100%)" }}
+			style={{ height: 'min(400px, 100%)' }}
 		>
 			<AreaChart
 				accessibilityLayer

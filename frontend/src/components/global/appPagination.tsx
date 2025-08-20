@@ -1,4 +1,5 @@
-import type { PaginationType } from "@/types";
+import { generateKey } from '@/lib/utils';
+import type { PaginationType } from '@/types';
 import {
 	Pagination,
 	PaginationContent,
@@ -6,15 +7,14 @@ import {
 	PaginationLink,
 	PaginationNext,
 	PaginationPrevious,
-} from "../ui/pagination";
+} from '../ui/pagination';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "../ui/select";
-import { generateKey } from "@/lib/utils";
+} from '../ui/select';
 
 export const AppPagination = ({
 	pagination,
@@ -60,8 +60,8 @@ export const AppPagination = ({
 							tabIndex={current_page === 1 ? -1 : undefined}
 							className={
 								current_page === 1
-									? "pointer-events-none opacity-50"
-									: "cursor-pointer"
+									? 'pointer-events-none opacity-50'
+									: 'cursor-pointer'
 							}
 							onClick={() => changePage(current_page - 1)}
 						/>
@@ -84,8 +84,8 @@ export const AppPagination = ({
 							tabIndex={current_page === last_page ? -1 : undefined}
 							className={
 								current_page === last_page
-									? "pointer-events-none opacity-50"
-									: "cursor-pointer"
+									? 'pointer-events-none opacity-50'
+									: 'cursor-pointer'
 							}
 							onClick={() => changePage(current_page + 1)}
 						/>
