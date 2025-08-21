@@ -72,8 +72,6 @@ func getItensFromTag(tag, fileString string) (string, error) {
 	var regex *regexp.Regexp
 	var results []string
 
-	println("isXMLFormat(fileString) ", tag, isXMLFormat(fileString, tag))
-
 	if isXMLFormat(fileString, tag) {
 		// XML format (with closing tags)
 		xmlPattern := fmt.Sprintf(`(?s)<%s>(.*?)</%s>`, tag, tag)

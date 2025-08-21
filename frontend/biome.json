@@ -1,7 +1,13 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
-	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-	"files": { "ignoreUnknown": false },
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -20,7 +26,9 @@
 				"useJsxKeyInIterable": "error",
 				"noUnusedImports": "warn"
 			},
-			"security": { "noDangerouslySetInnerHtmlWithChildren": "error" },
+			"security": {
+				"noDangerouslySetInnerHtmlWithChildren": "error"
+			},
 			"suspicious": {
 				"noCommentText": "error",
 				"noDuplicateJsxProps": "error"

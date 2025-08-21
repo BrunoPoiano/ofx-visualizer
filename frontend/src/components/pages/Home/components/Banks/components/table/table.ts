@@ -11,11 +11,28 @@ export const TableInfo = [
 		id: 'id',
 	},
 	{
+		label: 'Name',
+		id: 'name',
+	},
+	{
+		label: 'Account Type',
+		id: 'account_type',
+	},
+	{
 		label: 'Account Id',
 		id: 'account_id',
 	},
+
 	{
-		label: 'Name',
-		id: 'name',
+		label: 'Bank Id',
+		id: 'bank_id',
+	},
+	{
+		label: 'Branch Id',
+		id: 'branch_id',
+	},
+	{
+		label: 'Options',
+		id: 'f_id',
 	},
 ] satisfies TableInfoType[];

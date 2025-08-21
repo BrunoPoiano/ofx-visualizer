@@ -9,7 +9,7 @@ export type BanksProviderState = {
 		React.Dispatch<React.SetStateAction<PaginationType>>,
 	];
 	banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>];
-	clearFilter: () => void;
+	getBanksFunc: () => void;
 };
 
 export type FilterType = {

@@ -1,4 +1,3 @@
-import useLocalStorage from '@/lib/localstorage';
 import {
 	createContext,
 	useCallback,
@@ -6,8 +5,10 @@ import {
 	useEffect,
 	useState,
 } from 'react';
+import { useDebounce } from '@/lib/debounce';
+import useLocalStorage from '@/lib/localstorage';
 import { getBanks } from './functions';
-import type { BankType, DefaultFilterType } from './types';
+import type { BankType, DefaultFilterType, GetBanksFuncParams } from './types';
 
 export type HomeProviderState = {
 	showValue: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
@@ -16,7 +17,7 @@ export type HomeProviderState = {
 		React.Dispatch<React.SetStateAction<DefaultFilterType>>,
 	];
 	banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>];
-	getBanksFunc: () => void;
+	getBanksFunc: (params?: GetBanksFuncParams) => void;
 };
 
 const HomeProviderContext = createContext<HomeProviderState>(
@@ -33,23 +34,28 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 			bank_id: '',
 		},
 	);
+	const getBanksFunc = useDebounce(
+		// biome-ignore lint/correctness/useExhaustiveDependencies: setDefaultFilter remove to prevent infinity loop
+		useCallback(async () => {
+			const requestParams = {
+				current_page: '1',
+				per_page: '1000',
+			};
 
-	const getBanksFunc = useCallback(async () => {
-		const { data } = await getBanks({
-			current_page: '1',
-			per_page: '1000',
-		});
+			const { data } = await getBanks(requestParams);
 
-		setBanks(() => {
-			if (defaultFilter.bank_id === '' && data.length > 0) {
-				setDefaultFilter((prev_filter) => ({
-					...prev_filter,
-					bank_id: data[0].id.toString(),
-				}));
-			}
-			return data;
-		});
-	}, [defaultFilter.bank_id]);
+			setBanks(() => {
+				if (defaultFilter.bank_id === '' && data.length > 0) {
+					setDefaultFilter((prev_filter) => ({
+						...prev_filter,
+						bank_id: data[0].id.toString(),
+					}));
+				}
+				return data;
+			});
+		}, []),
+		500,
+	);
 
 	useEffect(() => {
 		getBanksFunc();

@@ -17,28 +17,28 @@ export const DialogInfo = ({ item }: { item: StatementType }) => {
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button variant='outline'>Info</Button>
+				<Button variant='outline' disabled={item.yields.length === 0}>
+					Info
+				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Balances</AlertDialogTitle>
-					<AlertDialogDescription>
-						<div className='grid gap-2.5'>
-							{item.yields.map((yieldItem) => (
-								<Card key={generateKey()}>
-									<CardTitle className='px-6'>{yieldItem.name}</CardTitle>
-									<CardContent>
-										<p>{yieldItem.desc}</p>
-										<p>
-											{yieldItem.value.toLocaleString('pt-BR', {
-												style: 'currency',
-												currency: 'BRL',
-											})}
-										</p>
-									</CardContent>
-								</Card>
-							))}
-						</div>
+					<AlertDialogDescription className='grid gap-2.5'>
+						{item.yields.map((yieldItem) => (
+							<Card key={generateKey()}>
+								<CardTitle className='px-6'>{yieldItem.name}</CardTitle>
+								<CardContent>
+									<p>{yieldItem.desc}</p>
+									<p>
+										{yieldItem.value.toLocaleString('pt-BR', {
+											style: 'currency',
+											currency: 'BRL',
+										})}
+									</p>
+								</CardContent>
+							</Card>
+						))}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

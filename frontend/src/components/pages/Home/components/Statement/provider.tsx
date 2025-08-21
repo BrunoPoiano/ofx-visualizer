@@ -1,6 +1,3 @@
-import { useDebounce } from '@/lib/debounce';
-import useLocalStorage from '@/lib/localstorage';
-import type { PaginationType } from '@/types';
 import {
 	createContext,
 	useCallback,
@@ -8,6 +5,9 @@ import {
 	useEffect,
 	useState,
 } from 'react';
+import { useDebounce } from '@/lib/debounce';
+import useLocalStorage from '@/lib/localstorage';
+import type { PaginationType } from '@/types';
 import { getStatesments, getStatesmentsInfo } from '../../functions';
 import { parseFilterDate } from '../../parsers';
 import { useHomeContext } from '../../provider';
@@ -112,10 +112,11 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 		getStatesmentsInfoFunc();
 	}, [getStatesmentsInfoFunc]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Run getStatementFunc every time something important changes>
 	useEffect(() => {
 		getStatementFunc();
 	}, [
+		banks,
 		pagination.current_page,
 		pagination.per_page,
 		filter,

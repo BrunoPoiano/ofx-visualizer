@@ -7,6 +7,8 @@
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"format": "biome format --write .",
+		"format:clean": "biome format --write . && find src -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.jsx' | xargs sed -i '/^$/N;/^\\n$/d'",
+		"format:all": "npm run format:clean && npm run lint",
 		"lint": "biome lint --write .",
 		"preview": "vite preview"
 	},

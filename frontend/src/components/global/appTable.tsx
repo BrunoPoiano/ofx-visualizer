@@ -1,6 +1,6 @@
+import React from 'react';
 import { generateKey } from '@/lib/utils';
 import type { PaginationType } from '@/types';
-import React from 'react';
 import { ArrowSVG } from '../icons/arrowUp';
 import type { OrderBy } from '../pages/Home/types';
 import { Button } from '../ui/button';

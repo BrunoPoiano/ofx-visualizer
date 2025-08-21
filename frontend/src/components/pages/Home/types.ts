@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
 import type { DateRange } from 'react-day-picker';
+import type { PaginationType } from '@/types';
 
 type Tabs = 'transaction' | 'statement' | 'banks';
 
@@ -29,7 +30,11 @@ export type TransactionType = {
 export type BankType = {
 	id: number;
 	name: string;
-	account_id: string;
+	account_id: number;
+	account_type: string;
+	bank_id: number;
+	branch_id: number;
+	f_id: number;
 };
 
 export type TransactionInfoType = {
@@ -62,4 +67,12 @@ export type balanceType = {
 export type HomeTabs = {
 	tab: Tabs;
 	content: JSX.Element;
+};
+
+export type GetBanksFuncParams = {
+	per_page?: PaginationType['per_page'];
+	current_page?: PaginationType['current_page'];
+	order?: OrderBy['order'];
+	direction?: OrderBy['direction'];
+	search?: string;
 };

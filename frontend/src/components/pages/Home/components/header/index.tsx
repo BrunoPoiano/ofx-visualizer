@@ -26,12 +26,14 @@ export const AppHeader = () => {
 			formData.append('file', files[i]);
 		}
 
-		await postOfxFile(formData).finally(() => {
-			e.target.value = '';
-			setLoading(false);
-		});
-
-		getBanksFunc();
+		await postOfxFile(formData)
+			.then(() => {
+				getBanksFunc();
+			})
+			.finally(() => {
+				e.target.value = '';
+				setLoading(false);
+			});
 	};
 
 	return (

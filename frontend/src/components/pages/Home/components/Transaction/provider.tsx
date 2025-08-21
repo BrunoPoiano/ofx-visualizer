@@ -1,6 +1,3 @@
-import { useDebounce } from '@/lib/debounce';
-import useLocalStorage from '@/lib/localstorage';
-import type { PaginationType } from '@/types';
 import {
 	createContext,
 	useCallback,
@@ -8,6 +5,9 @@ import {
 	useEffect,
 	useState,
 } from 'react';
+import { useDebounce } from '@/lib/debounce';
+import useLocalStorage from '@/lib/localstorage';
+import type { PaginationType } from '@/types';
 import { getTransactions, getTransactionsInfo } from '../../functions';
 import { parseFilterDate } from '../../parsers';
 import { useHomeContext } from '../../provider';
@@ -119,10 +119,11 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 		getTransactionInfoFunc();
 	}, [getTransactionInfoFunc]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Run getTransactionsFunc every time something important changes>
 	useEffect(() => {
 		getTransactionsFunc();
 	}, [
+		banks,
 		pagination.current_page,
 		pagination.per_page,
 		filter,

@@ -64,12 +64,19 @@ func InsertItems(database *sql.DB, item types.Bank) (int, error) {
 //   - A slice of Bank items.
 //   - The total number of items in the database.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Bank, int, error) {
+func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Bank, int, error) {
 
 	var items []types.Bank
 
-	offset := perPage * (currentPage - 1)
-	query := fmt.Sprintf("SELECT * FROM banks LIMIT %v OFFSET %v", perPage, offset)
+	offset := filter.PerPage * (filter.CurrentPage - 1)
+	query := fmt.Sprintf("SELECT * FROM banks")
+
+	if filter.Search != "" {
+		query = fmt.Sprintf("%s WHERE name LIKE '%%%s%%'", query, filter.Search)
+	}
+
+	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
+	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
 	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.Bank, error) {
 		var s []types.Bank
@@ -100,4 +107,16 @@ func GetItems(database *sql.DB, perPage, currentPage int) ([]types.Bank, int, er
 	}
 
 	return items, totalItems, nil
+}
+
+func UpdateItems(database *sql.DB, item types.Bank) error {
+
+	if item.Name == "" || item.Id == 0 {
+		return fmt.Errorf("Invalid object")
+	}
+
+	query := fmt.Sprintf("UPDATE banks SET name='%s' WHERE id=%d", item.Name, item.Id)
+	_, err := database.Exec(query)
+
+	return err
 }

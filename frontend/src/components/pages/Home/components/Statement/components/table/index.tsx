@@ -22,7 +22,7 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 				style: 'currency',
 				currency: 'BRL',
 			}),
-			balance: <DialogInfo item={item} />,
+			yields: <DialogInfo item={item} />,
 		};
 	});
 

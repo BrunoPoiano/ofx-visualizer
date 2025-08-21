@@ -1,3 +1,5 @@
+import { useId } from 'react';
+
 export const EyeSvg = () => {
 	return (
 		<svg
@@ -6,14 +8,10 @@ export const EyeSvg = () => {
 			xmlns='http://www.w3.org/2000/svg'
 			aria-labelledby='eye-title'
 		>
-			<title id='eye-title'>Eye Icon</title>
-			<g id='SVGRepo_bgCarrier' strokeWidth='0' />
-			<g
-				id='SVGRepo_tracerCarrier'
-				strokeLinecap='round'
-				strokeLinejoin='round'
-			/>
-			<g id='SVGRepo_iconCarrier'>
+			<title id={useId()}>Eye Icon</title>
+			<g id={useId()} strokeWidth='0' />
+			<g id={useId()} strokeLinecap='round' strokeLinejoin='round' />
+			<g id={useId()}>
 				<path
 					fillRule='evenodd'
 					clipRule='evenodd'

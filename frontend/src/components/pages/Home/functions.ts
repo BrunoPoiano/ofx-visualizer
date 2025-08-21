@@ -7,6 +7,7 @@ import {
 	parseTransaction,
 	parseTransactionInfo,
 } from './parsers';
+import type { BankType } from './types';
 
 export const getTransactions = async (params?: Record<string, string>) => {
 	const { data } = await axiosInstance.get('/transactions', {
@@ -65,6 +66,13 @@ export const getBanks = async (params?: Record<string, string>) => {
 		data: parseBanks(data),
 		paginationContent: parsePagination(data),
 	};
+};
+
+export const putBanks = async (
+	bankId: number,
+	values: Partial<Omit<BankType, 'id'>>,
+) => {
+	await axiosInstance.put(`/banks/${bankId}`, values);
 };
 
 export const postOfxFile = async (formData: FormData) => {

@@ -5,7 +5,7 @@ export type TableInfoType = {
 	label: string;
 };
 
-export const TableInfo = <TableInfoType[]>[
+export const TableInfo = [
 	{
 		label: 'Date',
 		id: 'start_date',
@@ -15,7 +15,7 @@ export const TableInfo = <TableInfoType[]>[
 		id: 'ledger_balance',
 	},
 	{
-		label: 'Balance',
-		id: 'balance',
+		label: 'Yields',
+		id: 'yields',
 	},
-];
+] satisfies TableInfoType[];

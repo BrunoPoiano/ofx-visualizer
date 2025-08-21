@@ -33,7 +33,7 @@ func transactions(db *sql.DB, router *mux.Router) {
 
 func banks(db *sql.DB, router *mux.Router) {
 	router.HandleFunc("/banks", middleware.DatabaseMiddleware(db, BankController.GetItems)).Methods("GET")
-	router.HandleFunc("/banks", middleware.DatabaseMiddleware(db, BankController.UpdateItems)).Methods("PUT")
+	router.HandleFunc("/banks/{bank_id}", middleware.DatabaseMiddleware(db, BankController.UpdateItems)).Methods("PUT")
 }
 
 func statements(db *sql.DB, router *mux.Router) {

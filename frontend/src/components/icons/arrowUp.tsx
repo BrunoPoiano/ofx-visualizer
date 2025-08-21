@@ -3,6 +3,8 @@ type ArrowSVGType = {
 	direction?: 'up' | 'down' | 'left' | 'right';
 };
 
+import { useId } from 'react';
+
 export const ArrowSVG = ({ width = '10', direction = 'up' }: ArrowSVGType) => {
 	let dir = '';
 
@@ -27,14 +29,10 @@ export const ArrowSVG = ({ width = '10', direction = 'up' }: ArrowSVGType) => {
 			xmlns='http://www.w3.org/2000/svg'
 			width={width}
 		>
-			<title id='closed-eye-title'>Closed Eye Icon</title>
-			<g id='SVGRepo_bgCarrier' strokeWidth='0' />
-			<g
-				id='SVGRepo_tracerCarrier'
-				strokeLinecap='round'
-				strokeLinejoin='round'
-			/>
-			<g id='SVGRepo_iconCarrier'>
+			<title id={useId()}>Closed Eye Icon</title>
+			<g id={useId()} strokeWidth='0' />
+			<g id={useId()} strokeLinecap='round' strokeLinejoin='round' />
+			<g id={useId()}>
 				<path d='M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z' />
 			</g>
 		</svg>
