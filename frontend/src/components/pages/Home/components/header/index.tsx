@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { toast } from 'sonner';
 import { EyeClosedSvg } from '@/components/icons/eyeClosedSvg';
 import { EyeSvg } from '@/components/icons/eyeSvg';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,15 @@ export const AppHeader = () => {
 		await postOfxFile(formData)
 			.then(() => {
 				getBanksFunc();
+				toast.success('File successifully parsed!.', {
+					style: { background: 'var(--chart-2)' },
+				});
+			})
+			.catch((e) => {
+				console.error(e);
+				toast.error(e.request.response || 'Error updating file.', {
+					style: { background: 'var(--destructive)' },
+				});
 			})
 			.finally(() => {
 				e.target.value = '';

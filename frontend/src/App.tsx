@@ -1,7 +1,8 @@
 import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { Home } from './Pages/Home';
 import { ThemeProvider } from './components/theme/theme-provider';
+import { Toaster } from './components/ui/sonner';
+import { Home } from './Pages/Home';
 
 function App() {
 	return (
@@ -11,6 +12,7 @@ function App() {
 					<Route path='/' element={<Home />} />
 				</Routes>
 			</BrowserRouter>
+			<Toaster />
 		</ThemeProvider>
 	);
 }

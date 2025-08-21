@@ -1,9 +1,10 @@
+import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useLocalStorage from '@/lib/localstorage';
 import { BanksSection } from './components/Banks';
+import { AppHeader } from './components/header';
 import { StatementsSection } from './components/Statement';
 import { TransactionSection } from './components/Transaction';
-import { AppHeader } from './components/header';
 import { HomeProvider } from './provider';
 import type { HomeTabs } from './types';
 

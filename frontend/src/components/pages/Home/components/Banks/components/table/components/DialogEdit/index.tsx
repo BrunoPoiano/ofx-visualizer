@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { putBanks } from '@/components/pages/Home/functions';
 import { useHomeContext } from '@/components/pages/Home/provider';
 import type { BankType } from '@/components/pages/Home/types';
@@ -29,8 +30,17 @@ export const DialogEdit = ({ item }: { item: BankType }) => {
 				setOpen(false);
 				getBanksFunc();
 				getBankFunc2();
+				toast.error('Name successifully saved!', {
+					style: { background: 'var(--chart-2)' },
+				});
 			})
-			.catch((e) => console.error(e));
+			.catch((e) => {
+				console.error(e);
+
+				toast.error(e.request.response || 'Error saving Bank name.', {
+					style: { background: 'var(--destructive)' },
+				});
+			});
 	};
 
 	return (
