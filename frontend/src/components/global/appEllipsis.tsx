@@ -9,7 +9,7 @@ export const AppEllipsis = ({
 }) => {
 	return (
 		<p
-			className="overflow-clip text-ellipsis"
+			className='overflow-clip text-ellipsis'
 			style={{ maxWidth: width ? width : '100%' }}
 		>
 			{children}

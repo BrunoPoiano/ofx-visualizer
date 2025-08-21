@@ -27,12 +27,12 @@ export const PieChartComponent: React.FC<PieChartComponentType> = ({
 	header,
 }) => {
 	return (
-		<Card className="flex flex-col">
+		<Card className='flex flex-col'>
 			{header}
-			<CardContent className="flex-1 pb-0">
+			<CardContent className='flex-1 pb-0'>
 				<ChartContainer
 					config={chartConfig}
-					className="mx-auto aspect-square max-h-[250px] px-0"
+					className='mx-auto aspect-square max-h-[250px] px-0'
 				>
 					<PieChart>
 						<ChartTooltip
@@ -52,7 +52,7 @@ export const PieChartComponent: React.FC<PieChartComponentType> = ({
 										y={props.y}
 										textAnchor={props.textAnchor}
 										dominantBaseline={props.dominantBaseline}
-										fill="hsla(var(--foreground))"
+										fill='hsla(var(--foreground))'
 									>
 										{payload[dataKey]}
 									</text>

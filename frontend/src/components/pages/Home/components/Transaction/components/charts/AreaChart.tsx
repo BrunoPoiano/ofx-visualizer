@@ -78,13 +78,13 @@ export const AreaChart = () => {
 	return (
 		<AreaChartComponent
 			header={
-				<CardHeader className="items-center pb-0">
+				<CardHeader className='items-center pb-0'>
 					<CardTitle>Filtered Financial Overview</CardTitle>
 				</CardHeader>
 			}
 			chartData={chartData}
 			chartConfig={chartConfig}
-			dataKey="month"
+			dataKey='month'
 		/>
 	);
 };

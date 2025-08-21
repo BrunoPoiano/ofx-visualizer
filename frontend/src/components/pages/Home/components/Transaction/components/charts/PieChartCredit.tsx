@@ -61,7 +61,7 @@ export const PieChartCredit = () => {
 	return (
 		<PieChartComponent
 			header={
-				<CardHeader className="items-center pb-0">
+				<CardHeader className='items-center pb-0'>
 					<CardTitle>Credit Transactions</CardTitle>
 				</CardHeader>
 			}
@@ -69,8 +69,8 @@ export const PieChartCredit = () => {
 			chartConfig={{
 				...chartConfig,
 			}}
-			dataKey="value"
-			nameKey="to"
+			dataKey='value'
+			nameKey='to'
 		/>
 	);
 };

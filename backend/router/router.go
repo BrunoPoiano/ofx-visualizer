@@ -24,6 +24,7 @@ func AppRoutes(db *sql.DB) *mux.Router {
 }
 
 func transactions(db *sql.DB, router *mux.Router) {
+
 	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, TransactionController.GetItems)).Methods("GET")
 	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, TransactionController.InsertItems)).Methods("POST")
 	router.HandleFunc("/transactions/info", middleware.DatabaseMiddleware(db, TransactionController.GetTransactionInfos)).Methods("GET")
@@ -32,6 +33,7 @@ func transactions(db *sql.DB, router *mux.Router) {
 
 func banks(db *sql.DB, router *mux.Router) {
 	router.HandleFunc("/banks", middleware.DatabaseMiddleware(db, BankController.GetItems)).Methods("GET")
+	router.HandleFunc("/banks", middleware.DatabaseMiddleware(db, BankController.UpdateItems)).Methods("PUT")
 }
 
 func statements(db *sql.DB, router *mux.Router) {

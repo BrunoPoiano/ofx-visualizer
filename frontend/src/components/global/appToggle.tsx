@@ -15,7 +15,7 @@ export const AppToggle: React.FC<AppToggleType> = ({
 	backLabel,
 }) => {
 	return (
-		<div className="flex items-center space-x-2">
+		<div className='flex items-center space-x-2'>
 			{frontLabel && <label htmlFor={id}>{frontLabel}</label>}
 			<Switch
 				id={id}

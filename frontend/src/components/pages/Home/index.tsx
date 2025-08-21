@@ -1,8 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useLocalStorage from '@/lib/localstorage';
-import { AppHeader } from './components/header';
+import { BanksSection } from './components/Banks';
 import { StatementsSection } from './components/Statement';
 import { TransactionSection } from './components/Transaction';
+import { AppHeader } from './components/header';
 import { HomeProvider } from './provider';
 import type { HomeTabs } from './types';
 
@@ -20,7 +21,7 @@ const homePageTabs: (HomeTabs & { label: string })[] = [
 	{
 		label: 'Banks',
 		tab: 'banks',
-		content: <>Aqui</>,
+		content: <BanksSection />,
 	},
 ];
 
@@ -37,8 +38,8 @@ export const HomePage = () => {
 			<Tabs
 				value={tab}
 				onValueChange={onTabChange}
-				defaultValue="transaction"
-				className="w-full"
+				defaultValue='transaction'
+				className='w-full'
 			>
 				<TabsList>
 					{homePageTabs.map((item) => (

@@ -5,7 +5,6 @@ import type {
 	BankType,
 	balanceType,
 	StatementType,
-	TransactionInfoType,
 	TransactionType,
 } from './types';
 

@@ -45,3 +45,11 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(response)
 }
+
+func UpdateItems(w http.ResponseWriter, r *http.Request) {
+
+	params := r.URL.Query()
+
+	json.NewEncoder(w).Encode(params)
+
+}

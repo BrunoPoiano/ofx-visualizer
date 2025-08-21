@@ -1,3 +1,4 @@
+import useLocalStorage from '@/lib/localstorage';
 import {
 	createContext,
 	useCallback,
@@ -5,7 +6,6 @@ import {
 	useEffect,
 	useState,
 } from 'react';
-import useLocalStorage from '@/lib/localstorage';
 import { getBanks } from './functions';
 import type { BankType, DefaultFilterType } from './types';
 

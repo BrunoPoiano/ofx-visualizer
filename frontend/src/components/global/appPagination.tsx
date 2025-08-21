@@ -51,7 +51,7 @@ export const AppPagination = ({
 	}
 
 	return (
-		<div className="grid place-items-end gap-3.5">
+		<div className='grid place-items-end gap-3.5'>
 			<Pagination>
 				<PaginationContent>
 					<PaginationItem>
@@ -69,7 +69,7 @@ export const AppPagination = ({
 					{Array.from({ length: end - start }, (_, i) => (
 						<PaginationItem key={generateKey(i)}>
 							<PaginationLink
-								href="#"
+								href='#'
 								isActive={i + 1 + start === current_page}
 								onClick={() => changePage(i + 1 + start)}
 							>
@@ -96,15 +96,15 @@ export const AppPagination = ({
 				value={per_page.toString()}
 				onValueChange={(e) => changePerPage(e)}
 			>
-				<SelectTrigger className="w-[180px]">
-					<SelectValue placeholder="Type" />
+				<SelectTrigger className='w-[180px]'>
+					<SelectValue placeholder='Type' />
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value="5">5</SelectItem>
-					<SelectItem value="10">10</SelectItem>
-					<SelectItem value="25">25</SelectItem>
-					<SelectItem value="50">50</SelectItem>
-					<SelectItem value="100">100</SelectItem>
+					<SelectItem value='5'>5</SelectItem>
+					<SelectItem value='10'>10</SelectItem>
+					<SelectItem value='25'>25</SelectItem>
+					<SelectItem value='50'>50</SelectItem>
+					<SelectItem value='100'>100</SelectItem>
 				</SelectContent>
 			</Select>
 		</div>

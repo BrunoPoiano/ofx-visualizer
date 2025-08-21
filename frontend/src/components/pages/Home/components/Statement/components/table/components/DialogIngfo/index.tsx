@@ -17,16 +17,16 @@ export const DialogInfo = ({ item }: { item: StatementType }) => {
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button variant="outline">Info</Button>
+				<Button variant='outline'>Info</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Balances</AlertDialogTitle>
 					<AlertDialogDescription>
-						<div className="grid gap-2.5">
+						<div className='grid gap-2.5'>
 							{item.yields.map((yieldItem) => (
 								<Card key={generateKey()}>
-									<CardTitle className="px-6">{yieldItem.name}</CardTitle>
+									<CardTitle className='px-6'>{yieldItem.name}</CardTitle>
 									<CardContent>
 										<p>{yieldItem.desc}</p>
 										<p>

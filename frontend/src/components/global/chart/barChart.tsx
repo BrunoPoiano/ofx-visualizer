@@ -28,7 +28,7 @@ export const BarChartComponent: React.FC<BarChartComponentType> = ({
 	return (
 		<ChartContainer
 			config={chartConfig}
-			className="w-full"
+			className='w-full'
 			style={{ height: 'min(400px, 100%)' }}
 		>
 			<AreaChart

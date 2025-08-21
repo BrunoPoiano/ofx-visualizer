@@ -59,11 +59,11 @@ export const AppTable = <
 	};
 
 	return (
-		<div className="grid gap-3.5">
-			<div className="rounded-md border" style={{ maxWidth: '1280px' }}>
+		<div className='grid gap-3.5'>
+			<div className='rounded-md border' style={{ maxWidth: '1280px' }}>
 				<ScrollArea className={`${small ? 'h-76' : 'h-150'} w-full`}>
 					<Table>
-						<TableHeader className="sticky top-0 bg-background">
+						<TableHeader className='sticky top-0 bg-background'>
 							<TableRow>
 								{(small && tableContentSmall
 									? tableContentSmall
@@ -71,11 +71,11 @@ export const AppTable = <
 								).map((item) => (
 									<TableHead key={item.id}>
 										{React.isValidElement(tableData[0]?.[item.id]) ? (
-											<p className="w-full text-center">{item.label}</p>
+											<p className='w-full text-center'>{item.label}</p>
 										) : (
 											<Button
-												variant="ghost"
-												className="t-al w-full"
+												variant='ghost'
+												className='t-al w-full'
 												onClick={() => changeOrderBy(item.id)}
 											>
 												{item.label}{' '}
@@ -96,7 +96,7 @@ export const AppTable = <
 						<TableBody>
 							{tableData.length === 0 && (
 								<TableRow>
-									<TableCell colSpan={4} className="text-center">
+									<TableCell colSpan={4} className='text-center'>
 										No content found.
 									</TableCell>
 								</TableRow>

@@ -1,7 +1,5 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { CartesianGrid, Line, LineChart, XAxis } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import type { ChartConfig } from '@/components/ui/chart';
 import {
@@ -12,6 +10,8 @@ import {
 	ChartTooltipContent,
 } from '@/components/ui/chart';
 import { generateKey } from '@/lib/utils';
+import type { ReactNode } from 'react';
+import { CartesianGrid, Line, LineChart, XAxis } from 'recharts';
 
 type AreaChartComponentType = {
 	chartData: object[];
@@ -31,8 +31,8 @@ export const AreaChartComponent = ({
 	return (
 		<Card>
 			{header}
-			<CardContent className="max-w-[750px]">
-				<ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+			<CardContent className='max-w-[750px]'>
+				<ChartContainer config={chartConfig} className='min-h-[200px] w-full'>
 					<LineChart accessibilityLayer data={chartData}>
 						<CartesianGrid vertical={false} />
 						<XAxis
@@ -50,7 +50,7 @@ export const AreaChartComponent = ({
 							<Line
 								key={generateKey()}
 								dataKey={key}
-								type="linear"
+								type='linear'
 								stroke={item.color}
 								strokeWidth={2}
 								dot={false}

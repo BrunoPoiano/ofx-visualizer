@@ -36,25 +36,25 @@ export const Filter = () => {
 	return (
 		<>
 			<Input
-				placeholder="Search"
+				placeholder='Search'
 				value={filter.search}
-				name="search"
+				name='search'
 				onChange={changeFilter}
 			/>
-			<div className="flex flex-wrap gap-2.5">
+			<div className='flex flex-wrap gap-2.5'>
 				<Input
-					className="w-[250px]"
-					placeholder="Min Value"
-					type="number"
-					name="minValue"
+					className='w-[250px]'
+					placeholder='Min Value'
+					type='number'
+					name='minValue'
 					value={filter.minValue || ''}
 					onChange={changeFilter}
 				/>
 				<Input
-					className="w-[250px]"
-					placeholder="Max Value"
-					type="number"
-					name="maxValue"
+					className='w-[250px]'
+					placeholder='Max Value'
+					type='number'
+					name='maxValue'
 					value={filter.maxValue || ''}
 					onChange={changeFilter}
 				/>
@@ -63,11 +63,11 @@ export const Filter = () => {
 					onValueChange={(e) => setFilter((prev) => ({ ...prev, type: e }))}
 				>
 					<SelectTrigger style={{ width: 'min(250px, 100%)' }}>
-						<SelectValue placeholder="Type" />
+						<SelectValue placeholder='Type' />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="CREDIT">Credit</SelectItem>
-						<SelectItem value="DEBIT">Debit</SelectItem>
+						<SelectItem value='CREDIT'>Credit</SelectItem>
+						<SelectItem value='DEBIT'>Debit</SelectItem>
 					</SelectContent>
 				</Select>
 				<Select
@@ -77,7 +77,7 @@ export const Filter = () => {
 					}
 				>
 					<SelectTrigger style={{ width: 'min(250px, 100%)' }}>
-						<SelectValue placeholder="Bank" />
+						<SelectValue placeholder='Bank' />
 					</SelectTrigger>
 					<SelectContent>
 						{banks.map((item) => (
@@ -87,7 +87,7 @@ export const Filter = () => {
 						))}
 					</SelectContent>
 				</Select>
-				<Button className="ml-auto" variant="ghost" onClick={clearFilter}>
+				<Button className='ml-auto' variant='ghost' onClick={clearFilter}>
 					Clear filter
 				</Button>
 			</div>

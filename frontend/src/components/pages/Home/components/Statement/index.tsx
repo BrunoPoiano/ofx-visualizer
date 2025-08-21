@@ -6,7 +6,7 @@ import { StatementProvider } from './provider';
 export const StatementsSection = () => {
 	return (
 		<StatementProvider>
-			<section className="@container grid w-full gap-2.5">
+			<section className='@container grid w-full gap-2.5'>
 				<Filter />
 				<Cards />
 				<Table />

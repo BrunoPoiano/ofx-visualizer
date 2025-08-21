@@ -10,7 +10,11 @@ export type DefaultFilterType = {
 
 export type OrderBy = {
 	direction: 'DESC' | 'ASC';
-	order: keyof balanceType | keyof StatementType | keyof TransactionType;
+	order:
+		| keyof balanceType
+		| keyof StatementType
+		| keyof TransactionType
+		| keyof BankType;
 };
 
 export type TransactionType = {

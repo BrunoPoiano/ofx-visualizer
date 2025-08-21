@@ -11,7 +11,7 @@ import { TransactionProvider } from './provider';
 export const TransactionSection = () => {
 	return (
 		<TransactionProvider>
-			<section className="@container grid w-full gap-2.5">
+			<section className='@container grid w-full gap-2.5'>
 				<Filter />
 				<Cards />
 
@@ -28,17 +28,17 @@ const TransactionsSection = () => {
 
 	return (
 		<>
-			<div className="flex justify-end">
+			<div className='flex justify-end'>
 				<AppToggle
 					toggle={[toggle, setToggle]}
-					frontLabel="Graph Mode"
-					backLabel="Table Mode"
+					frontLabel='Graph Mode'
+					backLabel='Table Mode'
 				/>
 			</div>
 			{toggle ? (
 				<Table />
 			) : (
-				<div className="gap-x-2.5 p-0 md:columns-1 lg:columns-2">
+				<div className='gap-x-2.5 p-0 md:columns-1 lg:columns-2'>
 					<div className={card}>
 						<AreaChart />
 					</div>

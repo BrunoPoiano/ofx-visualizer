@@ -1,3 +1,6 @@
+import { useDebounce } from '@/lib/debounce';
+import useLocalStorage from '@/lib/localstorage';
+import type { PaginationType } from '@/types';
 import {
 	createContext,
 	useCallback,
@@ -5,9 +8,6 @@ import {
 	useEffect,
 	useState,
 } from 'react';
-import { useDebounce } from '@/lib/debounce';
-import useLocalStorage from '@/lib/localstorage';
-import type { PaginationType } from '@/types';
 import { getStatesments, getStatesmentsInfo } from '../../functions';
 import { parseFilterDate } from '../../parsers';
 import { useHomeContext } from '../../provider';

@@ -35,14 +35,28 @@ func ParseOfx(file multipart.File) ([]types.Transaction, types.Bank, types.State
 		return nil, types.Bank{}, types.Statement{}, fmt.Errorf("error parsing statements: %w", err)
 	}
 
-	Bank := parseBankInfo(fileString)
-	stmttrn := getItensFromTag("STMTTRN", fileString)
+	Bank, err := parseBankInfo(fileString)
+	if err != nil {
+		return nil, types.Bank{}, types.Statement{}, fmt.Errorf("error parsing banks: %w", err)
+	}
+
+	stmttrn := getArrayItensFromTag("STMTTRN", fileString)
 	for _, item := range stmttrn {
-		line := parseSTMTTRNIntoTransaction(item)
-		lines = append(lines, line)
+		line, err := parseSTMTTRNIntoTransaction(item)
+		if err == nil {
+			lines = append(lines, line)
+		}
 	}
 
 	return lines, Bank, statement, nil
+}
+
+// isXMLFormat checks if the OFX file is in XML format (has closing tags) or SGML format
+func isXMLFormat(fileString, tag string) bool {
+	var regex *regexp.Regexp
+	regex = regexp.MustCompile(fmt.Sprintf(`(?s)<%s>(.*?)</%s>`, tag, tag))
+	matches := regex.FindAllStringSubmatch(fileString, -1)
+	return len(matches) > 0
 }
 
 // getItensFromTag extracts all occurrences of a tag and its content from a string.
@@ -52,18 +66,70 @@ func ParseOfx(file multipart.File) ([]types.Transaction, types.Bank, types.State
 //   - fileString: The string to search within.
 //
 // Returns:
-//   - []string: A slice of strings, where each string is the content found within the specified tag.
-func getItensFromTag(tag, fileString string) []string {
-
-	sintax := fmt.Sprintf(`(?s)<%s>(.*?)</%s>`, tag, tag)
-
-	regex := regexp.MustCompile(sintax)
-	matches := regex.FindAllStringSubmatch(fileString, -1)
-
+//   - string: A slice of strings, where each string is the content found within the specified tag.
+//   - error: error
+func getItensFromTag(tag, fileString string) (string, error) {
+	var regex *regexp.Regexp
 	var results []string
 
-	for _, match := range matches {
-		results = append(results, match[1])
+	println("isXMLFormat(fileString) ", tag, isXMLFormat(fileString, tag))
+
+	if isXMLFormat(fileString, tag) {
+		// XML format (with closing tags)
+		xmlPattern := fmt.Sprintf(`(?s)<%s>(.*?)</%s>`, tag, tag)
+		regex = regexp.MustCompile(xmlPattern)
+		matches := regex.FindAllStringSubmatch(fileString, -1)
+
+		for _, match := range matches {
+			results = append(results, strings.TrimSpace(match[1]))
+		}
+	} else {
+		// SGML pattern: match <TAG>value until next < or newline
+		sgmlPattern := fmt.Sprintf(`<%s>([^<\r\n]+)`, tag)
+		regex = regexp.MustCompile(sgmlPattern)
+		matches := regex.FindAllStringSubmatch(fileString, -1)
+
+		for _, match := range matches {
+			results = append(results, strings.TrimSpace(match[1]))
+		}
+	}
+
+	if len(results) > 0 {
+		return results[0], nil
+	}
+
+	return "", fmt.Errorf("%s not found", tag)
+}
+
+func getArrayItensFromTag(tag, fileString string) []string {
+	var regex *regexp.Regexp
+	var results []string
+
+	if isXMLFormat(fileString, tag) {
+		// XML format (with closing tags)
+		xmlPattern := fmt.Sprintf(`(?s)<%s>(.*?)</%s>`, tag, tag)
+		regex = regexp.MustCompile(xmlPattern)
+		matches := regex.FindAllStringSubmatch(fileString, -1)
+
+		for _, match := range matches {
+			results = append(results, strings.TrimSpace(match[1]))
+		}
+	} else {
+		// For SGML, we need a more complex pattern for block elements like STMTTRN
+		// This matches from <TAG> to the next occurrence of the same tag or end of similar block
+		if tag == "STMTTRN" {
+			sgmlPattern := `<STMTTRN>((?:[^<]|<(?!STMTTRN))*?)(?=<STMTTRN>|$)`
+			regex = regexp.MustCompile(sgmlPattern)
+		} else {
+			// For simple tags, match until next < or newline
+			sgmlPattern := fmt.Sprintf(`<%s>([^<\r\n]+)`, tag)
+			regex = regexp.MustCompile(sgmlPattern)
+		}
+
+		matches := regex.FindAllStringSubmatch(fileString, -1)
+		for _, match := range matches {
+			results = append(results, strings.TrimSpace(match[1]))
+		}
 	}
 
 	return results
@@ -76,18 +142,38 @@ func getItensFromTag(tag, fileString string) []string {
 //
 // Returns:
 //   - types.Transaction: A Transaction struct containing the parsed data.
-func parseSTMTTRNIntoTransaction(stmttrn string) types.Transaction {
+func parseSTMTTRNIntoTransaction(stmttrn string) (types.Transaction, error) {
 
 	var transaction types.Transaction
-	value := getItensFromTag("TRNAMT", stmttrn)[0]
+
+	value, err := getItensFromTag("TRNAMT", stmttrn)
+	if err != nil {
+		return transaction, err
+	}
+	tType, err := getItensFromTag("TRNTYPE", stmttrn)
+	if err != nil {
+		return transaction, err
+	}
+	id, err := getItensFromTag("FITID", stmttrn)
+	if err != nil {
+		return transaction, err
+	}
+	desc, err := getItensFromTag("MEMO", stmttrn)
+	if err != nil {
+		return transaction, err
+	}
+	date, err := getItensFromTag("DTPOSTED", stmttrn)
+	if err != nil {
+		return transaction, err
+	}
 
 	transaction.Value, _ = strconv.ParseFloat(value, 64)
-	transaction.Type = getItensFromTag("TRNTYPE", stmttrn)[0]
-	transaction.Id = getItensFromTag("FITID", stmttrn)[0]
-	transaction.Desc = getItensFromTag("MEMO", stmttrn)[0]
-	transaction.Date, _ = parseOfxDate(getItensFromTag("DTPOSTED", stmttrn)[0])
+	transaction.Type = tType
+	transaction.Id = id
+	transaction.Desc = desc
+	transaction.Date, _ = parseOfxDate(date)
 
-	return transaction
+	return transaction, nil
 }
 
 // parseOfxDate parses an OFX date string into a formatted date string.
@@ -119,16 +205,42 @@ func parseOfxDate(date string) (string, error) {
 //
 // Returns:
 //   - types.Bank: A Bank struct containing the parsed bank information.
-func parseBankInfo(file string) types.Bank {
-	Bank := types.Bank{
-		Name:        getItensFromTag("ORG", file)[0],
-		AccountId:   getItensFromTag("ACCTID", file)[0],
-		FId:         getItensFromTag("FID", file)[0],
-		BankId:      getItensFromTag("BANKID", file)[0],
-		BranchId:    getItensFromTag("BRANCHID", file)[0],
-		AccountType: getItensFromTag("ACCTTYPE", file)[0],
+func parseBankInfo(file string) (types.Bank, error) {
+
+	var Bank types.Bank
+
+	name, err := getItensFromTag("ORG", file)
+	if err != nil {
+		return Bank, err
 	}
-	return Bank
+	accountId, err := getItensFromTag("ACCTID", file)
+	if err != nil {
+		return Bank, err
+	}
+	fId, err := getItensFromTag("FID", file)
+	if err != nil {
+		return Bank, err
+	}
+	bankId, err := getItensFromTag("BANKID", file)
+	if err != nil {
+		return Bank, err
+	}
+	branchId, err := getItensFromTag("BRANCHID", file)
+	if err != nil {
+		branchId = "1"
+	}
+	accountType, err := getItensFromTag("ACCTTYPE", file)
+	if err != nil {
+		return Bank, err
+	}
+
+	Bank.Name = name
+	Bank.AccountId = accountId
+	Bank.FId = fId
+	Bank.BankId = bankId
+	Bank.BranchId = branchId
+	Bank.AccountType = accountType
+	return Bank, nil
 }
 
 // parseStatement parses statement information from an OFX file string.
@@ -143,26 +255,55 @@ func parseStatement(fileString string) (types.Statement, error) {
 
 	var statement types.Statement
 
-	dtStart, err := parseOfxDate(getItensFromTag("DTSTART", fileString)[0])
+	tagDtStart, err := getItensFromTag("DTSTART", fileString)
 	if err != nil {
 		return statement, err
 	}
-	dtEnd, err := parseOfxDate(getItensFromTag("DTEND", fileString)[0])
-	if err != nil {
-		return statement, err
-	}
-	dtasof, err := parseOfxDate(getItensFromTag("DTASOF", fileString)[0])
-	if err != nil {
-		return statement, err
-	}
-	dtserver, err := parseOfxDate(getItensFromTag("DTSERVER", fileString)[0])
+	dtStart, err := parseOfxDate(tagDtStart)
 	if err != nil {
 		return statement, err
 	}
 
-	balamt, err := strconv.ParseFloat(getItensFromTag("BALAMT", fileString)[0], 64)
+	tagDtEnd, err := getItensFromTag("DTEND", fileString)
 	if err != nil {
 		return statement, err
+	}
+	dtEnd, err := parseOfxDate(tagDtEnd)
+	if err != nil {
+		return statement, err
+	}
+
+	tagDtAsOf, err := getItensFromTag("DTASOF", fileString)
+	if err != nil {
+		return statement, err
+	}
+	dtasof, err := parseOfxDate(tagDtAsOf)
+	if err != nil {
+		return statement, err
+	}
+
+	tagDtServer, err := getItensFromTag("DTSERVER", fileString)
+	if err != nil {
+		return statement, err
+	}
+	dtserver, err := parseOfxDate(tagDtServer)
+	if err != nil {
+		return statement, err
+	}
+
+	tagBalamt, err := getItensFromTag("BALAMT", fileString)
+	if err != nil {
+		return statement, err
+	}
+	balamt, err := strconv.ParseFloat(tagBalamt, 64)
+	if err != nil {
+		return statement, err
+	}
+
+	language := "ENG"
+	tagLang, err := getItensFromTag("LANGUAGE", fileString)
+	if err == nil {
+		language = tagLang
 	}
 
 	statement.StartDate = dtStart
@@ -170,7 +311,7 @@ func parseStatement(fileString string) (types.Statement, error) {
 	statement.BalanceDate = dtasof
 	statement.ServerDate = dtserver
 	statement.LedgerBalance = balamt
-	statement.Language = getItensFromTag("LANGUAGE", fileString)[0]
+	statement.Language = language
 
 	statement.Yields = parseBalance(fileString)
 	return statement, nil
@@ -185,19 +326,39 @@ func parseStatement(fileString string) (types.Statement, error) {
 //   - []types.Balance: A slice of Balance structs containing the parsed balance information.
 func parseBalance(fileString string) []types.Balance {
 
-	balItems := getItensFromTag("BAL", fileString)
+	balItems := getArrayItensFromTag("BAL", fileString)
 	var balances []types.Balance
 	for _, balItem := range balItems {
 
-		value, _ := strconv.ParseFloat(getItensFromTag("VALUE", balItem)[0], 64)
-
-		balance := types.Balance{
-			Name:    getItensFromTag("NAME", balItem)[0],
-			Desc:    getItensFromTag("DESC", balItem)[0],
-			BalType: getItensFromTag("BALTYPE", balItem)[0],
-			Value:   value,
+		name, err := getItensFromTag("NAME", balItem)
+		if err != nil {
+			continue
 		}
-		balances = append(balances, balance)
+		desc, err := getItensFromTag("DESC", balItem)
+		if err != nil {
+			continue
+		}
+		balType, err := getItensFromTag("BALTYPE", balItem)
+		if err != nil {
+			continue
+		}
+
+		value, err := getItensFromTag("VALUE", balItem)
+		if err != nil {
+			continue
+		}
+
+		floatValue, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			continue
+		}
+
+		balances = append(balances, types.Balance{
+			Name:    name,
+			Desc:    desc,
+			BalType: balType,
+			Value:   floatValue,
+		})
 	}
 
 	return balances

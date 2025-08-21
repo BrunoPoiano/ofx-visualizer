@@ -83,11 +83,11 @@ export const Cards = () => {
 	];
 
 	return (
-		<div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2.5">
+		<div className='grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2.5'>
 			<Calendar
 				defaultMonth={defaultFilter.date?.from || new Date()}
-				mode="range"
-				className="rounded-md border shadow"
+				mode='range'
+				className='rounded-md border shadow'
 				style={{ gridArea: 'span 2 / 1' }}
 				selected={defaultFilter.date}
 				onSelect={(e: DateRange | undefined) => {
@@ -116,7 +116,7 @@ const CardWrapper = ({ label, value, color }: CardWrapperType) => {
 			<CardTitle>{label}</CardTitle>
 			<CardContent>
 				<span
-					className="font-bold text-2xl"
+					className='font-bold text-2xl'
 					style={{
 						color: color,
 					}}
