@@ -35,46 +35,44 @@ export const Filter = () => {
 	};
 
 	return (
-		<>
-			<div className='flex flex-wrap gap-2.5'>
-				<Input
-					className='w-[250px]'
-					placeholder='Min Value'
-					type='number'
-					name='minValue'
-					value={filter.minValue || ''}
-					onChange={changeFilter}
-				/>
-				<Input
-					className='w-[250px]'
-					placeholder='Max Value'
-					type='number'
-					name='maxValue'
-					value={filter.maxValue || ''}
-					onChange={changeFilter}
-				/>
+		<div className='flex flex-wrap gap-2.5'>
+			<Input
+				className='w-[250px]'
+				placeholder='Min Value'
+				type='number'
+				name='minValue'
+				value={filter.minValue || ''}
+				onChange={changeFilter}
+			/>
+			<Input
+				className='w-[250px]'
+				placeholder='Max Value'
+				type='number'
+				name='maxValue'
+				value={filter.maxValue || ''}
+				onChange={changeFilter}
+			/>
 
-				<Select
-					value={defaultFilter.bank_id}
-					onValueChange={(e) =>
-						setDefaultFilter((prev) => ({ ...prev, bank_id: e }))
-					}
-				>
-					<SelectTrigger style={{ width: 'min(250px, 100%)' }}>
-						<SelectValue placeholder='Bank' />
-					</SelectTrigger>
-					<SelectContent>
-						{banks.map((item) => (
-							<SelectItem key={item.id} value={item.id.toString()}>
-								{item.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				<Button className='ml-auto' variant='ghost' onClick={clearFilter}>
-					Clear filter
-				</Button>
-			</div>
-		</>
+			<Select
+				value={defaultFilter.bank_id}
+				onValueChange={(e) =>
+					setDefaultFilter((prev) => ({ ...prev, bank_id: e }))
+				}
+			>
+				<SelectTrigger style={{ width: 'min(250px, 100%)' }}>
+					<SelectValue placeholder='Bank' />
+				</SelectTrigger>
+				<SelectContent>
+					{banks.map((item) => (
+						<SelectItem key={item.id} value={item.id.toString()}>
+							{item.name}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+			<Button className='ml-auto' variant='ghost' onClick={clearFilter}>
+				Clear filter
+			</Button>
+		</div>
 	);
 };
