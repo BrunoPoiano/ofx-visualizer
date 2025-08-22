@@ -1,8 +1,7 @@
+import { useEffect, useState } from 'react';
 import { PieChartComponent } from '@/components/global/chart/piechart';
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import type { ChartConfig } from '@/components/ui/chart';
-
-import { useEffect, useState } from 'react';
 import { useTransactionContext } from '../../provider';
 
 type ChartType = {

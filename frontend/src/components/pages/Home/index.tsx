@@ -1,4 +1,3 @@
-import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useLocalStorage from '@/lib/localstorage';
 import { BanksSection } from './components/Banks';

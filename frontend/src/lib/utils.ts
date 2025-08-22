@@ -8,7 +8,9 @@ export function cn(...inputs: ClassValue[]) {
 
 export const parseDate = (date: string, date2?: string): string => {
 	if (date2) {
-		return `${moment.utc(date).format('DD/MM/yyyy')} to ${moment.utc(date2).format('DD/MM/yyyy')}`;
+		return `${moment.utc(date).format('DD/MM/yyyy')} to ${moment
+			.utc(date2)
+			.format('DD/MM/yyyy')}`;
 	}
 
 	return moment.utc(date).format('DD/MM/yyyy');

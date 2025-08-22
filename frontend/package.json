@@ -1,14 +1,15 @@
 {
 	"name": "ofx-visualizer",
 	"private": true,
-	"version": "0.2.1",
+	"version": "0.3.1",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"format": "biome format --write .",
 		"format:clean": "biome format --write . && find src -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.jsx' | xargs sed -i '/^$/N;/^\\n$/d'",
-		"format:all": "npm run format:clean && npm run lint",
+		"format:imports": "biome check --apply --rule-settings={\\'sort-imports\\':{\\'enabled\\':true},\\'remove-unused-imports\\':{\\'enabled\\':true}} .",
+		"format:all": "npm run format:imports && npm run format:clean && npm run lint",
 		"lint": "biome lint --write .",
 		"preview": "vite preview"
 	},
