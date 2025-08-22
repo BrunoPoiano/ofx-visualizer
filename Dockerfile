@@ -2,7 +2,9 @@ FROM node:20 AS frontend
 
 WORKDIR /app/frontend
 COPY frontend/ ./
-RUN npm install --force
+RUN npm install
+RUN npm run lint
+RUN npm run format:clean
 RUN npm run build
 
 FROM golang:1.24.3-alpine3.21 AS backend
