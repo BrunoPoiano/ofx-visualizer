@@ -42,7 +42,7 @@ export type TransactionType = {
 	id: string;
 	bank_id: number;
 	date: string;
-	type: (typeof TransactionTypeValues)[keyof typeof TransactionTypeValues];
+	type: (typeof TransactionTypeValues)[number];
 	value: number;
 	desc: string;
 };

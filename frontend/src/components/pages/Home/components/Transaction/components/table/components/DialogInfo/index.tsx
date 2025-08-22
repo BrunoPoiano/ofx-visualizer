@@ -28,7 +28,7 @@ export const DialogInfo = ({ item }: { item: TransactionType }) => {
 					<AlertDialogTitle>{item.id}</AlertDialogTitle>
 					<b>{banks.filter((bank) => bank.id === item.bank_id)[0].name}</b>
 					<div className='flex gap-[0.5ch]'>
-						<span>{item.type as string}</span>
+						<span>{item.type}</span>
 						<span>
 							{item.value.toLocaleString('pt-BR', {
 								style: 'currency',

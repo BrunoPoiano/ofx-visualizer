@@ -19,7 +19,7 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 		return {
 			id: item.id,
 			date: parseDate(item.date),
-			type: item.type as string,
+			type: item.type,
 			value: item.value.toLocaleString('pt-BR', {
 				style: 'currency',
 				currency: 'BRL',
