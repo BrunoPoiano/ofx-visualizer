@@ -2,6 +2,26 @@ import type { JSX } from 'react';
 import type { DateRange } from 'react-day-picker';
 import type { PaginationType } from '@/types';
 
+export const TransactionTypeValues = [
+	'CREDIT',
+	'DEBIT',
+	'INT',
+	'DIV',
+	'FEE',
+	'SRVCHG',
+	'DEP',
+	'ATM',
+	'POS',
+	'XFER',
+	'CHECK',
+	'PAYMENT',
+	'CASH',
+	'DIRECTDEP',
+	'DIRECTDEBIT',
+	'REPEATPMT',
+	'OTHER',
+] as const;
+
 type Tabs = 'transaction' | 'statement' | 'banks';
 
 export type DefaultFilterType = {
@@ -22,7 +42,7 @@ export type TransactionType = {
 	id: string;
 	bank_id: number;
 	date: string;
-	type: 'CREDIT' | 'DEBIT';
+	type: (typeof TransactionTypeValues)[keyof typeof TransactionTypeValues];
 	value: number;
 	desc: string;
 };

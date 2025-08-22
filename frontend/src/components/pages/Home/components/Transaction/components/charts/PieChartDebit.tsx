@@ -61,7 +61,7 @@ export const PieChartDebit = () => {
 		<PieChartComponent
 			header={
 				<CardHeader className='items-center pb-0'>
-					<CardTitle>Spending Breakdown</CardTitle>
+					<CardTitle>Debit Breakdown</CardTitle>
 				</CardHeader>
 			}
 			chartData={chartData}

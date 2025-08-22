@@ -26,6 +26,10 @@ export const TableInfo = [
 		label: 'Complete',
 		id: 'id',
 	},
+	{
+		label: 'Info',
+		id: 'bank_id',
+	},
 ] satisfies TableInfoType[];
 
 export const TableInfoSmall = [

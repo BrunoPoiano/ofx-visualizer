@@ -25,8 +25,7 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 				currency: 'BRL',
 			}),
 			desc: item.desc,
-			bank_id: item.bank_id.toString(),
-			comp: <DialogInfo item={item} />,
+			bank_id: <DialogInfo item={item} />,
 		};
 	});
 

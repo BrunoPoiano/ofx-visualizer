@@ -1,11 +1,13 @@
 import moment from 'moment';
 import type { DateRange } from 'react-day-picker';
 import { isNumberOrDefault, isStringOrDefault } from '@/lib/typeValidation';
-import type {
-	BankType,
-	balanceType,
-	StatementType,
-	TransactionType,
+import { ensureOneOf } from '@/lib/utils';
+import {
+	type BankType,
+	type balanceType,
+	type StatementType,
+	type TransactionType,
+	TransactionTypeValues,
 } from './types';
 
 export const parseBanks = (data: unknown) => {
@@ -53,11 +55,13 @@ export const parseTransaction = (data: unknown) => {
 
 		const typedItem = item as Record<string, unknown>;
 
+		const type = ensureOneOf(typedItem.type, TransactionTypeValues, 'OTHER');
+
 		const newItem: TransactionType = {
 			id: isStringOrDefault(typedItem.id),
 			bank_id: isNumberOrDefault(typedItem.bank_id),
 			date: isStringOrDefault(typedItem.date),
-			type: isStringOrDefault(typedItem.type) as TransactionType['type'],
+			type,
 			value: isNumberOrDefault(typedItem.value),
 			desc: isStringOrDefault(typedItem.desc),
 		};
