@@ -26,7 +26,7 @@ export const parseBanks = (data: unknown) => {
 		const newItem: BankType = {
 			id: isNumberOrDefault(typedItem.id),
 			name: isStringOrDefault(typedItem.name),
-			account_id: isNumberOrDefault(typedItem.account_id),
+			account_id: isStringOrDefault(typedItem.account_id),
 			account_type: isStringOrDefault(typedItem.account_type),
 			bank_id: isNumberOrDefault(typedItem.bank_id),
 			branch_id: isNumberOrDefault(typedItem.branch_id),

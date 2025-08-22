@@ -59,9 +59,9 @@ export const AppTable = <
 	};
 
 	return (
-		<div className='grid gap-3.5'>
+		<div className='grid min-h-[430px] gap-3.5'>
 			<div className='rounded-md border' style={{ maxWidth: '1280px' }}>
-				<ScrollArea className={`${small ? 'h-76' : 'h-150'} w-full`}>
+				<ScrollArea className={`${small ? 'h-82' : 'h-150'} w-full`}>
 					<Table>
 						<TableHeader className='sticky top-0 bg-background'>
 							<TableRow>

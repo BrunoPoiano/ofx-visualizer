@@ -30,7 +30,7 @@ export type TransactionType = {
 export type BankType = {
 	id: number;
 	name: string;
-	account_id: number;
+	account_id: string;
 	account_type: string;
 	bank_id: number;
 	branch_id: number;

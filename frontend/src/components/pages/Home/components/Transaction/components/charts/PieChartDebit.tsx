@@ -65,9 +65,7 @@ export const PieChartDebit = () => {
 				</CardHeader>
 			}
 			chartData={chartData}
-			chartConfig={{
-				...chartConfig,
-			}}
+			chartConfig={chartConfig}
 			dataKey='value'
 			nameKey='to'
 		/>

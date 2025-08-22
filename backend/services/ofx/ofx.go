@@ -99,6 +99,14 @@ func getItensFromTag(tag, fileString string) (string, error) {
 	return "", fmt.Errorf("%s not found", tag)
 }
 
+// getArrayItensFromTag extracts all occurrences of a tag and its content from a string and returns a slice of strings.
+//
+// Parameters:
+//   - tag: The tag to search for (e.g., "STMTTRN").
+//   - fileString: The string to search within.
+//
+// Returns:
+//   - []string: A slice of strings, where each string is the content found within the specified tag.
 func getArrayItensFromTag(tag, fileString string) []string {
 	var regex *regexp.Regexp
 	var results []string
@@ -113,20 +121,29 @@ func getArrayItensFromTag(tag, fileString string) []string {
 			results = append(results, strings.TrimSpace(match[1]))
 		}
 	} else {
-		// For SGML, we need a more complex pattern for block elements like STMTTRN
-		// This matches from <TAG> to the next occurrence of the same tag or end of similar block
+		// For SGML format
 		if tag == "STMTTRN" {
-			sgmlPattern := `<STMTTRN>((?:[^<]|<(?!STMTTRN))*?)(?=<STMTTRN>|$)`
-			regex = regexp.MustCompile(sgmlPattern)
+			// Split the content on STMTTRN tags and process each block
+			blocks := strings.Split(fileString, "<STMTTRN>")
+			for _, block := range blocks[1:] { // Skip the first split which is before any STMTTRN
+				// Find where the next STMTTRN starts or end of content
+				endIdx := strings.Index(block, "<STMTTRN>")
+				if endIdx == -1 {
+					// If no next STMTTRN, take until end of block
+					results = append(results, strings.TrimSpace(block))
+				} else {
+					// If there is a next STMTTRN, take only until that point
+					results = append(results, strings.TrimSpace(block[:endIdx]))
+				}
+			}
 		} else {
 			// For simple tags, match until next < or newline
 			sgmlPattern := fmt.Sprintf(`<%s>([^<\r\n]+)`, tag)
 			regex = regexp.MustCompile(sgmlPattern)
-		}
-
-		matches := regex.FindAllStringSubmatch(fileString, -1)
-		for _, match := range matches {
-			results = append(results, strings.TrimSpace(match[1]))
+			matches := regex.FindAllStringSubmatch(fileString, -1)
+			for _, match := range matches {
+				results = append(results, strings.TrimSpace(match[1]))
+			}
 		}
 	}
 

@@ -1,13 +1,14 @@
+import moment from 'moment';
+import { useEffect, useState } from 'react';
+import { AppToggle } from '@/components/global/appToggle';
 import { AreaChartComponent } from '@/components/global/chart/areaChart';
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import type { ChartConfig } from '@/components/ui/chart';
-
-import moment from 'moment';
-import { useEffect, useState } from 'react';
+import useLocalStorage from '@/lib/localstorage';
 import { useTransactionContext } from '../../provider';
 
 type ChartType = {
-	month: string;
+	key: string;
 	positive: number;
 	negative: number;
 	total: number;
@@ -18,6 +19,8 @@ export const AreaChart = () => {
 		transactions: [transactions],
 	} = useTransactionContext();
 	const [chartData, setChartData] = useState<ChartType[]>([]);
+	const [toggle, setToggle] = useLocalStorage('toggle', false);
+
 	const chartConfig = {
 		positive: {
 			label: 'Positive',
@@ -36,27 +39,29 @@ export const AreaChart = () => {
 	useEffect(() => {
 		const cData: ChartType[] = [];
 
+		const format = toggle ? 'MM/YYYY' : 'DD/MM';
+
 		for (const item of transactions) {
-			const date = moment(item.date).format('YYYY/MM');
-			const month = cData.find((el) => el.month === date);
-			if (month) {
+			const date = moment(item.date).format(format);
+			const key = cData.find((el) => el.key === date);
+			if (key) {
 				if (item.value > 0) {
-					month.positive += item.value;
+					key.positive += item.value;
 				} else {
-					month.negative += Math.abs(item.value);
+					key.negative += Math.abs(item.value);
 				}
-				month.total += item.value;
+				key.total += item.value;
 			} else {
 				if (item.value > 0) {
 					cData.push({
-						month: date,
+						key: date,
 						positive: item.value,
 						negative: 0,
 						total: item.value,
 					});
 				} else {
 					cData.push({
-						month: date,
+						key: date,
 						positive: 0,
 						negative: Math.abs(item.value),
 						total: item.value,
@@ -65,26 +70,32 @@ export const AreaChart = () => {
 			}
 		}
 
-		// Sort the data by month
 		cData.sort((a, b) => {
-			const monthA = moment(a.month, 'YYYY/MMMM').month();
-			const monthB = moment(b.month, 'YYYY/MMMM').month();
-			return monthA - monthB;
+			const monthA = moment(a.key, format);
+			const monthB = moment(b.key, format);
+			return monthA.isBefore(monthB) ? -1 : 1;
 		});
 
 		setChartData(cData);
-	}, [transactions]);
+	}, [transactions, toggle]);
 
 	return (
 		<AreaChartComponent
 			header={
 				<CardHeader className='items-center pb-0'>
 					<CardTitle>Filtered Financial Overview</CardTitle>
+					<div className='flex justify-end'>
+						<AppToggle
+							toggle={[toggle, setToggle]}
+							frontLabel='Day'
+							backLabel='Month'
+						/>
+					</div>
 				</CardHeader>
 			}
 			chartData={chartData}
 			chartConfig={chartConfig}
-			dataKey='month'
+			dataKey='key'
 		/>
 	);
 };
