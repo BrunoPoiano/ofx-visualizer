@@ -18,6 +18,8 @@ export const DialogInfo = ({ item }: { item: TransactionType }) => {
 		banks: [banks],
 	} = useHomeContext();
 
+	const bank_name = banks.filter((bank) => bank.id === item.bank_id)[0].name;
+
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
@@ -26,14 +28,14 @@ export const DialogInfo = ({ item }: { item: TransactionType }) => {
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>{item.id}</AlertDialogTitle>
-					<b>{banks.filter((bank) => bank.id === item.bank_id)[0].name}</b>
+					<b>{bank_name}</b>
 					<div className='flex gap-[0.5ch]'>
 						<span>{item.type}</span>
 						<span>
 							{item.value.toLocaleString('pt-BR', {
 								style: 'currency',
 								currency: 'BRL',
-							})}{' '}
+							})}
 						</span>
 						<span className='ml-auto'>{parseDate(item.date)}</span>
 					</div>
