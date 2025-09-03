@@ -25,12 +25,12 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 
 	var filter types.DefaultSearch
 
-	currentPage, err := strconv.ParseInt(params.Get("currentPage"), 10, 64)
+	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
 	if err != nil {
 		currentPage = 1
 	}
 
-	perPage, err := strconv.ParseInt(params.Get("perPage"), 10, 64)
+	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
 	if err != nil {
 		perPage = 5
 	}
@@ -51,7 +51,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	filter.Search = params.Get("search")
 	filter.CurrentPage = currentPage
 
-	items, totalItems, err := BankService.GetItems(database, filter)
+	items, totalItems, lastPage, err := BankService.GetItems(database, filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -62,6 +62,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		Total:       totalItems,
 		CurrentPage: int(currentPage),
 		PerPage:     int(perPage),
+		LastPage:    lastPage,
 	}
 
 	json.NewEncoder(w).Encode(response)

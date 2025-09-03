@@ -49,12 +49,15 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 		},
 	);
 
-	const [pagination, setPagination] = useState<PaginationType>({
-		per_page: 5,
-		total_items: 0,
-		last_page: 1,
-		current_page: 1,
-	});
+	const [pagination, setPagination] = useLocalStorage<PaginationType>(
+		'PAGINATION_TRANSACTION',
+		{
+			per_page: 5,
+			total_items: 0,
+			last_page: 1,
+			current_page: 1,
+		},
+	);
 
 	const {
 		defaultFilter: [defaultFilter, setDefaultFilter],
@@ -79,6 +82,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 				...(orderBy.order ? { order: orderBy.order } : {}),
 				...(orderBy.direction ? { direction: orderBy.direction } : {}),
 			});
+
 			setPagination(paginationContent);
 			setTransactions(data);
 		}, [
@@ -87,6 +91,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 			filter,
 			orderBy,
 			defaultFilter,
+			setPagination,
 		]),
 		500,
 	);

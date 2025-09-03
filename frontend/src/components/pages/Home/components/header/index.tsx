@@ -26,7 +26,13 @@ export const AppHeader = ({
 		const files = e.target.files;
 		if (!files?.length) return;
 
-		for (let i = 0; i <= files.length - 1; i++) {
+		if (files.length > 10) {
+			toast.warning('Files limit exceeded.', {
+				style: { background: 'var(--chart-4)' },
+			});
+		}
+
+		for (let i = 0; i <= Math.min(files.length - 1, 10); i++) {
 			formData.append('file', files[i]);
 		}
 

@@ -37,11 +37,6 @@ export function BanksProvider({ children }: { children: React.ReactNode }) {
 		},
 	);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Every change on the filters, the pagination returns to page 1
-	useEffect(() => {
-		setPagination((prev) => ({ ...prev, current_page: 1 }));
-	}, [filter]);
-
 	const getBanksFunc = useDebounce(
 		useCallback(async () => {
 			const requestParams = {
@@ -54,16 +49,28 @@ export function BanksProvider({ children }: { children: React.ReactNode }) {
 				...(filter.search ? { search: filter.search } : {}),
 			};
 
-			const { data } = await getBanks(requestParams);
-
+			const { data, paginationContent } = await getBanks(requestParams);
+			setPagination(paginationContent);
 			setBanks(data);
-		}, [pagination.current_page, pagination.per_page, filter, orderBy]),
+		}, [
+			pagination.current_page,
+			pagination.per_page,
+			filter,
+			orderBy,
+			setPagination,
+		]),
 		500,
 	);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Run getBanksFunc every time something important changes>
 	useEffect(() => {
 		getBanksFunc();
-	}, [getBanksFunc]);
+	}, [pagination.current_page, pagination.per_page, filter, orderBy]);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Every change on the filters, the pagination returns to page 1
+	useEffect(() => {
+		setPagination((prev) => ({ ...prev, current_page: 1 }));
+	}, [filter]);
 
 	return (
 		<BanksProviderContext.Provider

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"main/services/utils"
 	"main/types"
+	"math"
 )
 
 // InsertItems inserts a Bank item into the database.
@@ -64,7 +65,7 @@ func InsertItems(database *sql.DB, item types.Bank) (int, error) {
 //   - A slice of Bank items.
 //   - The total number of items in the database.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Bank, int, error) {
+func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Bank, int, int, error) {
 
 	var items []types.Bank
 
@@ -91,7 +92,7 @@ func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Bank, int, 
 		return s, rows.Err()
 	})
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 1, err
 	}
 
 	totalQuery := "SELECT count(id) as totalItems FROM banks"
@@ -103,10 +104,12 @@ func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Bank, int, 
 		return s, nil
 	})
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 1, err
 	}
 
-	return items, totalItems, nil
+	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
+	return items, totalItems, int(last_page), nil
+
 }
 
 func UpdateItems(database *sql.DB, item types.Bank) error {
