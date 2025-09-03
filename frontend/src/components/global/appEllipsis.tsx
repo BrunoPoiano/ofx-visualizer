@@ -6,13 +6,11 @@ export const AppEllipsis = ({
 }: {
 	children: ReactNode;
 	width?: string;
-}) => {
-	return (
-		<p
-			className='overflow-clip text-ellipsis'
-			style={{ maxWidth: width ? width : '100%' }}
-		>
-			{children}
-		</p>
-	);
-};
+}) => (
+	<p
+		className='overflow-clip text-ellipsis'
+		style={{ maxWidth: width ? width : '100%' }}
+	>
+		{children}
+	</p>
+);

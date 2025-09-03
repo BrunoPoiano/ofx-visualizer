@@ -1,3 +1,4 @@
+import { useHomeContext } from '@/components/pages/Home/provider';
 import type { StatementType } from '@/components/pages/Home/types';
 import {
 	AlertDialog,
@@ -14,10 +15,14 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { generateKey } from '@/lib/utils';
 
 export const DialogInfo = ({ item }: { item: StatementType }) => {
+	const {
+		showValue: [value],
+	} = useHomeContext();
+
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button variant='outline' disabled={item.yields.length === 0}>
+				<Button variant='outline' disabled={item.yields.length === 0 || !value}>
 					Info
 				</Button>
 			</AlertDialogTrigger>

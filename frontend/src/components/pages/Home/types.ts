@@ -38,6 +38,14 @@ export type OrderBy = {
 		| keyof BankType;
 };
 
+export type TableInfoType<T extends OrderBy['order']> = {
+	id: T | 'options';
+	label: string;
+	class?: string;
+	style?: React.CSSProperties;
+	showValue?: true;
+};
+
 export type TransactionType = {
 	id: string;
 	source_id: number;

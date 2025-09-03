@@ -14,7 +14,10 @@ import { Button } from '@/components/ui/button';
 import { parseDate } from '@/lib/utils';
 
 export const DialogInfo = ({ item }: { item: TransactionType }) => {
-	const { sources } = useHomeContext();
+	const {
+		sources,
+		showValue: [value],
+	} = useHomeContext();
 
 	const source_name = sources.filter(
 		(source) => source.id === item.source_id,
@@ -23,7 +26,9 @@ export const DialogInfo = ({ item }: { item: TransactionType }) => {
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button variant='outline'>Info</Button>
+				<Button variant='outline' disabled={!value}>
+					Info
+				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>

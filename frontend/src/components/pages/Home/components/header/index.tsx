@@ -8,15 +8,18 @@ import { ModeToggle } from '@/components/ui/mode-toggle';
 import { postOfxFile } from '../../functions';
 import { useHomeContext } from '../../provider';
 
-export const AppHeader = () => {
+export const AppHeader = ({
+	setTabKey,
+}: {
+	setTabKey: React.Dispatch<React.SetStateAction<number>>;
+}) => {
 	const formData = new FormData();
+	const [loading, setLoading] = useState(false);
 
 	const {
 		showValue: [showValue, setShowValue],
-		getBanksFunc,
+		getSourcesFunc,
 	} = useHomeContext();
-
-	const [loading, setLoading] = useState(false);
 
 	const inportFIle = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		setLoading(true);
@@ -29,7 +32,8 @@ export const AppHeader = () => {
 
 		await postOfxFile(formData)
 			.then(() => {
-				getBanksFunc();
+				getSourcesFunc();
+				setTabKey((prev) => prev + 1);
 				toast.success('File successifully parsed!.', {
 					style: { background: 'var(--chart-2)' },
 				});

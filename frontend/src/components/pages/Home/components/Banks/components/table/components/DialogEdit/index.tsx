@@ -19,7 +19,10 @@ import { Input } from '@/components/ui/input';
 import { useBankContext } from '../../../../provider';
 
 export const DialogEdit = ({ item }: { item: BankType }) => {
-	const { getSourcesFunc } = useHomeContext();
+	const {
+		getSourcesFunc,
+		showValue: [value],
+	} = useHomeContext();
 	const { getBanksFunc } = useBankContext();
 
 	const [name, setName] = useState(item.name);
@@ -48,7 +51,11 @@ export const DialogEdit = ({ item }: { item: BankType }) => {
 	return (
 		<AlertDialog open={open}>
 			<AlertDialogTrigger asChild>
-				<Button variant='outline' onClick={() => setOpen(true)}>
+				<Button
+					variant='outline'
+					onClick={() => setOpen(true)}
+					disabled={!value}
+				>
 					Edit
 				</Button>
 			</AlertDialogTrigger>

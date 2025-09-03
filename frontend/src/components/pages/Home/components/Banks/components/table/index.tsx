@@ -2,7 +2,7 @@ import { AppTable } from '@/components/global/appTable';
 import { useHomeContext } from '@/components/pages/Home/provider';
 import { useBankContext } from '../../provider';
 import { DialogEdit } from './components/DialogEdit';
-import { TableInfo, type TableInfoType } from './table';
+import { TableInfo } from './table';
 
 export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
@@ -18,12 +18,12 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 	const tableData = banks.map((item) => {
 		return {
 			...item,
-			f_id: <DialogEdit item={item} />,
+			options: <DialogEdit item={item} />,
 		};
 	});
 
 	return (
-		<AppTable<(typeof tableData)[number], TableInfoType>
+		<AppTable<(typeof tableData)[number]>
 			orderBy={[orderBy, setOrderBy]}
 			pagination={[pagination, setPagination]}
 			tableData={tableData}

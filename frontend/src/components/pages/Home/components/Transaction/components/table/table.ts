@@ -1,14 +1,13 @@
-import type { TransactionType } from '@/components/pages/Home/types';
+import type {
+	TableInfoType,
+	TransactionType,
+} from '@/components/pages/Home/types';
 
-export type TableInfoType = {
-	id: keyof TransactionType;
-	label: string;
-};
-
-export const TableInfo = [
+export const TableInfo: TableInfoType<keyof TransactionType>[] = [
 	{
 		label: 'Date',
 		id: 'date',
+		showValue: true,
 	},
 	{
 		label: 'Type',
@@ -21,14 +20,16 @@ export const TableInfo = [
 	{
 		label: 'Description',
 		id: 'desc',
+		class: 'text-left',
+		style: { maxWidth: '30ch' },
 	},
 	{
 		label: 'Info',
-		id: 'source_id',
+		id: 'options',
 	},
-] satisfies TableInfoType[];
+];
 
-export const TableInfoSmall = [
+export const TableInfoSmall: TableInfoType<keyof TransactionType>[] = [
 	{
 		label: 'Date',
 		id: 'date',
@@ -41,4 +42,4 @@ export const TableInfoSmall = [
 		label: 'Value',
 		id: 'value',
 	},
-] satisfies TableInfoType[];
+];

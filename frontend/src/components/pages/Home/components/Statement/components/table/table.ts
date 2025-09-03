@@ -1,14 +1,13 @@
-import type { StatementType } from '@/components/pages/Home/types';
-
-export type TableInfoType = {
-	id: keyof StatementType;
-	label: string;
-};
+import type {
+	StatementType,
+	TableInfoType,
+} from '@/components/pages/Home/types';
 
 export const TableInfo = [
 	{
 		label: 'Date',
 		id: 'start_date',
+		showValue: true,
 	},
 	{
 		label: 'Ledger balance',
@@ -18,4 +17,4 @@ export const TableInfo = [
 		label: 'Yields',
 		id: 'yields',
 	},
-] satisfies TableInfoType[];
+] satisfies TableInfoType<keyof StatementType>[];

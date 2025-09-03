@@ -3,7 +3,7 @@ import { useHomeContext } from '@/components/pages/Home/provider';
 import { parseDate } from '@/lib/utils';
 import { useTransactionContext } from '../../provider';
 import { DialogInfo } from './components/DialogInfo';
-import { TableInfo, TableInfoSmall, type TableInfoType } from './table';
+import { TableInfo, TableInfoSmall } from './table';
 
 export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
@@ -25,12 +25,12 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 				currency: 'BRL',
 			}),
 			desc: item.desc,
-			source_id: <DialogInfo item={item} />,
+			options: <DialogInfo item={item} />,
 		};
 	});
 
 	return (
-		<AppTable<(typeof tableData)[number], TableInfoType>
+		<AppTable<(typeof tableData)[number]>
 			orderBy={[orderBy, setOrderBy]}
 			pagination={[pagination, setPagination]}
 			tableData={tableData}

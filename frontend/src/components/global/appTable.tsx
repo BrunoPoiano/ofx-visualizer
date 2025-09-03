@@ -2,7 +2,7 @@ import React from 'react';
 import { generateKey } from '@/lib/utils';
 import type { PaginationType } from '@/types';
 import { ArrowSVG } from '../icons/arrowUp';
-import type { OrderBy } from '../pages/Home/types';
+import type { OrderBy, TableInfoType } from '../pages/Home/types';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import {
@@ -16,15 +16,10 @@ import {
 import { AppEllipsis } from './appEllipsis';
 import { AppPagination } from './appPagination';
 
-type TableContent = {
-	label: string;
-	id: OrderBy['order'];
-};
-
-type AppTableProps<T extends { [key: string]: string | React.ReactNode }, F> = {
+type AppTableProps<T extends { [key: string]: string | React.ReactNode }> = {
 	small?: boolean | undefined;
-	tableContentSmall?: F[];
-	tableContent: F[];
+	tableContentSmall?: TableInfoType<OrderBy['order']>[];
+	tableContent: TableInfoType<OrderBy['order']>[];
 	orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>];
 	showValue: boolean;
 	pagination: [
@@ -36,7 +31,6 @@ type AppTableProps<T extends { [key: string]: string | React.ReactNode }, F> = {
 
 export const AppTable = <
 	T extends { [key: string]: string | React.ReactNode },
-	F extends TableContent,
 >({
 	small = false,
 	tableContentSmall,
@@ -45,8 +39,12 @@ export const AppTable = <
 	pagination: [pagination, setPagination],
 	showValue,
 	tableData,
-}: AppTableProps<T, F>) => {
-	const changeOrderBy = (order: F['id']) => {
+}: AppTableProps<T>) => {
+	const tableValues =
+		small && tableContentSmall ? tableContentSmall : tableContent;
+
+	const changeOrderBy = (order: OrderBy['order'] | 'options') => {
+		if (order === 'options') return;
 		let direction = orderBy.direction;
 
 		if (orderBy.order === order) {
@@ -55,7 +53,7 @@ export const AppTable = <
 			direction = 'ASC';
 		}
 
-		setOrderBy(() => ({ direction, order }));
+		setOrderBy(() => ({ direction, order: order as OrderBy['order'] }));
 	};
 
 	return (
@@ -65,13 +63,15 @@ export const AppTable = <
 					<Table>
 						<TableHeader className='sticky top-0 bg-background'>
 							<TableRow>
-								{(small && tableContentSmall
-									? tableContentSmall
-									: tableContent
-								).map((item) => (
-									<TableHead key={item.id}>
+								{tableValues.map((item) => (
+									<TableHead
+										key={item.id}
+										style={item.style || { width: '10ch' }}
+									>
 										{React.isValidElement(tableData[0]?.[item.id]) ? (
-											<p className='w-full text-center'>{item.label}</p>
+											<span className='block w-full text-center'>
+												{item.label}
+											</span>
 										) : (
 											<Button
 												variant='ghost'
@@ -94,39 +94,36 @@ export const AppTable = <
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{tableData.length === 0 && (
+							{tableData.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={4} className='text-center'>
+									<TableCell
+										colSpan={tableValues.length}
+										className='text-center'
+									>
 										No content found.
 									</TableCell>
 								</TableRow>
+							) : (
+								tableData.map((item) => (
+									<TableRow key={generateKey()}>
+										{tableValues.map((info) => (
+											<TableCell
+												key={info.id}
+												className={info.class || 'text-center'}
+												style={info.style || { width: '10ch' }}
+											>
+												{React.isValidElement((item as T)[info.id]) ? (
+													(item as T)[info.id]
+												) : showValue || info.showValue ? (
+													<AppEllipsis>{(item as T)[info.id]}</AppEllipsis>
+												) : (
+													'****'
+												)}
+											</TableCell>
+										))}
+									</TableRow>
+								))
 							)}
-							{tableData.map((item) => (
-								<TableRow key={generateKey()}>
-									{(small && tableContentSmall
-										? tableContentSmall
-										: tableContent
-									).map((info) => (
-										<TableCell
-											key={info.id}
-											className={
-												info.id === 'desc' ? 'text-left' : 'text-center'
-											}
-											style={
-												info.id === 'desc'
-													? { maxWidth: '30ch' }
-													: { width: '10ch' }
-											}
-										>
-											{showValue ? (
-												<AppEllipsis>{(item as T)[info.id]}</AppEllipsis>
-											) : (
-												'****'
-											)}
-										</TableCell>
-									))}
-								</TableRow>
-							))}
 						</TableBody>
 					</Table>
 				</ScrollArea>

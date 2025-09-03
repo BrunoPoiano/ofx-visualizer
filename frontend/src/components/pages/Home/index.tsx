@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useLocalStorage from '@/lib/localstorage';
 import { BanksSection } from './components/Banks';
@@ -27,6 +28,7 @@ const homePageTabs: (HomeTabs & { label: string })[] = [
 
 export const HomePage = () => {
 	const [tab, setTab] = useLocalStorage('TAB', 'transaction');
+	const [tabKey, setTabKey] = useState(1);
 
 	const onTabChange = (value: string) => {
 		setTab(value);
@@ -34,7 +36,7 @@ export const HomePage = () => {
 
 	return (
 		<HomeProvider>
-			<AppHeader />
+			<AppHeader setTabKey={setTabKey} />
 			<Tabs
 				value={tab}
 				onValueChange={onTabChange}
@@ -50,7 +52,7 @@ export const HomePage = () => {
 				</TabsList>
 
 				{homePageTabs.map((item) => (
-					<TabsContent key={item.tab} value={item.tab}>
+					<TabsContent key={`${item.tab}-${tabKey}`} value={item.tab}>
 						{item.content}
 					</TabsContent>
 				))}

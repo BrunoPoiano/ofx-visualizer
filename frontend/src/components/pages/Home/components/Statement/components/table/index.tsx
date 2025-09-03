@@ -3,7 +3,7 @@ import { useHomeContext } from '@/components/pages/Home/provider';
 import { parseDate } from '@/lib/utils';
 import { useStatementContext } from '../../provider';
 import { DialogInfo } from './components/DialogIngfo';
-import { TableInfo, type TableInfoType } from './table';
+import { TableInfo } from './table';
 
 export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
@@ -27,7 +27,7 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 	});
 
 	return (
-		<AppTable<(typeof tableData)[number], TableInfoType>
+		<AppTable<(typeof tableData)[number]>
 			orderBy={[orderBy, setOrderBy]}
 			pagination={[pagination, setPagination]}
 			tableData={tableData}
