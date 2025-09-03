@@ -23,12 +23,8 @@ export const TableInfo = [
 		id: 'desc',
 	},
 	{
-		label: 'Complete',
-		id: 'id',
-	},
-	{
 		label: 'Info',
-		id: 'bank_id',
+		id: 'source_id',
 	},
 ] satisfies TableInfoType[];
 

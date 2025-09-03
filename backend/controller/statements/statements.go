@@ -51,7 +51,7 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 			Direction:   direction,
 			Search:      params.Get("search"),
 		},
-		BankId:   params.Get("bank_id"),
+		SourceId: params.Get("source_id"),
 		MinValue: params.Get("min_value"),
 		MaxValue: params.Get("max_value"),
 		From:     params.Get("from"),
@@ -60,9 +60,9 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	bankIdParam, err := strconv.ParseInt(vars["bank_id"], 10, 64)
+	bankIdParam, err := strconv.ParseInt(vars["source_id"], 10, 64)
 	if bankIdParam > 0 {
-		search.BankId = fmt.Sprintf("%v", bankIdParam)
+		search.SourceId = fmt.Sprintf("%v", bankIdParam)
 	}
 
 	items, totalItems, lastpage, err := StatementService.GetItems(database, search)

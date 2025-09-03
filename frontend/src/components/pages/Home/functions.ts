@@ -1,5 +1,9 @@
 import { axiosInstance } from '@/lib/axiosInstance';
-import { parsePagination } from '@/lib/typeValidation';
+import {
+	isNumberOrDefault,
+	isStringOrDefault,
+	parsePagination,
+} from '@/lib/typeValidation';
 import {
 	parseBanks,
 	parseStatement,
@@ -7,7 +11,7 @@ import {
 	parseTransaction,
 	parseTransactionInfo,
 } from './parsers';
-import type { BankType } from './types';
+import type { BankType, SourceType } from './types';
 
 export const getTransactions = async (params?: Record<string, string>) => {
 	const { data } = await axiosInstance.get('/transactions', {
@@ -66,6 +70,26 @@ export const getBanks = async (params?: Record<string, string>) => {
 		data: parseBanks(data),
 		paginationContent: parsePagination(data),
 	};
+};
+
+export const getSources = async () => {
+	const { data } = await axiosInstance.get('/source');
+
+	if (!Array.isArray(data)) return [];
+
+	const sources = data.reduce<SourceType[]>((acc, item) => {
+		if (typeof item !== 'object' || item === null) return [];
+		if (!('id' in item)) return [];
+
+		acc.push({
+			id: isNumberOrDefault(item.id),
+			name: isStringOrDefault(item.name, ''),
+		});
+
+		return acc;
+	}, []);
+
+	return sources;
 };
 
 export const putBanks = async (

@@ -14,11 +14,11 @@ import { Button } from '@/components/ui/button';
 import { parseDate } from '@/lib/utils';
 
 export const DialogInfo = ({ item }: { item: TransactionType }) => {
-	const {
-		banks: [banks],
-	} = useHomeContext();
+	const { sources } = useHomeContext();
 
-	const bank_name = banks.filter((bank) => bank.id === item.bank_id)[0].name;
+	const source_name = sources.filter(
+		(source) => source.id === item.source_id,
+	)[0].name;
 
 	return (
 		<AlertDialog>
@@ -28,7 +28,7 @@ export const DialogInfo = ({ item }: { item: TransactionType }) => {
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>{item.id}</AlertDialogTitle>
-					<b>{bank_name}</b>
+					<b>{source_name}</b>
 					<div className='flex gap-[0.5ch]'>
 						<span>{item.type}</span>
 						<span>

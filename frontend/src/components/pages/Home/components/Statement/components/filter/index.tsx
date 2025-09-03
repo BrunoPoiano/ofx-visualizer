@@ -1,13 +1,6 @@
-import { useHomeContext } from '@/components/pages/Home/provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import { SourceSelect } from '../../../SourceSelect';
 import { useStatementContext } from '../../provider';
 
 export const Filter = () => {
@@ -15,11 +8,6 @@ export const Filter = () => {
 		filter: [filter, setFilter],
 		clearFilter,
 	} = useStatementContext();
-
-	const {
-		banks: [banks],
-		defaultFilter: [defaultFilter, setDefaultFilter],
-	} = useHomeContext();
 
 	const changeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFilter((prev) => {
@@ -53,23 +41,7 @@ export const Filter = () => {
 				onChange={changeFilter}
 			/>
 
-			<Select
-				value={defaultFilter.bank_id}
-				onValueChange={(e) =>
-					setDefaultFilter((prev) => ({ ...prev, bank_id: e }))
-				}
-			>
-				<SelectTrigger style={{ width: 'min(250px, 100%)' }}>
-					<SelectValue placeholder='Bank' />
-				</SelectTrigger>
-				<SelectContent>
-					{banks.map((item) => (
-						<SelectItem key={item.id} value={item.id.toString()}>
-							{item.name}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+			<SourceSelect />
 			<Button className='ml-auto' variant='ghost' onClick={clearFilter}>
 				Clear filter
 			</Button>

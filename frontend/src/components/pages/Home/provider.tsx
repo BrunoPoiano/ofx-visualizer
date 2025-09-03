@@ -7,8 +7,8 @@ import {
 } from 'react';
 import { useDebounce } from '@/lib/debounce';
 import useLocalStorage from '@/lib/localstorage';
-import { getBanks } from './functions';
-import type { BankType, DefaultFilterType, GetBanksFuncParams } from './types';
+import { getSources } from './functions';
+import type { BankType, DefaultFilterType, SourceType } from './types';
 
 export type HomeProviderState = {
 	showValue: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
@@ -16,8 +16,12 @@ export type HomeProviderState = {
 		DefaultFilterType,
 		React.Dispatch<React.SetStateAction<DefaultFilterType>>,
 	];
-	banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>];
-	getBanksFunc: (params?: GetBanksFuncParams) => void;
+	banks: [
+		Array<BankType>,
+		React.Dispatch<React.SetStateAction<Array<BankType>>>,
+	];
+	getSourcesFunc: () => void;
+	sources: Array<SourceType>;
 };
 
 const HomeProviderContext = createContext<HomeProviderState>(
@@ -27,30 +31,28 @@ const HomeProviderContext = createContext<HomeProviderState>(
 export function HomeProvider({ children }: { children: React.ReactNode }) {
 	const [showValue, setShowValue] = useState(true);
 	const [banks, setBanks] = useState<BankType[]>([]);
+	const [sources, setSources] = useState<SourceType[]>([]);
 	const [defaultFilter, setDefaultFilter] = useLocalStorage<DefaultFilterType>(
 		'DEFAULT_FILTER',
 		{
 			date: undefined,
-			bank_id: '',
+			source_id: '',
 		},
 	);
-	const getBanksFunc = useDebounce(
-		// biome-ignore lint/correctness/useExhaustiveDependencies: setDefaultFilter remove to prevent infinity loop
+
+	const getSourcesFunc = useDebounce(
+		// biome-ignore lint/correctness/useExhaustiveDependencies: <prevent loop>
 		useCallback(async () => {
-			const requestParams = {
-				current_page: '1',
-				per_page: '1000',
-			};
+			const data = await getSources();
 
-			const { data } = await getBanks(requestParams);
-
-			setBanks(() => {
-				if (defaultFilter.bank_id === '' && data.length > 0) {
+			setSources(() => {
+				if (defaultFilter.source_id === '' && data.length > 0) {
 					setDefaultFilter((prev_filter) => ({
 						...prev_filter,
-						bank_id: data[0].id.toString(),
+						source_id: data[0].id.toString(),
 					}));
 				}
+
 				return data;
 			});
 		}, []),
@@ -58,16 +60,17 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	useEffect(() => {
-		getBanksFunc();
-	}, [getBanksFunc]);
+		getSourcesFunc();
+	}, [getSourcesFunc]);
 
 	return (
 		<HomeProviderContext.Provider
 			value={{
+				sources,
 				showValue: [showValue, setShowValue],
 				defaultFilter: [defaultFilter, setDefaultFilter],
 				banks: [banks, setBanks],
-				getBanksFunc,
+				getSourcesFunc,
 			}}
 		>
 			{children}

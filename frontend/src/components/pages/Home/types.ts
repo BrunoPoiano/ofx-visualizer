@@ -26,7 +26,7 @@ type Tabs = 'transaction' | 'statement' | 'banks';
 
 export type DefaultFilterType = {
 	date: DateRange | undefined;
-	bank_id: string;
+	source_id: string;
 };
 
 export type OrderBy = {
@@ -40,7 +40,7 @@ export type OrderBy = {
 
 export type TransactionType = {
 	id: string;
-	bank_id: number;
+	source_id: number;
 	date: string;
 	type: (typeof TransactionTypeValues)[number];
 	value: number;
@@ -65,7 +65,7 @@ export type TransactionInfoType = {
 
 export type StatementType = {
 	id: number;
-	bank_id: number;
+	source_id: number;
 	start_date: string;
 	end_date: string;
 	ledger_balance: number;
@@ -87,6 +87,11 @@ export type balanceType = {
 export type HomeTabs = {
 	tab: Tabs;
 	content: JSX.Element;
+};
+
+export type SourceType = {
+	id: number;
+	name: string;
 };
 
 export type GetBanksFuncParams = {

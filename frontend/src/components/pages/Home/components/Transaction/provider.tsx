@@ -27,6 +27,7 @@ const TransactionProviderContext = createContext<TransactionProviderState>(
 );
 
 export function TransactionProvider({ children }: TransactionProviderProps) {
+	const { sources } = useHomeContext();
 	const [transactionsInfo, setTransactionsInfo] =
 		useState<TransactionInfoType>();
 
@@ -72,7 +73,9 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 				...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
 				...(defaultFilter.date ? parseFilterDate(defaultFilter.date) : {}),
 				...(filter.type ? { type: filter.type } : {}),
-				...(defaultFilter.bank_id ? { bank_id: defaultFilter.bank_id } : {}),
+				...(defaultFilter.source_id
+					? { source_id: defaultFilter.source_id }
+					: {}),
 				...(orderBy.order ? { order: orderBy.order } : {}),
 				...(orderBy.direction ? { direction: orderBy.direction } : {}),
 			});
@@ -89,12 +92,12 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 	);
 
 	const getTransactionInfoFunc = useCallback(async () => {
-		if (!defaultFilter.bank_id) return;
+		if (!defaultFilter.source_id) return;
 		const response = await getTransactionsInfo({
-			bank_id: defaultFilter.bank_id,
+			source_id: defaultFilter.source_id,
 		});
 		setTransactionsInfo(response);
-	}, [defaultFilter.bank_id]);
+	}, [defaultFilter.source_id]);
 
 	const clearFilter = () => {
 		setFilter({
@@ -111,7 +114,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 
 		setDefaultFilter({
 			date: undefined,
-			bank_id: banks[0].id.toString() || '',
+			source_id: sources[0].id.toString() || '',
 		});
 	};
 

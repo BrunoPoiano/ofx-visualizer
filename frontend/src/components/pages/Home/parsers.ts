@@ -59,7 +59,7 @@ export const parseTransaction = (data: unknown) => {
 
 		const newItem: TransactionType = {
 			id: isStringOrDefault(typedItem.id),
-			bank_id: isNumberOrDefault(typedItem.bank_id),
+			source_id: isNumberOrDefault(typedItem.source_id),
 			date: isStringOrDefault(typedItem.date),
 			type,
 			value: isNumberOrDefault(typedItem.value),
@@ -105,7 +105,7 @@ export const parseStatementObj = (item: Record<string, unknown>) => {
 
 	return {
 		id: isNumberOrDefault(item.id),
-		bank_id: isNumberOrDefault(item.bank_id),
+		source_id: isNumberOrDefault(item.source_id),
 		start_date: isStringOrDefault(item.start_date),
 		end_date: isStringOrDefault(item.end_date),
 		ledger_balance: isNumberOrDefault(item.ledger_balance),

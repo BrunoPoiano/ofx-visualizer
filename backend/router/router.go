@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	BalanceController "main/controller/balance"
 	BankController "main/controller/bank"
+	SourceController "main/controller/source"
 	StatementsController "main/controller/statements"
 	TransactionController "main/controller/transaction"
 	"main/middleware"
@@ -19,6 +20,7 @@ func AppRoutes(db *sql.DB) *mux.Router {
 	statements(db, router)
 	balances(db, router)
 	banks(db, router)
+	source(db, router)
 
 	return router
 }
@@ -34,6 +36,10 @@ func transactions(db *sql.DB, router *mux.Router) {
 func banks(db *sql.DB, router *mux.Router) {
 	router.HandleFunc("/banks", middleware.DatabaseMiddleware(db, BankController.GetItems)).Methods("GET")
 	router.HandleFunc("/banks/{bank_id}", middleware.DatabaseMiddleware(db, BankController.UpdateItems)).Methods("PUT")
+}
+
+func source(db *sql.DB, router *mux.Router) {
+	router.HandleFunc("/source", middleware.DatabaseMiddleware(db, SourceController.GetItems)).Methods("GET")
 }
 
 func statements(db *sql.DB, router *mux.Router) {

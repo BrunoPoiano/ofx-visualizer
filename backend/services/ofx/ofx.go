@@ -20,35 +20,40 @@ import (
 //   - []types.Transaction: A slice of Transaction structs, each representing a transaction from the OFX file.
 //   - types.Bank: A Bank struct containing bank information extracted from the OFX file.
 //   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
-func ParseOfx(file multipart.File) ([]types.Transaction, types.Bank, types.Statement, error) {
+func ParseOfx(file multipart.File) ([]types.Transaction, types.Statement, types.Bank, types.Card, error) {
 
-	var lines []types.Transaction
+	var Transactions []types.Transaction
+	var Bank types.Bank
+	var Statement types.Statement
+	var Card types.Card
 
 	fileContent, err := io.ReadAll(file)
 	if err != nil {
-		return nil, types.Bank{}, types.Statement{}, fmt.Errorf("error reading file: %w", err)
+		return Transactions, Statement, Bank, Card, fmt.Errorf("error reading file: %w", err)
 	}
 	fileString := string(fileContent)
 
-	statement, err := parseStatement(fileString)
+	Statement, err = parseStatement(fileString)
 	if err != nil {
-		return nil, types.Bank{}, types.Statement{}, fmt.Errorf("error parsing statements: %w", err)
+		return Transactions, Statement, Bank, Card, fmt.Errorf("error parsing statements: %w", err)
 	}
 
-	Bank, err := parseBankInfo(fileString)
-	if err != nil {
-		return nil, types.Bank{}, types.Statement{}, fmt.Errorf("error parsing banks: %w", err)
+	Card, card_err := parseCardInfo(fileString)
+	Bank, bank_err := parseBankInfo(fileString)
+
+	if bank_err != nil && card_err != nil {
+		return Transactions, Statement, Bank, Card, fmt.Errorf("error parsing bank or card: %w", err)
 	}
 
 	stmttrn := getArrayItensFromTag("STMTTRN", fileString)
 	for _, item := range stmttrn {
 		line, err := parseSTMTTRNIntoTransaction(item)
 		if err == nil {
-			lines = append(lines, line)
+			Transactions = append(Transactions, line)
 		}
 	}
 
-	return lines, Bank, statement, nil
+	return Transactions, Statement, Bank, Card, nil
 }
 
 // isXMLFormat checks if the OFX file is in XML format (has closing tags) or SGML format
@@ -249,13 +254,42 @@ func parseBankInfo(file string) (types.Bank, error) {
 		return Bank, err
 	}
 
-	Bank.Name = name
+	Bank.Name = fmt.Sprintf("Bank %s", name)
 	Bank.AccountId = accountId
 	Bank.FId = fId
 	Bank.BankId = bankId
 	Bank.BranchId = branchId
 	Bank.AccountType = accountType
 	return Bank, nil
+}
+
+func parseCardInfo(file string) (types.Card, error) {
+
+	var Card types.Card
+
+	_, err := getItensFromTag("CCACCTFROM", file)
+	if err != nil {
+		return Card, err
+	}
+
+	name, err := getItensFromTag("ORG", file)
+	if err != nil {
+		return Card, err
+	}
+
+	Card.Name = fmt.Sprintf("Card %s", name)
+
+	Card.AccountId, err = getItensFromTag("ACCTID", file)
+	if err != nil {
+		return Card, err
+	}
+
+	Card.FId, err = getItensFromTag("FID", file)
+	if err != nil {
+		return Card, err
+	}
+
+	return Card, nil
 }
 
 // parseStatement parses statement information from an OFX file string.

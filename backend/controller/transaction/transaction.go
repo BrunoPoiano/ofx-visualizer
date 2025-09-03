@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	BalanceService "main/services/balance"
-	BankService "main/services/bank"
 	ofxService "main/services/ofx"
+	sourceService "main/services/source"
 	StatementService "main/services/statement"
 	transactionService "main/services/transaction"
 	"main/types"
@@ -52,25 +52,25 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		transactions, Bank, statement, err := ofxService.ParseOfx(file)
+		transactions, statement, Bank, Card, err := ofxService.ParseOfx(file)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		BankId, err := BankService.InsertItems(database, Bank)
+		SourceId, err := sourceService.InsertItem(database, Bank, Card)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		err = transactionService.InsertTransaction(database, transactions, BankId)
+		err = transactionService.InsertTransaction(database, transactions, SourceId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		StatementId, err := StatementService.InsertItems(database, statement, BankId)
+		StatementId, err := StatementService.InsertItems(database, statement, SourceId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -135,7 +135,7 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 		From:     params.Get("from"),
 		To:       params.Get("to"),
 		Type:     params.Get("type"),
-		BankId:   params.Get("bank_id"),
+		SourceId: params.Get("source_id"),
 	}
 
 	positive, negative, value, err := transactionService.GetTransactionInfos(database, filter)
@@ -222,7 +222,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		From:     params.Get("from"),
 		To:       params.Get("to"),
 		Type:     params.Get("type"),
-		BankId:   params.Get("bank_id"),
+		SourceId: params.Get("source_id"),
 	}
 
 	items, totalItems, lastpage, err := transactionService.GetTransactions(database, filter)

@@ -16,15 +16,14 @@ import (
 //
 // Returns:
 //   - error: An error if the insertion fails, nil otherwise.
-func InsertTransaction(db *sql.DB, items []types.Transaction, BankId int) error {
-
-	stmt, err := db.Prepare("INSERT INTO transactions(id,Bank_id,date,value,desc,type) values(?,?,?,?,?,?)")
+func InsertTransaction(db *sql.DB, items []types.Transaction, SourceId int) error {
+	stmt, err := db.Prepare("INSERT INTO transactions(id,source_id,date,value,desc,type) values(?,?,?,?,?,?)")
 	if err != nil {
 		return err
 	}
 
 	for _, item := range items {
-		_, err = stmt.Exec(item.Id, BankId, item.Date, item.Value, item.Desc, item.Type)
+		_, err = stmt.Exec(item.Id, SourceId, item.Date, item.Value, item.Desc, item.Type)
 	}
 
 	return nil
@@ -54,7 +53,7 @@ func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.
 		var s []types.Transaction
 		for rows.Next() {
 			var item types.Transaction
-			if err := rows.Scan(&item.Id, &item.BankId, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
+			if err := rows.Scan(&item.Id, &item.SourceId, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
 				return nil, err
 			}
 			s = append(s, item)
@@ -178,8 +177,8 @@ func makeQuery(s string, filter types.TransactionSearch) string {
 		where = append(where, fmt.Sprintf("desc LIKE '%%%s%%'", filter.Search))
 	}
 
-	if filter.BankId != "" {
-		where = append(where, fmt.Sprintf("bank_id = '%s'", filter.BankId))
+	if filter.SourceId != "" {
+		where = append(where, fmt.Sprintf("source_id = '%s'", filter.SourceId))
 	}
 
 	if len(where) > 0 {

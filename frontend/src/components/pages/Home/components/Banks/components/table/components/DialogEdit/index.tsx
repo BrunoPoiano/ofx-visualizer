@@ -6,6 +6,7 @@ import type { BankType } from '@/components/pages/Home/types';
 import {
 	AlertDialog,
 	AlertDialogAction,
+	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
 	AlertDialogFooter,
@@ -18,8 +19,8 @@ import { Input } from '@/components/ui/input';
 import { useBankContext } from '../../../../provider';
 
 export const DialogEdit = ({ item }: { item: BankType }) => {
-	const { getBanksFunc } = useHomeContext();
-	const { getBanksFunc: getBankFunc2 } = useBankContext();
+	const { getSourcesFunc } = useHomeContext();
+	const { getBanksFunc } = useBankContext();
 
 	const [name, setName] = useState(item.name);
 	const [open, setOpen] = useState(false);
@@ -29,7 +30,8 @@ export const DialogEdit = ({ item }: { item: BankType }) => {
 			.then(() => {
 				setOpen(false);
 				getBanksFunc();
-				getBankFunc2();
+				getSourcesFunc();
+
 				toast.error('Name successifully saved!', {
 					style: { background: 'var(--chart-2)' },
 				});
@@ -62,10 +64,15 @@ export const DialogEdit = ({ item }: { item: BankType }) => {
 					/>
 				</AlertDialogDescription>
 				<AlertDialogFooter>
-					<AlertDialogAction onClick={() => setOpen(false)}>
+					<AlertDialogCancel onClick={() => setOpen(false)}>
 						Cancel
+					</AlertDialogCancel>
+					<AlertDialogAction
+						style={{ background: 'var(--chart-2)' }}
+						onClick={() => saveName()}
+					>
+						Save
 					</AlertDialogAction>
-					<AlertDialogAction onClick={() => saveName()}>Save</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

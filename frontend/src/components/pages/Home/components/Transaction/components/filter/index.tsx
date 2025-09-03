@@ -1,4 +1,4 @@
-import { useHomeContext } from '@/components/pages/Home/provider';
+import { TransactionTypeValues } from '@/components/pages/Home/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -8,6 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { SourceSelect } from '../../../SourceSelect';
 import { useTransactionContext } from '../../provider';
 
 export const Filter = () => {
@@ -15,10 +16,6 @@ export const Filter = () => {
 		filter: [filter, setFilter],
 		clearFilter,
 	} = useTransactionContext();
-	const {
-		banks: [banks],
-		defaultFilter: [defaultFilter, setDefaultFilter],
-	} = useHomeContext();
 
 	const changeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFilter((prev) => {
@@ -66,27 +63,14 @@ export const Filter = () => {
 						<SelectValue placeholder='Type' />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value='CREDIT'>Credit</SelectItem>
-						<SelectItem value='DEBIT'>Debit</SelectItem>
-					</SelectContent>
-				</Select>
-				<Select
-					value={defaultFilter.bank_id}
-					onValueChange={(e) =>
-						setDefaultFilter((prev) => ({ ...prev, bank_id: e }))
-					}
-				>
-					<SelectTrigger style={{ width: 'min(250px, 100%)' }}>
-						<SelectValue placeholder='Bank' />
-					</SelectTrigger>
-					<SelectContent>
-						{banks.map((item) => (
-							<SelectItem key={item.id} value={item.id.toString()}>
-								{item.name}
+						{TransactionTypeValues.map((el) => (
+							<SelectItem key={el} value={el}>
+								{el}
 							</SelectItem>
 						))}
 					</SelectContent>
 				</Select>
+				<SourceSelect />
 				<Button className='ml-auto' variant='ghost' onClick={clearFilter}>
 					Clear filter
 				</Button>

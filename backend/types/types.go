@@ -1,12 +1,12 @@
 package types
 
 type Transaction struct {
-	Id     string  `json:"id"`
-	BankId int     `json:"bank_id"`
-	Date   string  `json:"date"`
-	Type   string  `json:"type"`
-	Value  float64 `json:"value"`
-	Desc   string  `json:"desc"`
+	Id       string  `json:"id"`
+	SourceId int     `json:"source_id"`
+	Date     string  `json:"date"`
+	Type     string  `json:"type"`
+	Value    float64 `json:"value"`
+	Desc     string  `json:"desc"`
 }
 
 type Bank struct {
@@ -35,7 +35,7 @@ type ReturnTransactionInfo struct {
 
 type Statement struct {
 	Id            int       `json:"id"`
-	BankId        int       `json:"bank_id"`
+	SourceId      int       `json:"source_id"`
 	StartDate     string    `json:"start_date"`
 	EndDate       string    `json:"end_date"`
 	LedgerBalance float64   `json:"ledger_balance"`
@@ -54,6 +54,24 @@ type Balance struct {
 	Value       float64 `json:"value"`
 }
 
+type Card struct {
+	Id        int    `json:"id"`
+	AccountId string `json:"account_id"`
+	Name      string `json:"name"`
+	FId       string `json:"f_id"`
+}
+
+type Source struct {
+	Id     int    `json:"id"`
+	CardId string `json:"card_id"`
+	BankId string `json:"bank_id"`
+}
+
+type ReturnSource struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type DefaultSearch struct {
 	CurrentPage int64
 	PerPage     int64
@@ -68,7 +86,7 @@ type StatementSearch struct {
 	To       string
 	MinValue string
 	MaxValue string
-	BankId   string
+	SourceId string
 }
 
 type TransactionSearch struct {
@@ -78,5 +96,5 @@ type TransactionSearch struct {
 	From     string
 	To       string
 	Type     string
-	BankId   string
+	SourceId string
 }

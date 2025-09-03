@@ -17,7 +17,7 @@ import (
 //
 // Returns:
 //   - An error if the insertion fails, nil otherwise.
-func InsertItems(database *sql.DB, item types.Statement, BankId int) (int, error) {
+func InsertItems(database *sql.DB, item types.Statement, SourceId int) (int, error) {
 
 	var account_id int
 	total, err := database.Query("SELECT id FROM statements WHERE start_date = ? AND end_date = ? AND ledger_balance = ?", item.StartDate, item.EndDate, item.LedgerBalance)
@@ -37,12 +37,12 @@ func InsertItems(database *sql.DB, item types.Statement, BankId int) (int, error
 		return account_id, nil
 	}
 
-	stmt, err := database.Prepare("INSERT INTO statements(bank_id,start_date,end_date,ledger_balance,balance_date,server_date,language) values(?,?,?,?,?,?,?)")
+	stmt, err := database.Prepare("INSERT INTO statements(source_id,start_date,end_date,ledger_balance,balance_date,server_date,language) values(?,?,?,?,?,?,?)")
 	if err != nil {
 		return 0, err
 	}
 
-	result, err := stmt.Exec(BankId, item.StartDate, item.EndDate, item.LedgerBalance, item.BalanceDate, item.ServerDate, item.Language)
+	result, err := stmt.Exec(SourceId, item.StartDate, item.EndDate, item.LedgerBalance, item.BalanceDate, item.ServerDate, item.Language)
 	if err != nil {
 		return 0, err
 	}
@@ -84,7 +84,7 @@ func GetItems(database *sql.DB, filter types.StatementSearch) ([]types.Statement
 		var s []types.Statement
 		for rows.Next() {
 			var item types.Statement
-			if err := rows.Scan(&item.Id, &item.BankId, &item.StartDate, &item.EndDate, &item.LedgerBalance, &item.BalanceDate, &item.ServerDate, &item.Language); err != nil {
+			if err := rows.Scan(&item.Id, &item.SourceId, &item.StartDate, &item.EndDate, &item.LedgerBalance, &item.BalanceDate, &item.ServerDate, &item.Language); err != nil {
 				return nil, err
 			}
 
@@ -133,7 +133,7 @@ func GetInfo(database *sql.DB, bankId int64) (types.Statement, types.Statement, 
 		for rows.Next() {
 			err := rows.Scan(
 				&s.Id,
-				&s.BankId,
+				&s.SourceId,
 				&s.StartDate,
 				&s.EndDate,
 				&s.LedgerBalance,
@@ -148,13 +148,13 @@ func GetInfo(database *sql.DB, bankId int64) (types.Statement, types.Statement, 
 		return s, rows.Err()
 	}
 
-	largestBalanceQuery := fmt.Sprintf("SELECT id, bank_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements WHERE bank_id = %v ORDER BY ledger_balance DESC LIMIT 1", bankId)
+	largestBalanceQuery := fmt.Sprintf("SELECT id, source_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements WHERE source_id = %v ORDER BY ledger_balance DESC LIMIT 1", bankId)
 	largestBalance, err := utils.MakeQueryCall(database, largestBalanceQuery, scanStatement)
 	if err != nil {
 		return largestBalance, currentBalance, err
 	}
 
-	currentBalanceQuery := fmt.Sprintf("SELECT id, bank_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements WHERE bank_id = %v ORDER BY balance_date DESC LIMIT 1", bankId)
+	currentBalanceQuery := fmt.Sprintf("SELECT id, source_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements WHERE source_id = %v ORDER BY balance_date DESC LIMIT 1", bankId)
 	currentBalance, err = utils.MakeQueryCall(database, currentBalanceQuery, scanStatement)
 	if err != nil {
 		return largestBalance, currentBalance, err
@@ -202,8 +202,8 @@ func makeQuery(s string, filter types.StatementSearch) string {
 	// 	where = append(where, fmt.Sprintf("desc LIKE '%%%s%%'", filter.Search))
 	// }
 
-	if filter.BankId != "" {
-		where = append(where, fmt.Sprintf("bank_id = '%s'", filter.BankId))
+	if filter.SourceId != "" {
+		where = append(where, fmt.Sprintf("source_id = '%s'", filter.SourceId))
 	}
 
 	if len(where) > 0 {
