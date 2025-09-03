@@ -24,6 +24,14 @@ export const TransactionTypeValues = [
 
 type Tabs = 'transaction' | 'statement' | 'banks';
 
+export const AccountTypeValues = [
+	'CHECKING',
+	'SAVINGS',
+	'MONEYMRKT',
+	'CREDITLINE',
+	'CMA',
+] as const;
+
 export type DefaultFilterType = {
 	date: DateRange | undefined;
 	source_id: string;
@@ -59,7 +67,7 @@ export type BankType = {
 	id: number;
 	name: string;
 	account_id: string;
-	account_type: string;
+	account_type: (typeof AccountTypeValues)[number];
 	bank_id: number;
 	branch_id: number;
 	f_id: number;

@@ -3,6 +3,7 @@ import type { DateRange } from 'react-day-picker';
 import { isNumberOrDefault, isStringOrDefault } from '@/lib/typeValidation';
 import { ensureOneOf } from '@/lib/utils';
 import {
+	AccountTypeValues,
 	type BankType,
 	type balanceType,
 	type StatementType,
@@ -29,7 +30,11 @@ export const parseBanks = (data: unknown) => {
 			id: isNumberOrDefault(typedItem.id),
 			name: isStringOrDefault(typedItem.name),
 			account_id: isStringOrDefault(typedItem.account_id),
-			account_type: isStringOrDefault(typedItem.account_type),
+			account_type: ensureOneOf(
+				typedItem.account_type,
+				AccountTypeValues,
+				'CHECKING',
+			),
 			bank_id: isNumberOrDefault(typedItem.bank_id),
 			branch_id: isNumberOrDefault(typedItem.branch_id),
 			f_id: isNumberOrDefault(typedItem.f_id),
@@ -55,13 +60,11 @@ export const parseTransaction = (data: unknown) => {
 
 		const typedItem = item as Record<string, unknown>;
 
-		const type = ensureOneOf(typedItem.type, TransactionTypeValues, 'OTHER');
-
 		const newItem: TransactionType = {
 			id: isStringOrDefault(typedItem.id),
 			source_id: isNumberOrDefault(typedItem.source_id),
 			date: isStringOrDefault(typedItem.date),
-			type,
+			type: ensureOneOf(typedItem.type, TransactionTypeValues, 'OTHER'),
 			value: isNumberOrDefault(typedItem.value),
 			desc: isStringOrDefault(typedItem.desc),
 		};

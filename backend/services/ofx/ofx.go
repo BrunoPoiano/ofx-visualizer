@@ -174,6 +174,10 @@ func parseSTMTTRNIntoTransaction(stmttrn string) (types.Transaction, error) {
 	if err != nil {
 		return transaction, err
 	}
+	if types.TransactionType(tType).IsValid() == false {
+		return transaction, fmt.Errorf("Invalid Type")
+	}
+
 	id, err := getItensFromTag("FITID", stmttrn)
 	if err != nil {
 		return transaction, err
@@ -188,7 +192,7 @@ func parseSTMTTRNIntoTransaction(stmttrn string) (types.Transaction, error) {
 	}
 
 	transaction.Value, _ = strconv.ParseFloat(value, 64)
-	transaction.Type = tType
+	transaction.Type = types.TransactionType(tType)
 	transaction.Id = id
 	transaction.Desc = desc
 	transaction.Date, _ = parseOfxDate(date)
@@ -254,12 +258,16 @@ func parseBankInfo(file string) (types.Bank, error) {
 		return Bank, err
 	}
 
+	if types.AccountType(accountType).IsValid() == false {
+		return Bank, fmt.Errorf("Invalid AccountType")
+	}
+
 	Bank.Name = fmt.Sprintf("Bank %s", name)
 	Bank.AccountId = accountId
 	Bank.FId = fId
 	Bank.BankId = bankId
 	Bank.BranchId = branchId
-	Bank.AccountType = accountType
+	Bank.AccountType = types.AccountType(accountType)
 	return Bank, nil
 }
 

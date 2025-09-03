@@ -1,22 +1,22 @@
 package types
 
 type Transaction struct {
-	Id       string  `json:"id"`
-	SourceId int     `json:"source_id"`
-	Date     string  `json:"date"`
-	Type     string  `json:"type"`
-	Value    float64 `json:"value"`
-	Desc     string  `json:"desc"`
+	Id       string          `json:"id"`
+	SourceId int             `json:"source_id"`
+	Date     string          `json:"date"`
+	Type     TransactionType `json:"type"`
+	Value    float64         `json:"value"`
+	Desc     string          `json:"desc"`
 }
 
 type Bank struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	AccountId   string `json:"account_id"`
-	AccountType string `json:"account_type"`
-	FId         string `json:"f_id"`
-	BankId      string `json:"bank_id"`
-	BranchId    string `json:"branch_id"`
+	Id          int         `json:"id"`
+	Name        string      `json:"name"`
+	AccountId   string      `json:"account_id"`
+	AccountType AccountType `json:"account_type"`
+	FId         string      `json:"f_id"`
+	BankId      string      `json:"bank_id"`
+	BranchId    string      `json:"branch_id"`
 }
 
 type ReturnPagination struct {
@@ -95,6 +95,6 @@ type TransactionSearch struct {
 	MaxValue string
 	From     string
 	To       string
-	Type     string
+	Type     TransactionType
 	SourceId string
 }

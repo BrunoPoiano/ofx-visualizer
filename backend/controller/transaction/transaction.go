@@ -134,7 +134,7 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 		MaxValue: params.Get("max_value"),
 		From:     params.Get("from"),
 		To:       params.Get("to"),
-		Type:     params.Get("type"),
+		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
 		SourceId: params.Get("source_id"),
 	}
 
@@ -221,7 +221,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		MaxValue: params.Get("max_value"),
 		From:     params.Get("from"),
 		To:       params.Get("to"),
-		Type:     params.Get("type"),
+		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
 		SourceId: params.Get("source_id"),
 	}
 
