@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 const useLocalStorage = <T>(
 	key: string,
-	initialValue: T,
+	initialValue: T
 ): [value: T, setValue: React.Dispatch<React.SetStateAction<T>>] => {
 	const [storedValue, setStoredValue] = useState<T>(() => {
 		if (typeof window === 'undefined') {
@@ -25,7 +25,7 @@ const useLocalStorage = <T>(
 			if (typeof window !== 'undefined') {
 				window.localStorage.setItem(key, JSON.stringify(valueToStore))
 				window.dispatchEvent(
-					new CustomEvent('storage-update', { detail: { key, value } }),
+					new CustomEvent('storage-update', { detail: { key, value } })
 				)
 			}
 		} catch (error) {

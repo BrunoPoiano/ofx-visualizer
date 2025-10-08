@@ -9,10 +9,10 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
 		statements: [statements],
 		orderBy: [orderBy, setOrderBy],
-		pagination: [pagination, setPagination],
+		pagination: [pagination, setPagination]
 	} = useStatementContext()
 	const {
-		showValue: [showValue],
+		showValue: [showValue]
 	} = useHomeContext()
 
 	const tableData = statements.map((item) => {
@@ -20,9 +20,9 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 			start_date: parseDate(item.start_date, item.end_date),
 			ledger_balance: item.ledger_balance.toLocaleString('pt-BR', {
 				style: 'currency',
-				currency: 'BRL',
+				currency: 'BRL'
 			}),
-			yields: <DialogInfo item={item} />,
+			yields: <DialogInfo item={item} />
 		}
 	})
 

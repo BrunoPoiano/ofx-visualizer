@@ -6,7 +6,7 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardTitle,
+	CardTitle
 } from '@/components/ui/card'
 import { parseDate } from '@/lib/utils'
 import { useStatementContext } from '../../provider'
@@ -14,7 +14,7 @@ import { useStatementContext } from '../../provider'
 export const Cards = () => {
 	const {
 		defaultFilter: [defaultFilter, setDefaultFilter],
-		showValue: [showValue],
+		showValue: [showValue]
 	} = useHomeContext()
 
 	const { currentBalance, largestBalance } = useStatementContext()
@@ -41,7 +41,7 @@ export const Cards = () => {
 						{showValue
 							? `${largestBalance.ledger_balance.toLocaleString('pt-BR', {
 									style: 'currency',
-									currency: 'BRL',
+									currency: 'BRL'
 								})}`
 							: '****'}
 					</CardContent>
@@ -60,7 +60,7 @@ export const Cards = () => {
 						{showValue
 							? `${currentBalance.ledger_balance.toLocaleString('pt-BR', {
 									style: 'currency',
-									currency: 'BRL',
+									currency: 'BRL'
 								})}`
 							: '****'}
 					</CardContent>

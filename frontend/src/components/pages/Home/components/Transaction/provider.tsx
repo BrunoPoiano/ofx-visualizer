@@ -3,7 +3,7 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useState,
+	useState
 } from 'react'
 import { toast } from 'sonner'
 import { useDebounce } from '@/lib/debounce'
@@ -17,11 +17,11 @@ import type { OrderBy, TransactionInfoType, TransactionType } from '../../types'
 import type {
 	FilterType,
 	TransactionProviderProps,
-	TransactionProviderState,
+	TransactionProviderState
 } from './types'
 
 const TransactionProviderContext = createContext<TransactionProviderState>(
-	{} as TransactionProviderState,
+	{} as TransactionProviderState
 )
 
 export function TransactionProvider({ children }: TransactionProviderProps) {
@@ -35,16 +35,16 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 			search: '',
 			minValue: undefined,
 			maxValue: undefined,
-			type: '',
-		},
+			type: ''
+		}
 	)
 
 	const [orderBy, setOrderBy] = useLocalStorage<OrderBy>(
 		'ORDERBY_TRANSACTION',
 		{
 			direction: 'DESC',
-			order: 'date',
-		},
+			order: 'date'
+		}
 	)
 
 	const [pagination, setPagination] = useLocalStorage<PaginationType>(
@@ -53,13 +53,13 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 			per_page: 5,
 			total_items: 0,
 			last_page: 1,
-			current_page: 1,
-		},
+			current_page: 1
+		}
 	)
 
 	const {
 		defaultFilter: [defaultFilter, setDefaultFilter],
-		banks: [banks],
+		banks: [banks]
 	} = useHomeContext()
 
 	const [transactions, setTransactions] = useState<TransactionType[]>([])
@@ -79,13 +79,13 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 						? { source_id: defaultFilter.source_id }
 						: {}),
 					...(orderBy.order ? { order: orderBy.order } : {}),
-					...(orderBy.direction ? { direction: orderBy.direction } : {}),
-				}),
+					...(orderBy.direction ? { direction: orderBy.direction } : {})
+				})
 			)
 
 			if (error) {
 				toast.error('Error getting Transactions.', {
-					style: { background: 'var(--destructive)' },
+					style: { background: 'var(--destructive)' }
 				})
 				return
 			}
@@ -98,9 +98,9 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 			filter,
 			orderBy,
 			defaultFilter,
-			setPagination,
+			setPagination
 		]),
-		500,
+		500
 	)
 
 	const getTransactionInfoFunc = useCallback(async () => {
@@ -108,13 +108,13 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 
 		const [response, error] = await tryCatch(
 			getTransactionsInfo({
-				source_id: defaultFilter.source_id,
-			}),
+				source_id: defaultFilter.source_id
+			})
 		)
 
 		if (error) {
 			toast.error('Error getting Transactions Information.', {
-				style: { background: 'var(--destructive)' },
+				style: { background: 'var(--destructive)' }
 			})
 			return
 		}
@@ -127,17 +127,17 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 			search: '',
 			minValue: undefined,
 			maxValue: undefined,
-			type: '',
+			type: ''
 		})
 
 		setOrderBy({
 			order: 'date',
-			direction: 'DESC',
+			direction: 'DESC'
 		})
 
 		setDefaultFilter({
 			date: undefined,
-			source_id: sources[0].id.toString() || '',
+			source_id: sources[0].id.toString() || ''
 		})
 	}
 
@@ -154,7 +154,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 		pagination.per_page,
 		filter,
 		orderBy,
-		defaultFilter,
+		defaultFilter
 	])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Every change on the filters, the pagination returns to page 1
@@ -172,7 +172,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 				transactionsInfo: [transactionsInfo, setTransactionsInfo],
 				clearFilter,
 				getTransactionsFunc,
-				getTransactionInfoFunc,
+				getTransactionInfoFunc
 			}}
 		>
 			{children}
@@ -185,7 +185,7 @@ export const useTransactionContext = () => {
 
 	if (context === undefined)
 		throw new Error(
-			'useTransactionContext must be used within a TransactionProviderContext',
+			'useTransactionContext must be used within a TransactionProviderContext'
 		)
 
 	return context

@@ -3,7 +3,7 @@ import { useBankContext } from '../../provider'
 
 export const Filter = () => {
 	const {
-		filter: [filter, setFilter],
+		filter: [filter, setFilter]
 	} = useBankContext()
 
 	const changeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -11,7 +11,7 @@ export const Filter = () => {
 			if (e.target.type === 'number') {
 				return {
 					...prev,
-					[e.target.name]: e.target.value ? Number(e.target.value) : undefined,
+					[e.target.name]: e.target.value ? Number(e.target.value) : undefined
 				}
 			}
 

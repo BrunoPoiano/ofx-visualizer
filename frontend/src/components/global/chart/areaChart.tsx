@@ -9,7 +9,7 @@ import {
 	ChartLegend,
 	ChartLegendContent,
 	ChartTooltip,
-	ChartTooltipContent,
+	ChartTooltipContent
 } from '@/components/ui/chart'
 import { generateKey } from '@/lib/utils'
 
@@ -26,7 +26,7 @@ export const AreaChartComponent = ({
 	dataKey,
 	chartConfig,
 	header,
-	footer,
+	footer
 }: AreaChartComponentType) => {
 	return (
 		<Card className='min-h-[430px]'>

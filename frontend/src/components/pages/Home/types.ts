@@ -19,7 +19,7 @@ export const TransactionTypeValues = [
 	'DIRECTDEP',
 	'DIRECTDEBIT',
 	'REPEATPMT',
-	'OTHER',
+	'OTHER'
 ] as const
 
 type Tabs = 'transaction' | 'statement' | 'banks'
@@ -29,7 +29,7 @@ export const AccountTypeValues = [
 	'SAVINGS',
 	'MONEYMRKT',
 	'CREDITLINE',
-	'CMA',
+	'CMA'
 ] as const
 
 export type DefaultFilterType = {

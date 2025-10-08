@@ -6,19 +6,19 @@ import {
 	PaginationItem,
 	PaginationLink,
 	PaginationNext,
-	PaginationPrevious,
+	PaginationPrevious
 } from '../ui/pagination'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue,
+	SelectValue
 } from '../ui/select'
 
 export const AppPagination = ({
 	pagination,
-	setPagination,
+	setPagination
 }: {
 	pagination: PaginationType
 	setPagination: React.Dispatch<React.SetStateAction<PaginationType>>
@@ -31,7 +31,7 @@ export const AppPagination = ({
 		setPagination((prev) => {
 			return {
 				...prev,
-				current_page: value,
+				current_page: value
 			}
 		})
 	}
@@ -41,7 +41,7 @@ export const AppPagination = ({
 			return {
 				...prev,
 				current_page: 1,
-				per_page: Number.parseInt(value),
+				per_page: Number.parseInt(value)
 			}
 		})
 	}

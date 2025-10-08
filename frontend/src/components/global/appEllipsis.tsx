@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 export const AppEllipsis = ({
 	children,
-	width,
+	width
 }: {
 	children: ReactNode
 	width?: string

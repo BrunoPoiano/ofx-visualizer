@@ -8,7 +8,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
+	AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { parseDate } from '@/lib/utils'
@@ -16,11 +16,11 @@ import { parseDate } from '@/lib/utils'
 export const DialogInfo = ({ item }: { item: TransactionType }) => {
 	const {
 		sources,
-		showValue: [value],
+		showValue: [value]
 	} = useHomeContext()
 
 	const source_name = sources.filter(
-		(source) => source.id === item.source_id,
+		(source) => source.id === item.source_id
 	)[0].name
 
 	return (
@@ -39,7 +39,7 @@ export const DialogInfo = ({ item }: { item: TransactionType }) => {
 						<span>
 							{item.value.toLocaleString('pt-BR', {
 								style: 'currency',
-								currency: 'BRL',
+								currency: 'BRL'
 							})}
 						</span>
 						<span className='ml-auto'>{parseDate(item.date)}</span>

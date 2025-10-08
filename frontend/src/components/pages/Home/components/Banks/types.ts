@@ -6,7 +6,7 @@ export type BanksProviderState = {
 	filter: [FilterType, React.Dispatch<React.SetStateAction<FilterType>>]
 	pagination: [
 		PaginationType,
-		React.Dispatch<React.SetStateAction<PaginationType>>,
+		React.Dispatch<React.SetStateAction<PaginationType>>
 	]
 	banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>]
 	getBanksFunc: () => void

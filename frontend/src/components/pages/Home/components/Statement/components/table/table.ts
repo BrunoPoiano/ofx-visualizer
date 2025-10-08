@@ -1,20 +1,20 @@
 import type {
 	StatementType,
-	TableInfoType,
+	TableInfoType
 } from '@/components/pages/Home/types'
 
 export const TableInfo = [
 	{
 		label: 'Date',
 		id: 'start_date',
-		showValue: true,
+		showValue: true
 	},
 	{
 		label: 'Ledger balance',
-		id: 'ledger_balance',
+		id: 'ledger_balance'
 	},
 	{
 		label: 'Yields',
-		id: 'yields',
-	},
+		id: 'yields'
+	}
 ] satisfies TableInfoType<keyof StatementType>[]

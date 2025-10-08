@@ -8,7 +8,7 @@ import {
 	type balanceType,
 	type StatementType,
 	type TransactionType,
-	TransactionTypeValues,
+	TransactionTypeValues
 } from './types'
 
 export const parseBanks = (data: unknown) => {
@@ -33,11 +33,11 @@ export const parseBanks = (data: unknown) => {
 			account_type: ensureOneOf(
 				typedItem.account_type,
 				AccountTypeValues,
-				'CHECKING',
+				'CHECKING'
 			),
 			bank_id: isNumberOrDefault(typedItem.bank_id),
 			branch_id: isNumberOrDefault(typedItem.branch_id),
-			f_id: isNumberOrDefault(typedItem.f_id),
+			f_id: isNumberOrDefault(typedItem.f_id)
 		}
 
 		prev.push(newItem)
@@ -66,7 +66,7 @@ export const parseTransaction = (data: unknown) => {
 			date: isStringOrDefault(typedItem.date),
 			type: ensureOneOf(typedItem.type, TransactionTypeValues, 'OTHER'),
 			value: isNumberOrDefault(typedItem.value),
-			desc: isStringOrDefault(typedItem.desc),
+			desc: isStringOrDefault(typedItem.desc)
 		}
 
 		prev.push(newItem)
@@ -79,7 +79,7 @@ export const parseTransactionInfo = (data: unknown) => {
 		return {
 			positive: 0,
 			negative: 0,
-			value: 0,
+			value: 0
 		}
 	}
 
@@ -88,7 +88,7 @@ export const parseTransactionInfo = (data: unknown) => {
 	return {
 		positive: isNumberOrDefault(typedItem.positive),
 		negative: isNumberOrDefault(typedItem.negative),
-		value: isNumberOrDefault(typedItem.value),
+		value: isNumberOrDefault(typedItem.value)
 	}
 }
 
@@ -115,7 +115,7 @@ export const parseStatementObj = (item: Record<string, unknown>) => {
 		balance_date: isStringOrDefault(item.balance_date),
 		server_date: isStringOrDefault(item.server_date),
 		language: isStringOrDefault(item.language),
-		yields: yields,
+		yields: yields
 	}
 }
 
@@ -149,7 +149,7 @@ export const parseBalance = (data: unknown[]) => {
 			name: isStringOrDefault(typedItem.name),
 			desc: isStringOrDefault(typedItem.desc),
 			bal_type: isStringOrDefault(typedItem.bal_type),
-			value: isNumberOrDefault(typedItem.value),
+			value: isNumberOrDefault(typedItem.value)
 		}
 
 		prev.push(newItem)

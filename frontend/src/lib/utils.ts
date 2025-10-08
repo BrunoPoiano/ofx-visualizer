@@ -35,7 +35,7 @@ export const generateKey = (length = 5) => {
 
 export const isOneOf = <T extends string>(
 	value: T,
-	array: T[] | readonly T[],
+	array: T[] | readonly T[]
 ): value is T => {
 	return array.includes(value as T)
 }
@@ -43,7 +43,7 @@ export const isOneOf = <T extends string>(
 export function ensureOneOf<T extends readonly (string | number)[]>(
 	value: unknown,
 	array: T,
-	def: T[number],
+	def: T[number]
 ): T[number] {
 	if (!array.includes(value as T[number])) {
 		return def

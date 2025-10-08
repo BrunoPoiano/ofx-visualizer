@@ -12,7 +12,7 @@ type ChartType = {
 
 export const PieChartDebit = () => {
 	const {
-		transactions: [transactions],
+		transactions: [transactions]
 	} = useTransactionContext()
 	const [chartData, setChartData] = useState<ChartType[]>([])
 	const [chartConfig, setChartConfig] = useState<ChartConfig>({})
@@ -33,7 +33,7 @@ export const PieChartDebit = () => {
 				cData.push({
 					to: desc,
 					value: item.value * -1,
-					fill: `var(--color-${desc})`,
+					fill: `var(--color-${desc})`
 				})
 			}
 		}
@@ -48,7 +48,7 @@ export const PieChartDebit = () => {
 		for (const cd of cData) {
 			cConfig[cd.to] = {
 				label: cd.to,
-				color: `var(--chart-${i})`,
+				color: `var(--chart-${i})`
 			}
 			i++
 		}

@@ -9,10 +9,10 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
 		transactions: [transactions],
 		orderBy: [orderBy, setOrderBy],
-		pagination: [pagination, setPagination],
+		pagination: [pagination, setPagination]
 	} = useTransactionContext()
 	const {
-		showValue: [showValue],
+		showValue: [showValue]
 	} = useHomeContext()
 
 	const tableData = transactions.map((item) => {
@@ -22,10 +22,10 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 			type: item.type,
 			value: item.value.toLocaleString('pt-BR', {
 				style: 'currency',
-				currency: 'BRL',
+				currency: 'BRL'
 			}),
 			desc: item.desc,
-			options: <DialogInfo item={item} />,
+			options: <DialogInfo item={item} />
 		}
 	})
 

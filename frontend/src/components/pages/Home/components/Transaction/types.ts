@@ -6,16 +6,16 @@ export type TransactionProviderState = {
 	filter: [FilterType, React.Dispatch<React.SetStateAction<FilterType>>]
 	pagination: [
 		PaginationType,
-		React.Dispatch<React.SetStateAction<PaginationType>>,
+		React.Dispatch<React.SetStateAction<PaginationType>>
 	]
 	transactions: [
 		TransactionType[],
-		React.Dispatch<React.SetStateAction<TransactionType[]>>,
+		React.Dispatch<React.SetStateAction<TransactionType[]>>
 	]
 
 	transactionsInfo: [
 		TransactionInfoType | undefined,
-		React.Dispatch<React.SetStateAction<TransactionInfoType | undefined>>,
+		React.Dispatch<React.SetStateAction<TransactionInfoType | undefined>>
 	]
 	clearFilter: () => void
 	getTransactionsFunc: () => void

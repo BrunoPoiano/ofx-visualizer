@@ -3,7 +3,7 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useState,
+	useState
 } from 'react'
 import { toast } from 'sonner'
 import { useDebounce } from '@/lib/debounce'
@@ -17,25 +17,25 @@ import type { OrderBy, StatementType } from '../../types'
 import type { FilterType, StatementProviderState } from './types'
 
 const StatementProviderContext = createContext<StatementProviderState>(
-	{} as StatementProviderState,
+	{} as StatementProviderState
 )
 
 export function StatementProvider({ children }: { children: React.ReactNode }) {
 	const {
 		defaultFilter: [defaultFilter, setDefaultFilter],
 		banks: [banks],
-		sources,
+		sources
 	} = useHomeContext()
 
 	const [filter, setFilter] = useLocalStorage<FilterType>('FILTER_STATEMENT', {
 		search: '',
 		maxValue: undefined,
-		minValue: undefined,
+		minValue: undefined
 	})
 
 	const [orderBy, setOrderBy] = useLocalStorage<OrderBy>('ORDERBY_STATEMENT', {
 		direction: 'DESC',
-		order: 'start_date',
+		order: 'start_date'
 	})
 
 	const [pagination, setPagination] = useLocalStorage<PaginationType>(
@@ -44,16 +44,16 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 			per_page: 5,
 			total_items: 0,
 			last_page: 1,
-			current_page: 1,
-		},
+			current_page: 1
+		}
 	)
 
 	const [statements, setStatements] = useState<StatementType[]>([])
 	const [currentBalance, setCurrentBalance] = useState<StatementType | null>(
-		null,
+		null
 	)
 	const [largestBalance, setLargestBalance] = useState<StatementType | null>(
-		null,
+		null
 	)
 
 	const getStatementFunc = useDebounce(
@@ -70,12 +70,12 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 					...(filter.minValue ? { min_value: filter.minValue.toString() } : {}),
 					...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
 					...(orderBy.order ? { order: orderBy.order } : {}),
-					...(orderBy.direction ? { direction: orderBy.direction } : {}),
-				}),
+					...(orderBy.direction ? { direction: orderBy.direction } : {})
+				})
 			)
 			if (error) {
 				toast.error('Error getting Statesments.', {
-					style: { background: 'var(--destructive)' },
+					style: { background: 'var(--destructive)' }
 				})
 				return
 			}
@@ -89,26 +89,26 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 			pagination.per_page,
 			filter,
 			orderBy,
-			setPagination,
+			setPagination
 		]),
-		500,
+		500
 	)
 
 	const clearFilter = () => {
 		setFilter({
 			search: '',
 			maxValue: undefined,
-			minValue: undefined,
+			minValue: undefined
 		})
 
 		setOrderBy({
 			order: 'start_date',
-			direction: 'DESC',
+			direction: 'DESC'
 		})
 
 		setDefaultFilter({
 			date: undefined,
-			source_id: sources[0].id.toString() || '',
+			source_id: sources[0].id.toString() || ''
 		})
 	}
 
@@ -116,12 +116,12 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 		if (!defaultFilter.source_id) return
 
 		const [response, error] = await tryCatch(
-			getStatesmentsInfo(defaultFilter.source_id),
+			getStatesmentsInfo(defaultFilter.source_id)
 		)
 
 		if (error) {
 			toast.error('Error getting Statesments Info.', {
-				style: { background: 'var(--destructive)' },
+				style: { background: 'var(--destructive)' }
 			})
 			return
 		}
@@ -143,7 +143,7 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 		pagination.per_page,
 		filter,
 		orderBy,
-		defaultFilter,
+		defaultFilter
 	])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Every change on the filters, the pagination returns to page 1
@@ -160,7 +160,7 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 				statements: [statements, setStatements],
 				clearFilter,
 				currentBalance,
-				largestBalance,
+				largestBalance
 			}}
 		>
 			{children}
@@ -173,7 +173,7 @@ export const useStatementContext = () => {
 
 	if (context === undefined)
 		throw new Error(
-			'useStatementContext must be used within a StatementProviderContext',
+			'useStatementContext must be used within a StatementProviderContext'
 		)
 
 	return context

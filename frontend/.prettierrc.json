@@ -10,6 +10,6 @@
 	"singleQuote": true,
 	"quoteProps": "as-needed",
 	"semi": false,
-	"trailingComma": "as-needed",
+	"trailingComma": "none",
 	"semicolons": false
 }

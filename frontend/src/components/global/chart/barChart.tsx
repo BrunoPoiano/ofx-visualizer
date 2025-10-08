@@ -8,7 +8,7 @@ import {
 	ChartLegend,
 	ChartLegendContent,
 	ChartTooltip,
-	ChartTooltipContent,
+	ChartTooltipContent
 } from '@/components/ui/chart'
 import type { ReactNode } from 'react'
 
@@ -23,7 +23,7 @@ export const BarChartComponent: React.FC<BarChartComponentType> = ({
 	chartData,
 	dataKey,
 	chartConfig,
-	children,
+	children
 }) => {
 	return (
 		<ChartContainer
@@ -36,7 +36,7 @@ export const BarChartComponent: React.FC<BarChartComponentType> = ({
 				data={chartData}
 				margin={{
 					left: 12,
-					right: 12,
+					right: 12
 				}}
 			>
 				<CartesianGrid vertical={false} />

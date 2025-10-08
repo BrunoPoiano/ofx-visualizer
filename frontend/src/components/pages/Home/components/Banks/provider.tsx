@@ -3,7 +3,7 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useState,
+	useState
 } from 'react'
 import { toast } from 'sonner'
 import { useDebounce } from '@/lib/debounce'
@@ -15,18 +15,18 @@ import type { BankType, OrderBy } from '../../types'
 import type { BanksProviderState, FilterType } from './types'
 
 const BanksProviderContext = createContext<BanksProviderState>(
-	{} as BanksProviderState,
+	{} as BanksProviderState
 )
 
 export function BanksProvider({ children }: { children: React.ReactNode }) {
 	const [banks, setBanks] = useState<BankType[]>([])
 	const [filter, setFilter] = useLocalStorage<FilterType>('FILTER_BANK', {
-		search: '',
+		search: ''
 	})
 
 	const [orderBy, setOrderBy] = useLocalStorage<OrderBy>('ORDERBY_BANK', {
 		direction: 'DESC',
-		order: 'start_date',
+		order: 'start_date'
 	})
 
 	const [pagination, setPagination] = useLocalStorage<PaginationType>(
@@ -35,8 +35,8 @@ export function BanksProvider({ children }: { children: React.ReactNode }) {
 			per_page: 5,
 			total_items: 0,
 			last_page: 1,
-			current_page: 1,
-		},
+			current_page: 1
+		}
 	)
 
 	const getBanksFunc = useDebounce(
@@ -49,13 +49,13 @@ export function BanksProvider({ children }: { children: React.ReactNode }) {
 					...(orderBy.direction
 						? { direction: orderBy.direction?.toString() }
 						: {}),
-					...(filter.search ? { search: filter.search } : {}),
-				}),
+					...(filter.search ? { search: filter.search } : {})
+				})
 			)
 
 			if (error) {
 				toast.error('Error getting Bank list.', {
-					style: { background: 'var(--destructive)' },
+					style: { background: 'var(--destructive)' }
 				})
 				return
 			}
@@ -66,9 +66,9 @@ export function BanksProvider({ children }: { children: React.ReactNode }) {
 			pagination.per_page,
 			filter,
 			orderBy,
-			setPagination,
+			setPagination
 		]),
-		500,
+		500
 	)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <Run getBanksFunc every time something important changes>
@@ -88,7 +88,7 @@ export function BanksProvider({ children }: { children: React.ReactNode }) {
 				orderBy: [orderBy, setOrderBy],
 				filter: [filter, setFilter],
 				pagination: [pagination, setPagination],
-				getBanksFunc,
+				getBanksFunc
 			}}
 		>
 			{children}

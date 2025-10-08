@@ -21,11 +21,11 @@ type CardWrapperType = {
 export const Cards = () => {
 	const {
 		transactionsInfo: [transactionsInfo],
-		transactions: [transactions],
+		transactions: [transactions]
 	} = useTransactionContext()
 
 	const {
-		defaultFilter: [defaultFilter, setDefaultFilter],
+		defaultFilter: [defaultFilter, setDefaultFilter]
 	} = useHomeContext()
 
 	const filteredTransaction = transactions.reduce<FilteredTransactionType>(
@@ -40,19 +40,19 @@ export const Cards = () => {
 
 			return acc
 		},
-		{ positive: 0, negative: 0, value: 0 },
+		{ positive: 0, negative: 0, value: 0 }
 	)
 
 	const cards: CardWrapperType[] = [
 		{
 			label: 'Total Expending',
 			color: 'var(--destructive)',
-			value: transactionsInfo?.negative || 0,
+			value: transactionsInfo?.negative || 0
 		},
 		{
 			label: 'Total Earning',
 			color: 'var(--chart-2)',
-			value: transactionsInfo?.positive || 0,
+			value: transactionsInfo?.positive || 0
 		},
 		{
 			label: 'Total Revenue',
@@ -60,17 +60,17 @@ export const Cards = () => {
 				transactionsInfo && transactionsInfo?.value > 0
 					? 'var(--chart-2)'
 					: 'var(--destructive)',
-			value: transactionsInfo?.value || 0,
+			value: transactionsInfo?.value || 0
 		},
 		{
 			label: 'Filtered Expending',
 			color: 'var(--destructive)',
-			value: filteredTransaction.negative,
+			value: filteredTransaction.negative
 		},
 		{
 			label: 'Filtered Earning',
 			color: 'var(--chart-2)',
-			value: filteredTransaction.positive,
+			value: filteredTransaction.positive
 		},
 		{
 			label: 'Filtered Revenue',
@@ -78,8 +78,8 @@ export const Cards = () => {
 				filteredTransaction?.value > 0
 					? 'var(--chart-2)'
 					: 'var(--destructive)',
-			value: filteredTransaction?.value,
-		},
+			value: filteredTransaction?.value
+		}
 	]
 
 	return (
@@ -108,7 +108,7 @@ export const Cards = () => {
 
 const CardWrapper = ({ label, value, color }: CardWrapperType) => {
 	const {
-		showValue: [showValue],
+		showValue: [showValue]
 	} = useHomeContext()
 
 	return (
@@ -118,13 +118,13 @@ const CardWrapper = ({ label, value, color }: CardWrapperType) => {
 				<span
 					className='font-bold text-2xl'
 					style={{
-						color: color,
+						color: color
 					}}
 				>
 					{showValue
 						? `${value.toLocaleString('pt-BR', {
 								style: 'currency',
-								currency: 'BRL',
+								currency: 'BRL'
 							})}`
 						: '****'}
 				</span>

@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input'
 
 export const InputFiles = ({
 	filesState,
-	loading,
+	loading
 }: {
 	filesState: [Array<File>, Dispatch<SetStateAction<Array<File>>>]
 	loading: boolean

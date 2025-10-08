@@ -12,18 +12,18 @@ const homePageTabs: (HomeTabs & { label: string })[] = [
 	{
 		label: 'Transactions',
 		tab: 'transaction',
-		content: <TransactionSection />,
+		content: <TransactionSection />
 	},
 	{
 		label: 'Statements',
 		tab: 'statement',
-		content: <StatementsSection />,
+		content: <StatementsSection />
 	},
 	{
 		label: 'Banks',
 		tab: 'banks',
-		content: <BanksSection />,
-	},
+		content: <BanksSection />
+	}
 ]
 
 export const HomePage = () => {

@@ -1,45 +1,45 @@
 import type {
 	TableInfoType,
-	TransactionType,
+	TransactionType
 } from '@/components/pages/Home/types'
 
 export const TableInfo: TableInfoType<keyof TransactionType>[] = [
 	{
 		label: 'Date',
 		id: 'date',
-		showValue: true,
+		showValue: true
 	},
 	{
 		label: 'Type',
-		id: 'type',
+		id: 'type'
 	},
 	{
 		label: 'Value',
-		id: 'value',
+		id: 'value'
 	},
 	{
 		label: 'Description',
 		id: 'desc',
 		class: 'text-left',
-		style: { maxWidth: '30ch' },
+		style: { maxWidth: '30ch' }
 	},
 	{
 		label: 'Info',
-		id: 'options',
-	},
+		id: 'options'
+	}
 ]
 
 export const TableInfoSmall: TableInfoType<keyof TransactionType>[] = [
 	{
 		label: 'Date',
-		id: 'date',
+		id: 'date'
 	},
 	{
 		label: 'Type',
-		id: 'type',
+		id: 'type'
 	},
 	{
 		label: 'Value',
-		id: 'value',
-	},
+		id: 'value'
+	}
 ]

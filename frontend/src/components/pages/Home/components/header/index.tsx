@@ -11,7 +11,7 @@ import FilesList from './components/FilesList'
 import { InputFiles } from './components/InputFiles'
 
 export const AppHeader = ({
-	setTabKey,
+	setTabKey
 }: {
 	setTabKey: React.Dispatch<React.SetStateAction<number>>
 }) => {
@@ -21,7 +21,7 @@ export const AppHeader = ({
 
 	const {
 		showValue: [showValue, setShowValue],
-		getSourcesFunc,
+		getSourcesFunc
 	} = useHomeContext()
 
 	const sendFiles = async (formData: FormData) => {
@@ -30,13 +30,13 @@ export const AppHeader = ({
 		if (error) {
 			console.error(error)
 			toast.error('Error processing files.', {
-				style: { background: 'var(--destructive)' },
+				style: { background: 'var(--destructive)' }
 			})
 			return
 		}
 
 		toast.success('Files processed sucessifully!.', {
-			style: { background: 'var(--chart-2)' },
+			style: { background: 'var(--chart-2)' }
 		})
 	}
 

@@ -8,17 +8,17 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
 		orderBy: [orderBy, setOrderBy],
 		pagination: [pagination, setPagination],
-		banks: [banks],
+		banks: [banks]
 	} = useBankContext()
 
 	const {
-		showValue: [showValue],
+		showValue: [showValue]
 	} = useHomeContext()
 
 	const tableData = banks.map((item) => {
 		return {
 			...item,
-			options: <DialogEdit item={item} />,
+			options: <DialogEdit item={item} />
 		}
 	})
 

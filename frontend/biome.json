@@ -61,7 +61,7 @@
 			"quoteStyle": "single",
 			"quoteProperties": "asNeeded",
 			"semicolons": "asNeeded",
-			"trailingCommas": "all"
+			"trailingCommas": "none"
 		}
 	}
 }

@@ -16,7 +16,7 @@ type ChartType = {
 
 export const AreaChart = () => {
 	const {
-		transactions: [transactions],
+		transactions: [transactions]
 	} = useTransactionContext()
 	const [chartData, setChartData] = useState<ChartType[]>([])
 	const [toggle, setToggle] = useLocalStorage('toggle', false)
@@ -24,16 +24,16 @@ export const AreaChart = () => {
 	const chartConfig = {
 		positive: {
 			label: 'Positive',
-			color: 'var(--chart-2)',
+			color: 'var(--chart-2)'
 		},
 		negative: {
 			label: 'Negative',
-			color: 'var(--destructive)',
+			color: 'var(--destructive)'
 		},
 		total: {
 			label: 'Total',
-			color: 'var(--chart-1)',
-		},
+			color: 'var(--chart-1)'
+		}
 	} satisfies ChartConfig
 
 	useEffect(() => {
@@ -57,14 +57,14 @@ export const AreaChart = () => {
 						key: date,
 						positive: item.value,
 						negative: 0,
-						total: item.value,
+						total: item.value
 					})
 				} else {
 					cData.push({
 						key: date,
 						positive: 0,
 						negative: Math.abs(item.value),
-						total: item.value,
+						total: item.value
 					})
 				}
 			}

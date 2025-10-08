@@ -12,7 +12,7 @@ export const AppToggle: React.FC<AppToggleType> = ({
 	toggle: [toggle, setToggle],
 	id,
 	frontLabel,
-	backLabel,
+	backLabel
 }) => {
 	return (
 		<div className='flex items-center space-x-2'>

@@ -6,7 +6,7 @@ import {
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue,
+	SelectValue
 } from '@/components/ui/select'
 import { SourceSelect } from '../../../SourceSelect'
 import { useTransactionContext } from '../../provider'
@@ -14,7 +14,7 @@ import { useTransactionContext } from '../../provider'
 export const Filter = () => {
 	const {
 		filter: [filter, setFilter],
-		clearFilter,
+		clearFilter
 	} = useTransactionContext()
 
 	const changeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,7 +22,7 @@ export const Filter = () => {
 			if (e.target.type === 'number') {
 				return {
 					...prev,
-					[e.target.name]: e.target.value ? Number(e.target.value) : undefined,
+					[e.target.name]: e.target.value ? Number(e.target.value) : undefined
 				}
 			}
 

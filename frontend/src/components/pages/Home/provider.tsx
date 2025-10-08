@@ -3,7 +3,7 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useState,
+	useState
 } from 'react'
 import { useDebounce } from '@/lib/debounce'
 import useLocalStorage from '@/lib/localstorage'
@@ -14,18 +14,18 @@ export type HomeProviderState = {
 	showValue: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
 	defaultFilter: [
 		DefaultFilterType,
-		React.Dispatch<React.SetStateAction<DefaultFilterType>>,
+		React.Dispatch<React.SetStateAction<DefaultFilterType>>
 	]
 	banks: [
 		Array<BankType>,
-		React.Dispatch<React.SetStateAction<Array<BankType>>>,
+		React.Dispatch<React.SetStateAction<Array<BankType>>>
 	]
 	getSourcesFunc: () => void
 	sources: Array<SourceType>
 }
 
 const HomeProviderContext = createContext<HomeProviderState>(
-	{} as HomeProviderState,
+	{} as HomeProviderState
 )
 
 export function HomeProvider({ children }: { children: React.ReactNode }) {
@@ -36,8 +36,8 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 		'DEFAULT_FILTER',
 		{
 			date: undefined,
-			source_id: '',
-		},
+			source_id: ''
+		}
 	)
 
 	const getSourcesFunc = useDebounce(
@@ -49,14 +49,14 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 				if (defaultFilter.source_id === '' && data.length > 0) {
 					setDefaultFilter((prev_filter) => ({
 						...prev_filter,
-						source_id: data[0].id.toString(),
+						source_id: data[0].id.toString()
 					}))
 				}
 
 				return data
 			})
 		}, []),
-		500,
+		500
 	)
 
 	useEffect(() => {
@@ -70,7 +70,7 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 				showValue: [showValue, setShowValue],
 				defaultFilter: [defaultFilter, setDefaultFilter],
 				banks: [banks, setBanks],
-				getSourcesFunc,
+				getSourcesFunc
 			}}
 		>
 			{children}

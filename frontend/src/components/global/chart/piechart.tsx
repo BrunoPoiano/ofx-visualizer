@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import {
 	ChartContainer,
 	ChartTooltip,
-	ChartTooltipContent,
+	ChartTooltipContent
 } from '@/components/ui/chart'
 import type { ChartConfig } from '@/components/ui/chart'
 import type { ReactNode } from 'react'
@@ -24,7 +24,7 @@ export const PieChartComponent: React.FC<PieChartComponentType> = ({
 	dataKey,
 	nameKey,
 	chartConfig,
-	header,
+	header
 }) => {
 	return (
 		<Card className='flex flex-col'>

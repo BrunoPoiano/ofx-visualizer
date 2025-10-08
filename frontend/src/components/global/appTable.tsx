@@ -11,7 +11,7 @@ import {
 	TableCell,
 	TableHead,
 	TableHeader,
-	TableRow,
+	TableRow
 } from '../ui/table'
 import { AppEllipsis } from './appEllipsis'
 import { AppPagination } from './appPagination'
@@ -24,13 +24,13 @@ type AppTableProps<T extends { [key: string]: string | React.ReactNode }> = {
 	showValue: boolean
 	pagination: [
 		PaginationType,
-		React.Dispatch<React.SetStateAction<PaginationType>>,
+		React.Dispatch<React.SetStateAction<PaginationType>>
 	]
 	tableData: T[]
 }
 
 export const AppTable = <
-	T extends { [key: string]: string | React.ReactNode },
+	T extends { [key: string]: string | React.ReactNode }
 >({
 	small = false,
 	tableContentSmall,
@@ -38,7 +38,7 @@ export const AppTable = <
 	orderBy: [orderBy, setOrderBy],
 	pagination: [pagination, setPagination],
 	showValue,
-	tableData,
+	tableData
 }: AppTableProps<T>) => {
 	const tableValues =
 		small && tableContentSmall ? tableContentSmall : tableContent

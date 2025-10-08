@@ -8,7 +8,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
+	AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
@@ -16,7 +16,7 @@ import { generateKey } from '@/lib/utils'
 
 export const DialogInfo = ({ item }: { item: StatementType }) => {
 	const {
-		showValue: [value],
+		showValue: [value]
 	} = useHomeContext()
 
 	return (
@@ -38,7 +38,7 @@ export const DialogInfo = ({ item }: { item: StatementType }) => {
 									<p>
 										{yieldItem.value.toLocaleString('pt-BR', {
 											style: 'currency',
-											currency: 'BRL',
+											currency: 'BRL'
 										})}
 									</p>
 								</CardContent>

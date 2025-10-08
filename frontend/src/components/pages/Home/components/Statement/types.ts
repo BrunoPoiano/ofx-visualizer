@@ -6,11 +6,11 @@ export type StatementProviderState = {
 	filter: [FilterType, React.Dispatch<React.SetStateAction<FilterType>>]
 	pagination: [
 		PaginationType,
-		React.Dispatch<React.SetStateAction<PaginationType>>,
+		React.Dispatch<React.SetStateAction<PaginationType>>
 	]
 	statements: [
 		StatementType[],
-		React.Dispatch<React.SetStateAction<StatementType[]>>,
+		React.Dispatch<React.SetStateAction<StatementType[]>>
 	]
 	currentBalance: StatementType | null
 	largestBalance: StatementType | null

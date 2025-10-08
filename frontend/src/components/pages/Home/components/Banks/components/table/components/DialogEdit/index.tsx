@@ -12,7 +12,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
+	AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,7 +21,7 @@ import { useBankContext } from '../../../../provider'
 export const DialogEdit = ({ item }: { item: BankType }) => {
 	const {
 		getSourcesFunc,
-		showValue: [value],
+		showValue: [value]
 	} = useHomeContext()
 	const { getBanksFunc } = useBankContext()
 
@@ -36,14 +36,14 @@ export const DialogEdit = ({ item }: { item: BankType }) => {
 				getSourcesFunc()
 
 				toast.error('Name successifully saved!', {
-					style: { background: 'var(--chart-2)' },
+					style: { background: 'var(--chart-2)' }
 				})
 			})
 			.catch((e) => {
 				console.error(e)
 
 				toast.error(e.request.response || 'Error saving Bank name.', {
-					style: { background: 'var(--destructive)' },
+					style: { background: 'var(--destructive)' }
 				})
 			})
 	}
