@@ -1,77 +1,87 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { EyeClosedSvg } from '@/components/icons/eyeClosedSvg';
 import { EyeSvg } from '@/components/icons/eyeSvg';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ModeToggle } from '@/components/ui/mode-toggle';
+import { tryCatch } from '@/lib/tryCatch';
 import { postOfxFile } from '../../functions';
 import { useHomeContext } from '../../provider';
+import FilesList from './components/FilesList';
+import { InputFiles } from './components/InputFiles';
 
 export const AppHeader = ({
 	setTabKey,
 }: {
 	setTabKey: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-	const formData = new FormData();
+	const batchLength = 5;
 	const [loading, setLoading] = useState(false);
+	const [files, setFiles] = useState<Array<File>>([]);
 
 	const {
 		showValue: [showValue, setShowValue],
 		getSourcesFunc,
 	} = useHomeContext();
 
-	const inportFIle = async (e: React.ChangeEvent<HTMLInputElement>) => {
+	const sendFiles = async (formData: FormData) => {
+		const [, error] = await tryCatch(postOfxFile(formData));
+
+		if (error) {
+			console.error(error);
+			toast.error('Error processing files.', {
+				style: { background: 'var(--destructive)' },
+			});
+		} else {
+			toast.success('Files processed sucessifully!.', {
+				style: { background: 'var(--chart-2)' },
+			});
+		}
+	};
+
+	const importFiles = async () => {
+		if (!files) return;
 		setLoading(true);
-		const files = e.target.files;
-		if (!files?.length) return;
 
-		if (files.length > 10) {
-			toast.warning('Files limit exceeded.', {
-				style: { background: 'var(--chart-4)' },
-			});
+		const iterations = Math.ceil(files.length / batchLength);
+		for (let i = 0; i < iterations; i++) {
+			const start = i * batchLength;
+			const end = start + batchLength;
+			const batch = files.slice(start, end);
+			const formData = new FormData();
+
+			for (const file of batch) {
+				formData.append('file', file);
+			}
+
+			console.log('Sending batch', i + 1, 'of', iterations);
+
+			setFiles((prev) => prev.slice(batchLength));
+			await sendFiles(formData);
 		}
 
-		for (let i = 0; i <= Math.min(files.length - 1, 10); i++) {
-			formData.append('file', files[i]);
-		}
-
-		await postOfxFile(formData)
-			.then(() => {
-				getSourcesFunc();
-				setTabKey((prev) => prev + 1);
-				toast.success('File successifully parsed!.', {
-					style: { background: 'var(--chart-2)' },
-				});
-			})
-			.catch((e) => {
-				console.error(e);
-				toast.error(e.request.response || 'Error updating file.', {
-					style: { background: 'var(--destructive)' },
-				});
-			})
-			.finally(() => {
-				e.target.value = '';
-				setLoading(false);
-			});
+		setLoading(false);
+		getSourcesFunc();
+		setTabKey((prev) => prev + 1);
 	};
 
 	return (
-		<div className='flex w-full justify-end gap-2.5'>
-			<Input
-				multiple
-				type='file'
-				id={useId()}
-				className='file:-mx-3 file:-my-[0.32rem] m-0 block w-full min-w-0 flex-auto cursor-pointer content-center rounded border border-secondary-500 border-solid bg-transparent bg-clip-padding px-3 py-[0.32rem] font-normal text-base text-surface transition duration-300 ease-in-out file:me-3 file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-inherit file:border-e file:border-solid file:bg-transparent file:px-3 file:py-[0.32rem] file:text-surface'
-				accept='.ofx'
-				placeholder='Upload File'
-				loading={loading}
-				onChange={inportFIle}
-			/>
-			<Button variant='outline' onClick={() => setShowValue(!showValue)}>
-				{showValue ? <EyeSvg /> : <EyeClosedSvg />}
-			</Button>
-			<ModeToggle />
-		</div>
+		<section className='grid w-full gap-2.5'>
+			<div className='flex w-full justify-end gap-2.5'>
+				<InputFiles loading={loading} filesState={[files, setFiles]} />
+				<Button
+					variant='outline'
+					disabled={files.length === 0 || loading}
+					onClick={importFiles}
+				>
+					Send
+				</Button>
+				<Button variant='outline' onClick={() => setShowValue(!showValue)}>
+					{showValue ? <EyeSvg /> : <EyeClosedSvg />}
+				</Button>
+				<ModeToggle />
+			</div>
+			<FilesList filesState={[files, setFiles]} />
+		</section>
 	);
 };
