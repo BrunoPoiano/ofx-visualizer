@@ -28,7 +28,7 @@ or
 
 ```sh
 services:
-  brunopoiano:
+  ofx-visualizer:
     image: "docker.io/brunopoiano/ofx-visualizer:latest"
     container_name: ofxvisualizer
     ports:

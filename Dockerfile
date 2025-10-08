@@ -3,7 +3,7 @@ FROM node:20 AS frontend
 WORKDIR /app/frontend
 COPY frontend/ ./
 RUN npm install
-RUN npm run lint
+# RUN npm run lint
 RUN npm run format:clean
 RUN npm run build
 

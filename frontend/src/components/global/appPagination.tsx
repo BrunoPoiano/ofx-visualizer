@@ -41,7 +41,7 @@ export const AppPagination = ({
 			return {
 				...prev,
 				current_page: 1,
-				per_page: Number.parseInt(value)
+				per_page: Number.parseInt(value, 10)
 			}
 		})
 	}

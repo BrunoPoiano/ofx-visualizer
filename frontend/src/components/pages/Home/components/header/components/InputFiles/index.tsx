@@ -30,7 +30,7 @@ export const InputFiles = ({
 	return (
 		<label
 			htmlFor={inputId}
-			className=' m-0 block w-full min-w-0 flex-auto cursor-pointer content-center rounded border border-secondary-500 border-solid bg-transparent bg-clip-padding px-3 py-[0.32rem] font-normal text-base text-surface transition duration-300 ease-in-out'
+			className='m-0 block w-full min-w-0 flex-auto cursor-pointer content-center rounded border border-secondary-500 border-solid bg-transparent bg-clip-padding px-3 py-[0.32rem] font-normal text-base text-surface transition duration-300 ease-in-out'
 		>
 			<Input
 				multiple

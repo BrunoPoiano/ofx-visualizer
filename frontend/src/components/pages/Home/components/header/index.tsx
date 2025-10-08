@@ -26,10 +26,11 @@ export const AppHeader = ({
 
 	const importFiles = async () => {
 		if (!files) return
-
 		setLoading(true)
+
 		let filesRemaining = [...files]
 		let bLength = batchLength
+		let hasError = false
 
 		while (bLength > 0 && filesRemaining.length > 0) {
 			const notProcessed: Array<File> = []
@@ -53,6 +54,7 @@ export const AppHeader = ({
 				if (error) {
 					console.error('Batch failed:', error)
 					notProcessed.push(...batch)
+					hasError = true
 					continue
 				}
 
@@ -67,7 +69,7 @@ export const AppHeader = ({
 			bLength--
 		}
 
-		if (files.length > 0) {
+		if (hasError) {
 			toast.error('Not All files were processed.', {
 				style: { background: 'var(--destructive)' }
 			})
