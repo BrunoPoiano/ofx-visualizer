@@ -1,10 +1,10 @@
-import React from 'react';
-import { generateKey } from '@/lib/utils';
-import type { PaginationType } from '@/types';
-import { ArrowSVG } from '../icons/arrowUp';
-import type { OrderBy, TableInfoType } from '../pages/Home/types';
-import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
+import React from 'react'
+import { generateKey } from '@/lib/utils'
+import type { PaginationType } from '@/types'
+import { ArrowSVG } from '../icons/arrowUp'
+import type { OrderBy, TableInfoType } from '../pages/Home/types'
+import { Button } from '../ui/button'
+import { ScrollArea } from '../ui/scroll-area'
 import {
 	Table,
 	TableBody,
@@ -12,22 +12,22 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '../ui/table';
-import { AppEllipsis } from './appEllipsis';
-import { AppPagination } from './appPagination';
+} from '../ui/table'
+import { AppEllipsis } from './appEllipsis'
+import { AppPagination } from './appPagination'
 
 type AppTableProps<T extends { [key: string]: string | React.ReactNode }> = {
-	small?: boolean | undefined;
-	tableContentSmall?: TableInfoType<OrderBy['order']>[];
-	tableContent: TableInfoType<OrderBy['order']>[];
-	orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>];
-	showValue: boolean;
+	small?: boolean | undefined
+	tableContentSmall?: TableInfoType<OrderBy['order']>[]
+	tableContent: TableInfoType<OrderBy['order']>[]
+	orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>]
+	showValue: boolean
 	pagination: [
 		PaginationType,
 		React.Dispatch<React.SetStateAction<PaginationType>>,
-	];
-	tableData: T[];
-};
+	]
+	tableData: T[]
+}
 
 export const AppTable = <
 	T extends { [key: string]: string | React.ReactNode },
@@ -41,20 +41,20 @@ export const AppTable = <
 	tableData,
 }: AppTableProps<T>) => {
 	const tableValues =
-		small && tableContentSmall ? tableContentSmall : tableContent;
+		small && tableContentSmall ? tableContentSmall : tableContent
 
 	const changeOrderBy = (order: OrderBy['order'] | 'options') => {
-		if (order === 'options') return;
-		let direction = orderBy.direction;
+		if (order === 'options') return
+		let direction = orderBy.direction
 
 		if (orderBy.order === order) {
-			direction = direction === 'ASC' ? 'DESC' : 'ASC';
+			direction = direction === 'ASC' ? 'DESC' : 'ASC'
 		} else {
-			direction = 'ASC';
+			direction = 'ASC'
 		}
 
-		setOrderBy(() => ({ direction, order: order as OrderBy['order'] }));
-	};
+		setOrderBy(() => ({ direction, order: order as OrderBy['order'] }))
+	}
 
 	return (
 		<div className='grid min-h-[430px] gap-3.5'>
@@ -130,5 +130,5 @@ export const AppTable = <
 			</div>
 			<AppPagination pagination={pagination} setPagination={setPagination} />
 		</div>
-	);
-};
+	)
+}

@@ -1,12 +1,12 @@
-import { AppToggle } from '@/components/global/appToggle';
-import useLocalStorage from '@/lib/localstorage';
-import { Cards } from './components/cards/cards';
-import { AreaChart } from './components/charts/AreaChart';
-import { PieChartCredit } from './components/charts/PieChartCredit';
-import { PieChartDebit } from './components/charts/PieChartDebit';
-import { Filter } from './components/filter';
-import { Table } from './components/table';
-import { TransactionProvider } from './provider';
+import { AppToggle } from '@/components/global/appToggle'
+import useLocalStorage from '@/lib/localstorage'
+import { Cards } from './components/cards/cards'
+import { AreaChart } from './components/charts/AreaChart'
+import { PieChartCredit } from './components/charts/PieChartCredit'
+import { PieChartDebit } from './components/charts/PieChartDebit'
+import { Filter } from './components/filter'
+import { Table } from './components/table'
+import { TransactionProvider } from './provider'
 
 export const TransactionSection = () => {
 	return (
@@ -18,13 +18,13 @@ export const TransactionSection = () => {
 				<TransactionsSection />
 			</section>
 		</TransactionProvider>
-	);
-};
+	)
+}
 
 const TransactionsSection = () => {
-	const [toggle, setToggle] = useLocalStorage('toggle', false);
+	const [toggle, setToggle] = useLocalStorage('toggle', false)
 
-	const card = 'w-full max-h-[500px] p-0 mb-[20px]  break-inside-avoid';
+	const card = 'w-full max-h-[500px] p-0 mb-[20px]  break-inside-avoid'
 
 	return (
 		<>
@@ -54,5 +54,5 @@ const TransactionsSection = () => {
 				</div>
 			)}
 		</>
-	);
-};
+	)
+}

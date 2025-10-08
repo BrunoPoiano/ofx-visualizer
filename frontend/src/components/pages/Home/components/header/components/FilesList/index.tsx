@@ -1,13 +1,13 @@
-import type { Dispatch, SetStateAction } from 'react';
-import { CloseSvg } from '@/components/icons/closeSvg';
-import { Badge } from '@/components/ui/badge';
+import type { Dispatch, SetStateAction } from 'react'
+import { CloseSvg } from '@/components/icons/closeSvg'
+import { Badge } from '@/components/ui/badge'
 
 export default function FilesList({
 	filesState,
 }: {
-	filesState: [Array<File>, Dispatch<SetStateAction<Array<File>>>];
+	filesState: [Array<File>, Dispatch<SetStateAction<Array<File>>>]
 }) {
-	const [files, setFiles] = filesState;
+	const [files, setFiles] = filesState
 
 	return (
 		<div className='flex gap-2.5 overflow-auto pb-2.5'>
@@ -28,5 +28,5 @@ export default function FilesList({
 				</Badge>
 			))}
 		</div>
-	);
+	)
 }

@@ -1,6 +1,6 @@
-import { Filter } from './components/filter';
-import { Table } from './components/table';
-import { BanksProvider } from './provider';
+import { Filter } from './components/filter'
+import { Table } from './components/table'
+import { BanksProvider } from './provider'
 
 export const BanksSection = () => {
 	return (
@@ -10,5 +10,5 @@ export const BanksSection = () => {
 				<Table />
 			</section>
 		</BanksProvider>
-	);
-};
+	)
+}

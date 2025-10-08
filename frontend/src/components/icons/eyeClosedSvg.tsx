@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId } from 'react'
 
 export const EyeClosedSvg = () => {
 	return (
@@ -15,5 +15,5 @@ export const EyeClosedSvg = () => {
 				/>
 			</g>
 		</svg>
-	);
-};
+	)
+}

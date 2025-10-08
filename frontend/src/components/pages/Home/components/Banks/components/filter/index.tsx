@@ -1,10 +1,10 @@
-import { Input } from '@/components/ui/input';
-import { useBankContext } from '../../provider';
+import { Input } from '@/components/ui/input'
+import { useBankContext } from '../../provider'
 
 export const Filter = () => {
 	const {
 		filter: [filter, setFilter],
-	} = useBankContext();
+	} = useBankContext()
 
 	const changeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFilter((prev) => {
@@ -12,12 +12,12 @@ export const Filter = () => {
 				return {
 					...prev,
 					[e.target.name]: e.target.value ? Number(e.target.value) : undefined,
-				};
+				}
 			}
 
-			return { ...prev, [e.target.name]: e.target.value };
-		});
-	};
+			return { ...prev, [e.target.name]: e.target.value }
+		})
+	}
 
 	return (
 		<Input
@@ -26,5 +26,5 @@ export const Filter = () => {
 			name='search'
 			onChange={changeFilter}
 		/>
-	);
-};
+	)
+}

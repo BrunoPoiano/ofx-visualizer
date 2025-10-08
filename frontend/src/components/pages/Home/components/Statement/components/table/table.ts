@@ -1,7 +1,7 @@
 import type {
 	StatementType,
 	TableInfoType,
-} from '@/components/pages/Home/types';
+} from '@/components/pages/Home/types'
 
 export const TableInfo = [
 	{
@@ -17,4 +17,4 @@ export const TableInfo = [
 		label: 'Yields',
 		id: 'yields',
 	},
-] satisfies TableInfoType<keyof StatementType>[];
+] satisfies TableInfoType<keyof StatementType>[]

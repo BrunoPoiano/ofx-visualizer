@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'react'
 
 export const AppEllipsis = ({
 	children,
 	width,
 }: {
-	children: ReactNode;
-	width?: string;
+	children: ReactNode
+	width?: string
 }) => (
 	<p
 		className='overflow-clip text-ellipsis'
@@ -13,4 +13,4 @@ export const AppEllipsis = ({
 	>
 		{children}
 	</p>
-);
+)

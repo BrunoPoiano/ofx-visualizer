@@ -1,5 +1,5 @@
-import { generateKey } from '@/lib/utils';
-import type { PaginationType } from '@/types';
+import { generateKey } from '@/lib/utils'
+import type { PaginationType } from '@/types'
 import {
 	Pagination,
 	PaginationContent,
@@ -7,34 +7,34 @@ import {
 	PaginationLink,
 	PaginationNext,
 	PaginationPrevious,
-} from '../ui/pagination';
+} from '../ui/pagination'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '../ui/select';
+} from '../ui/select'
 
 export const AppPagination = ({
 	pagination,
 	setPagination,
 }: {
-	pagination: PaginationType;
-	setPagination: React.Dispatch<React.SetStateAction<PaginationType>>;
+	pagination: PaginationType
+	setPagination: React.Dispatch<React.SetStateAction<PaginationType>>
 }) => {
-	const { current_page, last_page, per_page, total_items } = pagination;
-	const start = current_page - 3 < 0 ? 0 : current_page - 3;
-	const end = current_page + 2 > last_page ? last_page : current_page + 2;
+	const { current_page, last_page, per_page, total_items } = pagination
+	const start = current_page - 3 < 0 ? 0 : current_page - 3
+	const end = current_page + 2 > last_page ? last_page : current_page + 2
 
 	const changePage = (value: number) => {
 		setPagination((prev) => {
 			return {
 				...prev,
 				current_page: value,
-			};
-		});
-	};
+			}
+		})
+	}
 
 	const changePerPage = (value: string) => {
 		setPagination((prev) => {
@@ -42,12 +42,12 @@ export const AppPagination = ({
 				...prev,
 				current_page: 1,
 				per_page: Number.parseInt(value),
-			};
-		});
-	};
+			}
+		})
+	}
 
 	if (total_items === 0) {
-		return;
+		return
 	}
 
 	return (
@@ -108,5 +108,5 @@ export const AppPagination = ({
 				</SelectContent>
 			</Select>
 		</div>
-	);
-};
+	)
+}

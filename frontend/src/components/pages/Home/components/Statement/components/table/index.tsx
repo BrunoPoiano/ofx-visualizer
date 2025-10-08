@@ -1,19 +1,19 @@
-import { AppTable } from '@/components/global/appTable';
-import { useHomeContext } from '@/components/pages/Home/provider';
-import { parseDate } from '@/lib/utils';
-import { useStatementContext } from '../../provider';
-import { DialogInfo } from './components/DialogIngfo';
-import { TableInfo } from './table';
+import { AppTable } from '@/components/global/appTable'
+import { useHomeContext } from '@/components/pages/Home/provider'
+import { parseDate } from '@/lib/utils'
+import { useStatementContext } from '../../provider'
+import { DialogInfo } from './components/DialogIngfo'
+import { TableInfo } from './table'
 
 export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
 		statements: [statements],
 		orderBy: [orderBy, setOrderBy],
 		pagination: [pagination, setPagination],
-	} = useStatementContext();
+	} = useStatementContext()
 	const {
 		showValue: [showValue],
-	} = useHomeContext();
+	} = useHomeContext()
 
 	const tableData = statements.map((item) => {
 		return {
@@ -23,8 +23,8 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 				currency: 'BRL',
 			}),
 			yields: <DialogInfo item={item} />,
-		};
-	});
+		}
+	})
 
 	return (
 		<AppTable<(typeof tableData)[number]>
@@ -35,5 +35,5 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 			tableContent={TableInfo}
 			small={small}
 		/>
-	);
-};
+	)
+}

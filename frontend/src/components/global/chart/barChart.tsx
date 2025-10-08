@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { AreaChart, CartesianGrid, XAxis } from 'recharts'
 
 import {
 	type ChartConfig,
@@ -9,15 +9,15 @@ import {
 	ChartLegendContent,
 	ChartTooltip,
 	ChartTooltipContent,
-} from '@/components/ui/chart';
-import type { ReactNode } from 'react';
+} from '@/components/ui/chart'
+import type { ReactNode } from 'react'
 
 type BarChartComponentType = {
-	chartData: object[];
-	dataKey: string;
-	chartConfig: ChartConfig;
-	children?: ReactNode;
-};
+	chartData: object[]
+	dataKey: string
+	chartConfig: ChartConfig
+	children?: ReactNode
+}
 
 export const BarChartComponent: React.FC<BarChartComponentType> = ({
 	chartData,
@@ -52,5 +52,5 @@ export const BarChartComponent: React.FC<BarChartComponentType> = ({
 				{children}
 			</AreaChart>
 		</ChartContainer>
-	);
-};
+	)
+}

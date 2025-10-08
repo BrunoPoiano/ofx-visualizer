@@ -1,5 +1,5 @@
-import { useHomeContext } from '@/components/pages/Home/provider';
-import type { TransactionType } from '@/components/pages/Home/types';
+import { useHomeContext } from '@/components/pages/Home/provider'
+import type { TransactionType } from '@/components/pages/Home/types'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -9,19 +9,19 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { parseDate } from '@/lib/utils';
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { parseDate } from '@/lib/utils'
 
 export const DialogInfo = ({ item }: { item: TransactionType }) => {
 	const {
 		sources,
 		showValue: [value],
-	} = useHomeContext();
+	} = useHomeContext()
 
 	const source_name = sources.filter(
 		(source) => source.id === item.source_id,
-	)[0].name;
+	)[0].name
 
 	return (
 		<AlertDialog>
@@ -51,5 +51,5 @@ export const DialogInfo = ({ item }: { item: TransactionType }) => {
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
-	);
-};
+	)
+}

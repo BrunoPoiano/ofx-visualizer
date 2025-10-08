@@ -1,47 +1,47 @@
-import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import type { DateRange } from 'react-day-picker';
+import { Calendar } from '@/components/ui/calendar'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import type { DateRange } from 'react-day-picker'
 
-import { useHomeContext } from '@/components/pages/Home/provider';
-import { generateKey } from '@/lib/utils';
-import { useTransactionContext } from '../../provider';
+import { useHomeContext } from '@/components/pages/Home/provider'
+import { generateKey } from '@/lib/utils'
+import { useTransactionContext } from '../../provider'
 
 type FilteredTransactionType = {
-	positive: number;
-	negative: number;
-	value: number;
-};
+	positive: number
+	negative: number
+	value: number
+}
 
 type CardWrapperType = {
-	label: string;
-	value: number;
-	color: string;
-};
+	label: string
+	value: number
+	color: string
+}
 
 export const Cards = () => {
 	const {
 		transactionsInfo: [transactionsInfo],
 		transactions: [transactions],
-	} = useTransactionContext();
+	} = useTransactionContext()
 
 	const {
 		defaultFilter: [defaultFilter, setDefaultFilter],
-	} = useHomeContext();
+	} = useHomeContext()
 
 	const filteredTransaction = transactions.reduce<FilteredTransactionType>(
 		(acc, item) => {
 			if (item.value > 0) {
-				acc.positive += item.value;
+				acc.positive += item.value
 			} else {
-				acc.negative += item.value;
+				acc.negative += item.value
 			}
 
-			acc.value += item.value;
+			acc.value += item.value
 
-			return acc;
+			return acc
 		},
 		{ positive: 0, negative: 0, value: 0 },
-	);
+	)
 
 	const cards: CardWrapperType[] = [
 		{
@@ -80,7 +80,7 @@ export const Cards = () => {
 					: 'var(--destructive)',
 			value: filteredTransaction?.value,
 		},
-	];
+	]
 
 	return (
 		<div className='grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2.5'>
@@ -91,7 +91,7 @@ export const Cards = () => {
 				style={{ gridArea: 'span 2 / 1' }}
 				selected={defaultFilter.date}
 				onSelect={(e: DateRange | undefined) => {
-					setDefaultFilter((prev) => ({ ...prev, date: e }));
+					setDefaultFilter((prev) => ({ ...prev, date: e }))
 				}}
 			/>
 			{cards.map((card) => (
@@ -103,13 +103,13 @@ export const Cards = () => {
 				/>
 			))}
 		</div>
-	);
-};
+	)
+}
 
 const CardWrapper = ({ label, value, color }: CardWrapperType) => {
 	const {
 		showValue: [showValue],
-	} = useHomeContext();
+	} = useHomeContext()
 
 	return (
 		<Card>
@@ -130,5 +130,5 @@ const CardWrapper = ({ label, value, color }: CardWrapperType) => {
 				</span>
 			</CardContent>
 		</Card>
-	);
-};
+	)
+}

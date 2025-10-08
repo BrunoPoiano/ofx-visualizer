@@ -1,7 +1,7 @@
-import { Cards } from './components/cards/cards';
-import { Filter } from './components/filter';
-import { Table } from './components/table';
-import { StatementProvider } from './provider';
+import { Cards } from './components/cards/cards'
+import { Filter } from './components/filter'
+import { Table } from './components/table'
+import { StatementProvider } from './provider'
 
 export const StatementsSection = () => {
 	return (
@@ -12,5 +12,5 @@ export const StatementsSection = () => {
 				<Table />
 			</section>
 		</StatementProvider>
-	);
-};
+	)
+}

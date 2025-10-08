@@ -1,26 +1,26 @@
-import { AppTable } from '@/components/global/appTable';
-import { useHomeContext } from '@/components/pages/Home/provider';
-import { useBankContext } from '../../provider';
-import { DialogEdit } from './components/DialogEdit';
-import { TableInfo } from './table';
+import { AppTable } from '@/components/global/appTable'
+import { useHomeContext } from '@/components/pages/Home/provider'
+import { useBankContext } from '../../provider'
+import { DialogEdit } from './components/DialogEdit'
+import { TableInfo } from './table'
 
 export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
 		orderBy: [orderBy, setOrderBy],
 		pagination: [pagination, setPagination],
 		banks: [banks],
-	} = useBankContext();
+	} = useBankContext()
 
 	const {
 		showValue: [showValue],
-	} = useHomeContext();
+	} = useHomeContext()
 
 	const tableData = banks.map((item) => {
 		return {
 			...item,
 			options: <DialogEdit item={item} />,
-		};
-	});
+		}
+	})
 
 	return (
 		<AppTable<(typeof tableData)[number]>
@@ -31,5 +31,5 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 			tableContent={TableInfo}
 			small={small}
 		/>
-	);
-};
+	)
+}

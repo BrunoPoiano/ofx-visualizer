@@ -1,25 +1,25 @@
 type ArrowSVGType = {
-	width?: string;
-	direction?: 'up' | 'down' | 'left' | 'right';
-};
+	width?: string
+	direction?: 'up' | 'down' | 'left' | 'right'
+}
 
-import { useId } from 'react';
+import { useId } from 'react'
 
 export const ArrowSVG = ({ width = '10', direction = 'up' }: ArrowSVGType) => {
-	let dir = '';
+	let dir = ''
 
 	switch (direction) {
 		case 'down':
-			dir = '180deg';
-			break;
+			dir = '180deg'
+			break
 		case 'left':
-			dir = '270deg';
-			break;
+			dir = '270deg'
+			break
 		case 'right':
-			dir = '90deg';
-			break;
+			dir = '90deg'
+			break
 		default:
-			dir = '0deg';
+			dir = '0deg'
 	}
 
 	return (
@@ -36,5 +36,5 @@ export const ArrowSVG = ({ width = '10', direction = 'up' }: ArrowSVGType) => {
 				<path d='M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z' />
 			</g>
 		</svg>
-	);
-};
+	)
+}

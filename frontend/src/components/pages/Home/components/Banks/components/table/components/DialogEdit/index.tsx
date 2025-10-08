@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { putBanks } from '@/components/pages/Home/functions';
-import { useHomeContext } from '@/components/pages/Home/provider';
-import type { BankType } from '@/components/pages/Home/types';
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { putBanks } from '@/components/pages/Home/functions'
+import { useHomeContext } from '@/components/pages/Home/provider'
+import type { BankType } from '@/components/pages/Home/types'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -13,40 +13,40 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useBankContext } from '../../../../provider';
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { useBankContext } from '../../../../provider'
 
 export const DialogEdit = ({ item }: { item: BankType }) => {
 	const {
 		getSourcesFunc,
 		showValue: [value],
-	} = useHomeContext();
-	const { getBanksFunc } = useBankContext();
+	} = useHomeContext()
+	const { getBanksFunc } = useBankContext()
 
-	const [name, setName] = useState(item.name);
-	const [open, setOpen] = useState(false);
+	const [name, setName] = useState(item.name)
+	const [open, setOpen] = useState(false)
 
 	const saveName = async () => {
 		await putBanks(item.id, { name })
 			.then(() => {
-				setOpen(false);
-				getBanksFunc();
-				getSourcesFunc();
+				setOpen(false)
+				getBanksFunc()
+				getSourcesFunc()
 
 				toast.error('Name successifully saved!', {
 					style: { background: 'var(--chart-2)' },
-				});
+				})
 			})
 			.catch((e) => {
-				console.error(e);
+				console.error(e)
 
 				toast.error(e.request.response || 'Error saving Bank name.', {
 					style: { background: 'var(--destructive)' },
-				});
-			});
-	};
+				})
+			})
+	}
 
 	return (
 		<AlertDialog open={open}>
@@ -83,5 +83,5 @@ export const DialogEdit = ({ item }: { item: BankType }) => {
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
-	);
-};
+	)
+}

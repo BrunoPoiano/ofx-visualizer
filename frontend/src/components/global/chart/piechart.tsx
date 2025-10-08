@@ -1,23 +1,23 @@
-'use client';
+'use client'
 
-import { Pie, PieChart } from 'recharts';
+import { Pie, PieChart } from 'recharts'
 
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card'
 import {
 	ChartContainer,
 	ChartTooltip,
 	ChartTooltipContent,
-} from '@/components/ui/chart';
-import type { ChartConfig } from '@/components/ui/chart';
-import type { ReactNode } from 'react';
+} from '@/components/ui/chart'
+import type { ChartConfig } from '@/components/ui/chart'
+import type { ReactNode } from 'react'
 
 type PieChartComponentType = {
-	chartData: object[];
-	dataKey: string;
-	nameKey: string;
-	header?: ReactNode;
-	chartConfig: ChartConfig;
-};
+	chartData: object[]
+	dataKey: string
+	nameKey: string
+	header?: ReactNode
+	chartConfig: ChartConfig
+}
 
 export const PieChartComponent: React.FC<PieChartComponentType> = ({
 	chartData,
@@ -56,12 +56,12 @@ export const PieChartComponent: React.FC<PieChartComponentType> = ({
 									>
 										{payload[dataKey]}
 									</text>
-								);
+								)
 							}}
 						/>
 					</PieChart>
 				</ChartContainer>
 			</CardContent>
 		</Card>
-	);
-};
+	)
+}

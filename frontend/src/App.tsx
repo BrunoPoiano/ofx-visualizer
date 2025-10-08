@@ -1,8 +1,8 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import './App.css';
-import { ThemeProvider } from './components/theme/theme-provider';
-import { Toaster } from './components/ui/sonner';
-import { Home } from './Pages/Home';
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import './App.css'
+import { ThemeProvider } from './components/theme/theme-provider'
+import { Toaster } from './components/ui/sonner'
+import { Home } from './Pages/Home'
 
 function App() {
 	return (
@@ -14,7 +14,7 @@ function App() {
 			</BrowserRouter>
 			<Toaster />
 		</ThemeProvider>
-	);
+	)
 }
 
-export default App;
+export default App

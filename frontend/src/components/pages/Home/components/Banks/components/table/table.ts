@@ -1,4 +1,4 @@
-import type { BankType, TableInfoType } from '@/components/pages/Home/types';
+import type { BankType, TableInfoType } from '@/components/pages/Home/types'
 
 export const TableInfo = [
 	{
@@ -31,4 +31,4 @@ export const TableInfo = [
 		label: 'Options',
 		id: 'options',
 	},
-] satisfies TableInfoType<keyof BankType>[];
+] satisfies TableInfoType<keyof BankType>[]

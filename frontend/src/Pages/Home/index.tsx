@@ -1,5 +1,5 @@
-import { HomePage } from '@/components/pages/Home';
+import { HomePage } from '@/components/pages/Home'
 
 export const Home = () => {
-	return <HomePage />;
-};
+	return <HomePage />
+}

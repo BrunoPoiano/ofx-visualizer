@@ -1,13 +1,13 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { SourceSelect } from '../../../SourceSelect';
-import { useStatementContext } from '../../provider';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { SourceSelect } from '../../../SourceSelect'
+import { useStatementContext } from '../../provider'
 
 export const Filter = () => {
 	const {
 		filter: [filter, setFilter],
 		clearFilter,
-	} = useStatementContext();
+	} = useStatementContext()
 
 	const changeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFilter((prev) => {
@@ -15,12 +15,12 @@ export const Filter = () => {
 				return {
 					...prev,
 					[e.target.name]: e.target.value ? Number(e.target.value) : undefined,
-				};
+				}
 			}
 
-			return { ...prev, [e.target.name]: e.target.value };
-		});
-	};
+			return { ...prev, [e.target.name]: e.target.value }
+		})
+	}
 
 	return (
 		<div className='flex flex-wrap gap-2.5'>
@@ -46,5 +46,5 @@ export const Filter = () => {
 				Clear filter
 			</Button>
 		</div>
-	);
-};
+	)
+}

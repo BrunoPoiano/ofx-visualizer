@@ -4,14 +4,14 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select';
-import { useHomeContext } from '../../provider';
+} from '@/components/ui/select'
+import { useHomeContext } from '../../provider'
 
 export const SourceSelect = () => {
 	const {
 		sources,
 		defaultFilter: [defaultFilter, setDefaultFilter],
-	} = useHomeContext();
+	} = useHomeContext()
 
 	return (
 		<Select
@@ -31,5 +31,5 @@ export const SourceSelect = () => {
 				))}
 			</SelectContent>
 		</Select>
-	);
-};
+	)
+}

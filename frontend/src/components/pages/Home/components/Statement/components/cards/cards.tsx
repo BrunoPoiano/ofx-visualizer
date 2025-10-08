@@ -1,23 +1,23 @@
-import { Calendar } from '@/components/ui/calendar';
-import type { DateRange } from 'react-day-picker';
+import { Calendar } from '@/components/ui/calendar'
+import type { DateRange } from 'react-day-picker'
 
-import { useHomeContext } from '@/components/pages/Home/provider';
+import { useHomeContext } from '@/components/pages/Home/provider'
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardTitle,
-} from '@/components/ui/card';
-import { parseDate } from '@/lib/utils';
-import { useStatementContext } from '../../provider';
+} from '@/components/ui/card'
+import { parseDate } from '@/lib/utils'
+import { useStatementContext } from '../../provider'
 
 export const Cards = () => {
 	const {
 		defaultFilter: [defaultFilter, setDefaultFilter],
 		showValue: [showValue],
-	} = useHomeContext();
+	} = useHomeContext()
 
-	const { currentBalance, largestBalance } = useStatementContext();
+	const { currentBalance, largestBalance } = useStatementContext()
 
 	return (
 		<div className='grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2.5'>
@@ -28,7 +28,7 @@ export const Cards = () => {
 				style={{ gridArea: 'span 2 / 1' }}
 				selected={defaultFilter.date}
 				onSelect={(e: DateRange | undefined) => {
-					setDefaultFilter((prev) => ({ ...prev, date: e }));
+					setDefaultFilter((prev) => ({ ...prev, date: e }))
 				}}
 			/>
 			{largestBalance && (
@@ -70,5 +70,5 @@ export const Cards = () => {
 				</Card>
 			)}
 		</div>
-	);
-};
+	)
+}

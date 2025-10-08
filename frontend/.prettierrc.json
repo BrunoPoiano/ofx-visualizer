@@ -9,6 +9,7 @@
 	"jsxSingleQuote": true,
 	"singleQuote": true,
 	"quoteProps": "as-needed",
-	"semi": true,
-	"trailingComma": "all"
+	"semi": false,
+	"trailingComma": "as-needed",
+	"semicolons": false
 }

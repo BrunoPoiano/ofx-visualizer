@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import type { ReactNode } from 'react';
-import { CartesianGrid, Line, LineChart, XAxis } from 'recharts';
-import { Card, CardContent } from '@/components/ui/card';
-import type { ChartConfig } from '@/components/ui/chart';
+import type { ReactNode } from 'react'
+import { CartesianGrid, Line, LineChart, XAxis } from 'recharts'
+import { Card, CardContent } from '@/components/ui/card'
+import type { ChartConfig } from '@/components/ui/chart'
 import {
 	ChartContainer,
 	ChartLegend,
 	ChartLegendContent,
 	ChartTooltip,
 	ChartTooltipContent,
-} from '@/components/ui/chart';
-import { generateKey } from '@/lib/utils';
+} from '@/components/ui/chart'
+import { generateKey } from '@/lib/utils'
 
 type AreaChartComponentType = {
-	chartData: object[];
-	dataKey: string;
-	chartConfig: ChartConfig;
-	header?: ReactNode;
-	footer?: ReactNode;
-};
+	chartData: object[]
+	dataKey: string
+	chartConfig: ChartConfig
+	header?: ReactNode
+	footer?: ReactNode
+}
 
 export const AreaChartComponent = ({
 	chartData,
@@ -63,5 +63,5 @@ export const AreaChartComponent = ({
 			</CardContent>
 			{footer}
 		</Card>
-	);
-};
+	)
+}

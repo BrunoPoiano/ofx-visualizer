@@ -1,8 +1,8 @@
-import { useId } from 'react';
+import { useId } from 'react'
 
 type Props = {
-	width?: string | number;
-};
+	width?: string | number
+}
 
 export const CloseSvg = ({ ...props }: Props) => {
 	return (
@@ -28,5 +28,5 @@ export const CloseSvg = ({ ...props }: Props) => {
 				</g>
 			</g>
 		</svg>
-	);
-};
+	)
+}

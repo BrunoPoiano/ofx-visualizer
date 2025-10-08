@@ -1,12 +1,12 @@
-import type { SetStateAction } from 'react';
-import { Switch } from '../ui/switch';
+import type { SetStateAction } from 'react'
+import { Switch } from '../ui/switch'
 
 type AppToggleType = {
-	toggle: [boolean, React.Dispatch<SetStateAction<boolean>>];
-	id?: string;
-	frontLabel?: string;
-	backLabel?: string;
-};
+	toggle: [boolean, React.Dispatch<SetStateAction<boolean>>]
+	id?: string
+	frontLabel?: string
+	backLabel?: string
+}
 
 export const AppToggle: React.FC<AppToggleType> = ({
 	toggle: [toggle, setToggle],
@@ -24,5 +24,5 @@ export const AppToggle: React.FC<AppToggleType> = ({
 			/>
 			{backLabel && <label htmlFor={id}>{backLabel}</label>}
 		</div>
-	);
-};
+	)
+}

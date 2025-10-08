@@ -1,32 +1,32 @@
-import { type Dispatch, type SetStateAction, useId } from 'react';
-import { Input } from '@/components/ui/input';
+import { type Dispatch, type SetStateAction, useId } from 'react'
+import { Input } from '@/components/ui/input'
 
 export const InputFiles = ({
 	filesState,
 	loading,
 }: {
-	filesState: [Array<File>, Dispatch<SetStateAction<Array<File>>>];
-	loading: boolean;
+	filesState: [Array<File>, Dispatch<SetStateAction<Array<File>>>]
+	loading: boolean
 }) => {
-	const [files, setFiles] = filesState;
-	const inputId = useId();
+	const [files, setFiles] = filesState
+	const inputId = useId()
 
 	const checkFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const files = e.target.files;
+		const files = e.target.files
 		if (files === null) {
-			return;
+			return
 		}
 
 		setFiles(() => {
-			const ofxFiles: File[] = [];
+			const ofxFiles: File[] = []
 			for (const item of Array.from(files)) {
 				if (item.name.includes('.ofx')) {
-					ofxFiles.push(item);
+					ofxFiles.push(item)
 				}
 			}
-			return ofxFiles;
-		});
-	};
+			return ofxFiles
+		})
+	}
 	return (
 		<label
 			htmlFor={inputId}
@@ -49,5 +49,5 @@ export const InputFiles = ({
 					: `${files.length} file${files.length > 1 ? 's' : ''} ${loading ? ' remaining' : 'selected'}`}
 			</span>
 		</label>
-	);
-};
+	)
+}

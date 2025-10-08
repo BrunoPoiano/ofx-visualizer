@@ -1,19 +1,19 @@
-import { AppTable } from '@/components/global/appTable';
-import { useHomeContext } from '@/components/pages/Home/provider';
-import { parseDate } from '@/lib/utils';
-import { useTransactionContext } from '../../provider';
-import { DialogInfo } from './components/DialogInfo';
-import { TableInfo, TableInfoSmall } from './table';
+import { AppTable } from '@/components/global/appTable'
+import { useHomeContext } from '@/components/pages/Home/provider'
+import { parseDate } from '@/lib/utils'
+import { useTransactionContext } from '../../provider'
+import { DialogInfo } from './components/DialogInfo'
+import { TableInfo, TableInfoSmall } from './table'
 
 export const Table = ({ small = false }: { small?: boolean }) => {
 	const {
 		transactions: [transactions],
 		orderBy: [orderBy, setOrderBy],
 		pagination: [pagination, setPagination],
-	} = useTransactionContext();
+	} = useTransactionContext()
 	const {
 		showValue: [showValue],
-	} = useHomeContext();
+	} = useHomeContext()
 
 	const tableData = transactions.map((item) => {
 		return {
@@ -26,8 +26,8 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 			}),
 			desc: item.desc,
 			options: <DialogInfo item={item} />,
-		};
-	});
+		}
+	})
 
 	return (
 		<AppTable<(typeof tableData)[number]>
@@ -39,5 +39,5 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 			tableContent={TableInfo}
 			small={small}
 		/>
-	);
-};
+	)
+}

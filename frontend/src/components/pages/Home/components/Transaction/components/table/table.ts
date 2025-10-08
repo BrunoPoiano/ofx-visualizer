@@ -1,7 +1,7 @@
 import type {
 	TableInfoType,
 	TransactionType,
-} from '@/components/pages/Home/types';
+} from '@/components/pages/Home/types'
 
 export const TableInfo: TableInfoType<keyof TransactionType>[] = [
 	{
@@ -27,7 +27,7 @@ export const TableInfo: TableInfoType<keyof TransactionType>[] = [
 		label: 'Info',
 		id: 'options',
 	},
-];
+]
 
 export const TableInfoSmall: TableInfoType<keyof TransactionType>[] = [
 	{
@@ -42,4 +42,4 @@ export const TableInfoSmall: TableInfoType<keyof TransactionType>[] = [
 		label: 'Value',
 		id: 'value',
 	},
-];
+]

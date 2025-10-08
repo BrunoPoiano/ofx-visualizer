@@ -1,5 +1,5 @@
-import { useHomeContext } from '@/components/pages/Home/provider';
-import type { StatementType } from '@/components/pages/Home/types';
+import { useHomeContext } from '@/components/pages/Home/provider'
+import type { StatementType } from '@/components/pages/Home/types'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -9,15 +9,15 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { generateKey } from '@/lib/utils';
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { generateKey } from '@/lib/utils'
 
 export const DialogInfo = ({ item }: { item: StatementType }) => {
 	const {
 		showValue: [value],
-	} = useHomeContext();
+	} = useHomeContext()
 
 	return (
 		<AlertDialog>
@@ -51,5 +51,5 @@ export const DialogInfo = ({ item }: { item: StatementType }) => {
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
-	);
-};
+	)
+}
