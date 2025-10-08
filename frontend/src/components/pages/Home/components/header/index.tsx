@@ -24,46 +24,62 @@ export const AppHeader = ({
 		getSourcesFunc
 	} = useHomeContext()
 
-	const sendFiles = async (formData: FormData) => {
-		const [, error] = await tryCatch(postOfxFile(formData))
-
-		if (error) {
-			console.error(error)
-			toast.error('Error processing files.', {
-				style: { background: 'var(--destructive)' }
-			})
-			return
-		}
-
-		toast.success('Files processed sucessifully!.', {
-			style: { background: 'var(--chart-2)' }
-		})
-	}
-
 	const importFiles = async () => {
 		if (!files) return
+
 		setLoading(true)
+		let filesRemaining = [...files]
+		let bLength = batchLength
 
-		const iterations = Math.ceil(files.length / batchLength)
-		for (let i = 0; i < iterations; i++) {
-			const start = i * batchLength
-			const end = start + batchLength
-			const batch = files.slice(start, end)
-			const formData = new FormData()
+		while (bLength > 0 && filesRemaining.length > 0) {
+			const notProcessed: Array<File> = []
+			const iterations = Math.ceil(filesRemaining.length / bLength)
 
-			for (const file of batch) {
-				formData.append('file', file)
+			for (let i = 0; i < iterations; i++) {
+				const formData = new FormData()
+
+				const start = i * bLength
+				const end = start + bLength
+				const batch = filesRemaining.slice(start, end)
+
+				for (const file of batch) {
+					formData.append('file', file)
+				}
+
+				console.log('Sending batch', i + 1, 'of', iterations)
+
+				const [, error] = await tryCatch(postOfxFile(formData))
+
+				if (error) {
+					console.error('Batch failed:', error)
+					notProcessed.push(...batch)
+					continue
+				}
+
+				setFiles((prev) => prev.filter((f) => !batch.includes(f)))
 			}
 
-			console.log('Sending batch', i + 1, 'of', iterations)
+			if (notProcessed.length === 0) {
+				break
+			}
 
-			setFiles((prev) => prev.slice(batchLength))
-			await sendFiles(formData)
+			filesRemaining = notProcessed
+			bLength--
 		}
 
-		setLoading(false)
+		if (files.length > 0) {
+			toast.error('Not All files were processed.', {
+				style: { background: 'var(--destructive)' }
+			})
+		} else {
+			toast.success('Files processed sucessifully!.', {
+				style: { background: 'var(--chart-2)' }
+			})
+		}
+
 		getSourcesFunc()
 		setTabKey((prev) => prev + 1)
+		setLoading(false)
 	}
 
 	return (

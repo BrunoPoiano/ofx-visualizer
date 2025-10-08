@@ -16,23 +16,32 @@ export default function FilesList({
 	}
 
 	return (
-		<div className='flex gap-2.5 h-[27px] overflow-auto pb-2.5'>
-			{files.map((item, index) => (
-				<Badge key={item.name} variant='outline'>
-					{item.name}{' '}
-					<button
-						type='button'
-						className='cursor-pointer'
-						onClick={() =>
-							setFiles((prev) =>
-								prev.filter((_, fileIndex) => fileIndex !== index)
-							)
-						}
-					>
-						<CloseSvg />
-					</button>
-				</Badge>
-			))}
+		<div className='flex gap-2.5 h-[27px] overflow-auto'>
+			<button
+				className='pb-2.5 cursor-pointer'
+				type='button'
+				onClick={() => setFiles([])}
+			>
+				Clean
+			</button>
+			<div className='w-full flex gap-2.5  overflow-auto pb-2.5'>
+				{files.map((item, index) => (
+					<Badge key={item.name} variant='outline'>
+						{item.name}{' '}
+						<button
+							type='button'
+							className='cursor-pointer'
+							onClick={() =>
+								setFiles((prev) =>
+									prev.filter((_, fileIndex) => fileIndex !== index)
+								)
+							}
+						>
+							<CloseSvg />
+						</button>
+					</Badge>
+				))}
+			</div>
 		</div>
 	)
 }
