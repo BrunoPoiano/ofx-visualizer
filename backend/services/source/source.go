@@ -1,73 +1,63 @@
 package sourceService
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+
+	databaseSqlc "main/database/databaseSQL"
 	BankService "main/services/bank"
+
 	CardService "main/services/card"
 	"main/services/utils"
 	"main/types"
 )
 
-func InsertItem(database *sql.DB, bank types.Bank, card types.Card) (int, error) {
-
+func InsertItem(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.CreateBankParams, card databaseSqlc.CreateCardParams) (int, error) {
 	err := fmt.Errorf("")
 	bankId := int(0)
 	cardId := int(0)
 
-	if bank.FId != "" {
-		bankId, err = BankService.InsertItems(database, bank)
+	if bank.FID != "" {
+		bankId, err = BankService.InsertItems(queries, ctx, bank)
 		if err != nil {
 			return 0, err
 		}
 	}
 
-	if card.FId != "" {
-		cardId, err = CardService.InsertItems(database, card)
+	if card.FID != "" {
+		cardId, err = CardService.InsertItems(queries, ctx, card)
 		if err != nil {
 			return 0, err
 		}
 	}
 
-	var id int
-	total, err := database.Query("SELECT id FROM source WHERE bank_id = ? AND card_id = ? OR bank_id = ? AND card_id = ?", bankId, 0, 0, cardId)
-	if err != nil {
-		return 0, err
-	}
-	defer total.Close()
-
-	if err := total.Err(); err != nil {
-		return 0, err
-	}
-	for total.Next() {
-		total.Scan(&id)
+	ids := databaseSqlc.FindSourceParams{
+		BankID: bankId,
+		CardID: cardId,
 	}
 
-	if id != 0 {
-		return id, nil
-	}
-
-	src, err := database.Prepare("INSERT INTO source(bank_id,card_id) values(?,?)")
+	sourceID, err := queries.FindSource(ctx, ids)
 	if err != nil {
 		return 0, err
 	}
 
-	result, err := src.Exec(bankId, cardId)
+	if sourceID > 0 {
+		return int(sourceID), nil
+	}
+
+	newSource, err := queries.CreateSource(ctx, databaseSqlc.CreateSourceParams{
+		BankID: bankId,
+		CardID: cardId,
+	})
 	if err != nil {
 		return 0, err
 	}
 
-	lastId, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(lastId), nil
-
+	return int(newSource.ID), nil
 }
 
 func GetItems(database *sql.DB) ([]types.ReturnSource, error) {
-
 	var items []types.ReturnSource
 
 	query := fmt.Sprintf(`SELECT source.id, cards.name

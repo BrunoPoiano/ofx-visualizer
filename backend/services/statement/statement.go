@@ -3,10 +3,13 @@ package StatementService
 import (
 	"database/sql"
 	"fmt"
+	"math"
+
 	BalanceService "main/services/balance"
 	"main/services/utils"
 	"main/types"
-	"math"
+
+	databaseSqlc "main/database/databaseSQL"
 )
 
 // InsertItems inserts a Statement item into the database.
@@ -17,8 +20,7 @@ import (
 //
 // Returns:
 //   - An error if the insertion fails, nil otherwise.
-func InsertItems(database *sql.DB, item types.Statement, SourceId int) (int, error) {
-
+func InsertItems(database *sql.DB, item databaseSqlc.Statement, SourceId int) (int, error) {
 	var account_id int
 	total, err := database.Query("SELECT id FROM statements WHERE start_date = ? AND end_date = ? AND ledger_balance = ?", item.StartDate, item.EndDate, item.LedgerBalance)
 	if err != nil {
@@ -66,8 +68,7 @@ func InsertItems(database *sql.DB, item types.Statement, SourceId int) (int, err
 //   - A slice of Statement items.
 //   - The total number of items in the database.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(database *sql.DB, filter types.StatementSearch) ([]types.Statement, int, int, error) {
-
+func GetItems(database *sql.DB, filter types.StatementSearch) ([]databaseSqlc.Statement, int, int, error) {
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 	query := makeQuery("*", filter)
 	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
@@ -80,11 +81,11 @@ func GetItems(database *sql.DB, filter types.StatementSearch) ([]types.Statement
 		Direction:   "ASC",
 	}
 
-	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.Statement, error) {
-		var s []types.Statement
+	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]databaseSqlc.Statement, error) {
+		var s []databaseSqlc.Statement
 		for rows.Next() {
-			var item types.Statement
-			if err := rows.Scan(&item.Id, &item.SourceId, &item.StartDate, &item.EndDate, &item.LedgerBalance, &item.BalanceDate, &item.ServerDate, &item.Language); err != nil {
+			var item databaseSqlc.Statement
+			if err := rows.Scan(&item.ID, &item.SourceID, &item.StartDate, &item.EndDate, &item.LedgerBalance, &item.BalanceDate, &item.ServerDate, &item.Language); err != nil {
 				return nil, err
 			}
 
@@ -124,16 +125,15 @@ func GetItems(database *sql.DB, filter types.StatementSearch) ([]types.Statement
 //   - The largest Statement item.
 //   - The latest Statement item.
 //   - An error if the retrieval fails, nil otherwise.
-func GetInfo(database *sql.DB, bankId int64) (types.Statement, types.Statement, error) {
+func GetInfo(database *sql.DB, bankId int64) (databaseSqlc.Statement, databaseSqlc.Statement, error) {
+	var largestBalance, currentBalance databaseSqlc.Statement
 
-	var largestBalance, currentBalance types.Statement
-
-	scanStatement := func(rows *sql.Rows) (types.Statement, error) {
-		var s types.Statement
+	scanStatement := func(rows *sql.Rows) (databaseSqlc.Statement, error) {
+		var s databaseSqlc.Statement
 		for rows.Next() {
 			err := rows.Scan(
-				&s.Id,
-				&s.SourceId,
+				&s.ID,
+				&s.SourceID,
 				&s.StartDate,
 				&s.EndDate,
 				&s.LedgerBalance,
@@ -172,7 +172,6 @@ func GetInfo(database *sql.DB, bankId int64) (types.Statement, types.Statement, 
 // Returns:
 //   - A string containing the generated SQL query.
 func makeQuery(s string, filter types.StatementSearch) string {
-
 	query := fmt.Sprintf("SELECT %s FROM statements", s)
 
 	where := []string{}

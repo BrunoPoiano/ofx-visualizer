@@ -1,57 +1,33 @@
 package BankController
 
 import (
-	"database/sql"
 	"encoding/json"
 	"io"
-	BankService "main/services/bank"
-	"main/types"
 	"net/http"
 	"strconv"
+
+	"main/database/databaseSQL"
+	BankService "main/services/bank"
+	"main/services/utils"
+	"main/types"
+
+	databaseSqlc "main/database/databaseSQL"
 
 	"github.com/gorilla/mux"
 )
 
-// GetItems retrieves a paginated list of items.
-// @Summary Get items with pagination
-// @Description Get items from the database with pagination support
-// @Param w http.ResponseWriter - The http.ResponseWriter to write the response to.
-// @Param r *http.Request - The http.Request containing the request parameters.
+// GetItems retrieves a paginated list of bank records.
+// @Summary Get banks with pagination
+// @Description Fetches bank records from the database using provided pagination parameters.
+// @Param w http.ResponseWriter - The http.ResponseWriter used to write the response.
+// @Param r *http.Request - The http.Request containing the URL query parameters.
 // @Return void
 func GetItems(w http.ResponseWriter, r *http.Request) {
-
-	database := r.Context().Value("db").(*sql.DB)
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
-	var filter types.DefaultSearch
-
-	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
-	if err != nil {
-		currentPage = 1
-	}
-
-	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
-	if err != nil {
-		perPage = 5
-	}
-
-	order := params.Get("order")
-	if err != nil {
-		order = "id"
-	}
-
-	direction := params.Get("direction")
-	if err != nil {
-		direction = "ASC"
-	}
-
-	filter.PerPage = perPage
-	filter.Order = order
-	filter.Direction = direction
-	filter.Search = params.Get("search")
-	filter.CurrentPage = currentPage
-
-	items, totalItems, lastPage, err := BankService.GetItems(database, filter)
+	values := utils.CheckRequestParams[databaseSqlc.ListBanksParams](params)
+	items, totalItems, lastPage, err := BankService.GetItems(queries, r.Context(), values)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -60,17 +36,23 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	response := types.ReturnPagination{
 		Data:        items,
 		Total:       totalItems,
-		CurrentPage: int(currentPage),
-		PerPage:     int(perPage),
+		CurrentPage: int(values.Offset),
+		PerPage:     int(values.Limit),
 		LastPage:    lastPage,
 	}
 
 	json.NewEncoder(w).Encode(response)
 }
 
+// UpdateItems updates the details of a specific bank record.
+// @Summary Update bank by ID
+// @Description Updates an existing bank record using the ID from the URL path and details from the request body.
+// @Param w http.ResponseWriter - The http.ResponseWriter used to write the response.
+// @Param r *http.Request - The http.Request containing the bank_id and update payload.
+// @Return void
 func UpdateItems(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
-	var bankBody types.Bank
+	query := r.Context().Value("query").(*databaseSQL.Queries)
+	var bankBody databaseSqlc.UpdateBankParams
 
 	vars := mux.Vars(r)
 
@@ -80,7 +62,7 @@ func UpdateItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bankBody.Id = int(bankId)
+	bankBody.ID = int64(bankId)
 
 	reqBody, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -95,10 +77,9 @@ func UpdateItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = BankService.UpdateItems(database, bankBody)
+	err = BankService.UpdateItems(query, r.Context(), bankBody)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 }

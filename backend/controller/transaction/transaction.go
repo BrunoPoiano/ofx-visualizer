@@ -3,15 +3,17 @@ package TransactionController
 import (
 	"database/sql"
 	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+
+	"main/database/databaseSQL"
 	BalanceService "main/services/balance"
 	ofxService "main/services/ofx"
 	sourceService "main/services/source"
 	StatementService "main/services/statement"
 	transactionService "main/services/transaction"
 	"main/types"
-	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -24,8 +26,7 @@ import (
 // @Param r *http.Request - The request object, containing the OFX file
 // @Return void
 func InsertItems(w http.ResponseWriter, r *http.Request) {
-
-	database := r.Context().Value("db").(*sql.DB)
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	err := r.ParseMultipartForm(10 << 20) // limit memory usage to 10 MB
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
@@ -58,13 +59,20 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		SourceId, err := sourceService.InsertItem(database, Bank, Card)
+		SourceId, err := sourceService.InsertItem(queries, r.Context(), Bank, Card)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		err = transactionService.InsertTransaction(database, transactions, SourceId)
+		for _, item := range transactions {
+			item.SourceID = sql.NullInt64{
+				Int64: int64(SourceId),
+				Valid: SourceId > 0,
+			}
+		}
+
+		err = transactionService.InsertTransaction(queries, r.Context(), transactions)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -87,7 +95,6 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w)
-
 }
 
 // GetTransactionInfos retrieves aggregate transaction information (positive, negative, total value) from the database based on provided filters.

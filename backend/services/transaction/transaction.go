@@ -1,11 +1,15 @@
 package transactionService
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"math"
+
 	"main/services/utils"
 	"main/types"
-	"math"
+
+	databaseSqlc "main/database/databaseSQL"
 )
 
 // InsertTransaction inserts a slice of transactions into the database.
@@ -16,18 +20,15 @@ import (
 //
 // Returns:
 //   - error: An error if the insertion fails, nil otherwise.
-func InsertTransaction(db *sql.DB, items []types.Transaction, SourceId int) error {
-	stmt, err := db.Prepare("INSERT INTO transactions(id,source_id,date,value,desc,type) values(?,?,?,?,?,?)")
-	if err != nil {
-		return err
-	}
-
+func InsertTransaction(queries *databaseSqlc.Queries, ctx context.Context, items []databaseSqlc.CreateTransactionParams) error {
 	for _, item := range items {
-		_, err = stmt.Exec(item.Id, SourceId, item.Date, item.Value, item.Desc, item.Type)
+		_, err := queries.CreateTransaction(ctx, item)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
-
 }
 
 // GetTransactions retrieves transactions from the database with pagination.
@@ -38,22 +39,21 @@ func InsertTransaction(db *sql.DB, items []types.Transaction, SourceId int) erro
 //   - currentPage: The current page number.
 //
 // Returns:
-//   - []types.Transaction: A slice of Transaction structs representing the transactions on the current page.
+//   - []databaseSqlc.Transaction: A slice of Transaction structs representing the transactions on the current page.
 //   - int: The total number of transactions in the database.
 //   - error: An error if the retrieval fails, nil otherwise.
-func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.Transaction, int, int, error) {
-
+func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]databaseSqlc.Transaction, int, int, error) {
 	// TRANSACTION
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 	query := makeQuery("*", filter)
 	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
 	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
-	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.Transaction, error) {
-		var s []types.Transaction
+	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]databaseSqlc.Transaction, error) {
+		var s []databaseSqlc.Transaction
 		for rows.Next() {
-			var item types.Transaction
-			if err := rows.Scan(&item.Id, &item.SourceId, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
+			var item databaseSqlc.Transaction
+			if err := rows.Scan(&item.ID, &item.SourceID, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
 				return nil, err
 			}
 			s = append(s, item)
@@ -93,7 +93,6 @@ func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]types.
 //   - float64: The sum of all transaction values.
 //   - error: An error if the retrieval fails, nil otherwise.
 func GetTransactionInfos(database *sql.DB, filter types.TransactionSearch) (float64, float64, float64, error) {
-
 	var positive, negative, value float64
 
 	queryFilter := makeQuery("SUM(value)", filter)
@@ -124,7 +123,6 @@ func GetTransactionInfos(database *sql.DB, filter types.TransactionSearch) (floa
 // Returns:
 //   - error: An error if the deletion fails, nil otherwise.
 func DeleteTransaction(database *sql.DB, bankId int64) error {
-
 	query := fmt.Sprintf("DELETE FROM transactions WHERE bank_id = '%v'", bankId)
 	_, err := database.Exec(query)
 	if err != nil {
@@ -143,7 +141,6 @@ func DeleteTransaction(database *sql.DB, bankId int64) error {
 // Returns:
 //   - string: The constructed SQL query string.
 func makeQuery(s string, filter types.TransactionSearch) string {
-
 	query := fmt.Sprintf("SELECT %s FROM transactions", s)
 
 	where := []string{}

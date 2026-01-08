@@ -1,14 +1,17 @@
 package ofxService
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
-	"main/types"
 	"mime/multipart"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	databaseSqlc "main/database/databaseSQL"
+	"main/types"
 )
 
 // ParseOfx parses an OFX file and extracts transaction data and bank information.
@@ -17,15 +20,14 @@ import (
 //   - file: A multipart.File representing the OFX file to parse.
 //
 // Returns:
-//   - []types.Transaction: A slice of Transaction structs, each representing a transaction from the OFX file.
-//   - types.Bank: A Bank struct containing bank information extracted from the OFX file.
+//   - []databaseSqlc.Transaction: A slice of Transaction structs, each representing a transaction from the OFX file.
+//   - databaseSqlc.CreateBankParams: A Bank struct containing bank information extracted from the OFX file.
 //   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
-func ParseOfx(file multipart.File) ([]types.Transaction, types.Statement, types.Bank, types.Card, error) {
-
-	var Transactions []types.Transaction
-	var Bank types.Bank
-	var Statement types.Statement
-	var Card types.Card
+func ParseOfx(file multipart.File) ([]databaseSqlc.CreateTransactionParams, databaseSqlc.Statement, databaseSqlc.CreateBankParams, databaseSqlc.CreateCardParams, error) {
+	var Transactions []databaseSqlc.CreateTransactionParams
+	var Bank databaseSqlc.CreateBankParams
+	var Statement databaseSqlc.Statement
+	var Card databaseSqlc.CreateCardParams
 
 	fileContent, err := io.ReadAll(file)
 	if err != nil {
@@ -161,10 +163,9 @@ func getArrayItensFromTag(tag, fileString string) []string {
 //   - stmttrn: The STMTTRN string to parse.
 //
 // Returns:
-//   - types.Transaction: A Transaction struct containing the parsed data.
-func parseSTMTTRNIntoTransaction(stmttrn string) (types.Transaction, error) {
-
-	var transaction types.Transaction
+//   - databaseSqlc.Transaction: A Transaction struct containing the parsed data.
+func parseSTMTTRNIntoTransaction(stmttrn string) (databaseSqlc.CreateTransactionParams, error) {
+	var transaction databaseSqlc.CreateTransactionParams
 
 	value, err := getItensFromTag("TRNAMT", stmttrn)
 	if err != nil {
@@ -193,8 +194,11 @@ func parseSTMTTRNIntoTransaction(stmttrn string) (types.Transaction, error) {
 
 	transaction.Value, _ = strconv.ParseFloat(value, 64)
 	transaction.Type = types.TransactionType(tType)
-	transaction.Id = id
-	transaction.Desc = desc
+	transaction.ID = id
+	transaction.Desc = sql.NullString{
+		String: desc,
+		Valid:  desc != "",
+	}
 	transaction.Date, _ = parseOfxDate(date)
 
 	return transaction, nil
@@ -228,10 +232,9 @@ func parseOfxDate(date string) (string, error) {
 //   - file: The string containing the bank information.
 //
 // Returns:
-//   - types.Bank: A Bank struct containing the parsed bank information.
-func parseBankInfo(file string) (types.Bank, error) {
-
-	var Bank types.Bank
+//   - databaseSqlc.CreateBankParams: A Bank struct containing the parsed bank information.
+func parseBankInfo(file string) (databaseSqlc.CreateBankParams, error) {
+	var Bank databaseSqlc.CreateBankParams
 
 	name, err := getItensFromTag("ORG", file)
 	if err != nil {
@@ -263,17 +266,16 @@ func parseBankInfo(file string) (types.Bank, error) {
 	}
 
 	Bank.Name = fmt.Sprintf("Bank %s", name)
-	Bank.AccountId = accountId
-	Bank.FId = fId
-	Bank.BankId = bankId
-	Bank.BranchId = branchId
+	Bank.AccountID = accountId
+	Bank.FID = fId
+	Bank.BankID = bankId
+	Bank.BranchID = branchId
 	Bank.AccountType = types.AccountType(accountType)
 	return Bank, nil
 }
 
-func parseCardInfo(file string) (types.Card, error) {
-
-	var Card types.Card
+func parseCardInfo(file string) (databaseSqlc.CreateCardParams, error) {
+	var Card databaseSqlc.CreateCardParams
 
 	_, err := getItensFromTag("CCACCTFROM", file)
 	if err != nil {
@@ -287,12 +289,12 @@ func parseCardInfo(file string) (types.Card, error) {
 
 	Card.Name = fmt.Sprintf("Card %s", name)
 
-	Card.AccountId, err = getItensFromTag("ACCTID", file)
+	Card.AccountID, err = getItensFromTag("ACCTID", file)
 	if err != nil {
 		return Card, err
 	}
 
-	Card.FId, err = getItensFromTag("FID", file)
+	Card.FID, err = getItensFromTag("FID", file)
 	if err != nil {
 		return Card, err
 	}
@@ -306,11 +308,10 @@ func parseCardInfo(file string) (types.Card, error) {
 //   - fileString: The string containing the OFX data.
 //
 // Returns:
-//   - types.Statement: A Statement struct containing the parsed statement information.
+//   - databaseSqlc.Statement: A Statement struct containing the parsed statement information.
 //   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
-func parseStatement(fileString string) (types.Statement, error) {
-
-	var statement types.Statement
+func parseStatement(fileString string) (databaseSqlc.Statement, error) {
+	var statement databaseSqlc.Statement
 
 	tagDtStart, err := getItensFromTag("DTSTART", fileString)
 	if err != nil {
@@ -380,11 +381,10 @@ func parseStatement(fileString string) (types.Statement, error) {
 //   - fileString: The string containing the OFX data.
 //
 // Returns:
-//   - []types.Balance: A slice of Balance structs containing the parsed balance information.
-func parseBalance(fileString string) []types.Balance {
-
+//   - []databaseSqlc.Balance: A slice of Balance structs containing the parsed balance information.
+func parseBalance(fileString string) []databaseSqlc.Balance {
 	balItems := getArrayItensFromTag("BAL", fileString)
-	var balances []types.Balance
+	var balances []databaseSqlc.Balance
 	for _, balItem := range balItems {
 
 		name, err := getItensFromTag("NAME", balItem)
@@ -410,11 +410,14 @@ func parseBalance(fileString string) []types.Balance {
 			continue
 		}
 
-		balances = append(balances, types.Balance{
-			Name:    name,
-			Desc:    desc,
-			BalType: balType,
-			Value:   floatValue,
+		balances = append(balances, databaseSqlc.Balance{
+			Name: name,
+			Description: sql.NullString{
+				String: desc,
+				Valid:  desc != "",
+			},
+			BalanceType: balType,
+			Value:       floatValue,
 		})
 	}
 

@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	StatementService "main/services/statement"
-	"main/types"
 	"net/http"
 	"strconv"
+
+	databaseSqlc "main/database/databaseSQL"
+	StatementService "main/services/statement"
+	"main/types"
 
 	"github.com/gorilla/mux"
 )
@@ -66,7 +68,6 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 	}
 
 	items, totalItems, lastpage, err := StatementService.GetItems(database, search)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -81,6 +82,11 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(response)
+}
+
+type ReturnType struct {
+	LargestBalance databaseSqlc.Statement `json:"largestBalance"`
+	CurrentBalance databaseSqlc.Statement `json:"currentBalance"`
 }
 
 // GetStatementsInfo retrieves the largest and current balance information for a given bank ID.
@@ -101,15 +107,9 @@ func GetStatementsInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	largestBalance, currentBalance, err := StatementService.GetInfo(database, bankId)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	}
-
-	type ReturnType struct {
-		LargestBalance types.Statement `json:"largestBalance"`
-		CurrentBalance types.Statement `json:"currentBalance"`
 	}
 
 	json.NewEncoder(w).Encode(ReturnType{
