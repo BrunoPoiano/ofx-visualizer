@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     date           STRING NOT NULL,
     value          REAL NOT NULL,
     type           STRING,
-    desc           TEXT,
+    desc           TEXT NOT NULL,
     FOREIGN KEY (source_id) REFERENCES Source(id)
 );
 

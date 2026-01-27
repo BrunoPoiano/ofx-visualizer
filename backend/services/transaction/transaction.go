@@ -43,16 +43,29 @@ func InsertTransaction(queries *databaseSqlc.Queries, ctx context.Context, items
 func GetTransactions(queries *databaseSqlc.Queries, ctx context.Context, filter types.TransactionSearch) ([]databaseSqlc.Transaction, int, int, error) {
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 
+	println(filter.MaxValue, filter.MinValue, filter.Type)
 	items, err := queries.ListTransactions(ctx, databaseSqlc.ListTransactionsParams{
-		Search: filter.Search,
-		Offset: offset,
-		Limit:  filter.PerPage,
+		Search:         filter.Search,
+		SearchType:     filter.Type,
+		SearchMaxValue: utils.CheckIfZero(filter.MaxValue),
+		SearchMinValue: utils.CheckIfZero(filter.MinValue),
+		SearchFrom:     utils.FixSearchDate(filter.From, true),
+		SearchTo:       utils.FixSearchDate(filter.To, false),
+		Offset:         offset,
+		Limit:          filter.PerPage,
 	})
 	if err != nil {
 		return nil, 0, 0, err
 	}
 
-	totalItems, err := queries.CountTransactions(ctx, filter.Search)
+	totalItems, err := queries.CountTransactions(ctx, databaseSqlc.CountTransactionsParams{
+		Search:         filter.Search,
+		SearchType:     filter.Type,
+		SearchMaxValue: utils.CheckIfZero(filter.MaxValue),
+		SearchMinValue: utils.CheckIfZero(filter.MinValue),
+		SearchFrom:     utils.FixSearchDate(filter.From, true),
+		SearchTo:       utils.FixSearchDate(filter.To, false),
+	})
 	if err != nil {
 		return nil, 0, 0, err
 	}
@@ -74,7 +87,7 @@ func GetTransactions(queries *databaseSqlc.Queries, ctx context.Context, filter 
 //   - float64: The sum of all transaction values.
 //   - error: An error if the retrieval fails, nil otherwise.
 func GetTransactionInfos(queries *databaseSqlc.Queries, ctx context.Context, filter types.TransactionSearch) (float64, float64, float64, error) {
-	values, err := queries.TransactionInfo(ctx, databaseSqlc.TransactionInfoParams{
+	values, err := queries.TransactionsInfo(ctx, databaseSqlc.TransactionsInfoParams{
 		Value:    float64(filter.MaxValue),
 		Value_2:  float64(filter.MaxValue),
 		SourceID: filter.SourceId,

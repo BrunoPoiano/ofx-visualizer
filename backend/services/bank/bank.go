@@ -24,12 +24,12 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, bank databa
 		return 0, err
 	}
 
-	bankExists, err := queries.GetBankByAccountId(ctx, int64(accountId))
+	bankId, err := queries.GetBankIdByAccountId(ctx, int64(accountId))
 	if err != nil {
 		return 0, err
 	}
 
-	account_id, err := utils.InterfaceToInt(bankExists.ID)
+	account_id, err := utils.InterfaceToInt(bankId)
 	if err != nil {
 		return 0, err
 	}

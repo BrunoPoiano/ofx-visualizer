@@ -119,3 +119,23 @@ func InterfaceToFloat(value interface{}) (float64, error) {
 
 	return v, nil
 }
+
+func CheckIfZero(value int64) interface{} {
+	if value == 0 {
+		return nil
+	}
+
+	return value
+}
+
+func FixSearchDate(value string, from bool) interface{} {
+	if value == "" {
+		return nil
+	}
+
+	if from {
+		return fmt.Sprintf("%s 00:00:00", value)
+	}
+
+	return fmt.Sprintf("%s 23:59:59", value)
+}

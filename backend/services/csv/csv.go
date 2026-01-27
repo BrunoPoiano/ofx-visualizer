@@ -1,7 +1,6 @@
 package csvService
 
 import (
-	"database/sql"
 	"os"
 	"strconv"
 	"strings"
@@ -36,10 +35,7 @@ func ParseCsv(filePath string) ([]databaseSqlc.Transaction, error) {
 
 		items := strings.Split(line, ",")
 		value, _ := strconv.ParseFloat(items[1], 64)
-		lines = append(lines, databaseSqlc.Transaction{Date: items[0], Value: value, ID: items[2], Desc: sql.NullString{
-			String: items[3],
-			Valid:  items[3] != "",
-		}})
+		lines = append(lines, databaseSqlc.Transaction{Date: items[0], Value: value, ID: items[2], Desc: items[3]})
 	}
 
 	return lines, nil

@@ -1,46 +1,41 @@
--- name: GetBalance :one
-SELECT * FROM balances
-WHERE id = ? LIMIT 1;
-
 -- name: FindBalance :one
 SELECT id FROM balances
 WHERE statement_id = ? AND name = ? AND value = ?
 LIMIT 1;
 
--- name: ListBalancess :many
+-- name: ListBalances :many
 SELECT * FROM balances
 WHERE
     (
-        @statement_id IS NOT 0
-        AND statement_id = @statement_id
+        :statement_id IS NOT NULL
+        AND statement_id = :statement_id
     )
     OR
     (
-        @statement_id IS NULL
+        :statement_id IS NULL
         AND (
-            @search IS NULL
-            OR name LIKE '%' || @search || '%'
+            :search IS NULL
+            OR name LIKE '%' || :search || '%'
         )
     )
-LIMIT @limit OFFSET @offset;
+LIMIT :limit OFFSET :offset;
 
 
--- name: CountListBalancess :one
+-- name: CountBalances :one
 SELECT count(id) FROM balances
 WHERE
     (
-        @statement_id IS NOT NULL
-        AND statement_id = @statement_id
+        :statement_id IS NOT NULL
+        AND statement_id = :statement_id
     )
     OR
     (
-        @statement_id IS NULL
+        :statement_id IS NULL
         AND (
-            @search IS NULL
-            OR name LIKE '%' || @search || '%'
+            :search IS NULL
+            OR name LIKE '%' || :search || '%'
         )
-    )
-LIMIT @limit OFFSET @offset;
+    );
 
 -- name: CreateBalance :one
 INSERT INTO balances (
@@ -64,8 +59,8 @@ WHERE id = ?;
 SELECT * FROM banks
 WHERE id = ? LIMIT 1;
 
--- name: GetBankByAccountId :one
-SELECT * FROM banks
+-- name: GetBankIdByAccountId :one
+SELECT id FROM banks
 WHERE account_id = ? LIMIT 1;
 
 -- name: CountBanks :one
@@ -120,13 +115,9 @@ WHERE id = ?;
 SELECT * FROM cards
 WHERE id = ? LIMIT 1;
 
--- name: GetCardByAccountId :one
+-- name: GetCardIdByAccountId :one
 SELECT id FROM cards
 WHERE account_id = ? LIMIT 1;
-
--- name: ListCards :many
-SELECT * FROM cards
-ORDER BY name;
 
 -- name: CreateCard :one
 INSERT INTO cards (
@@ -153,31 +144,80 @@ SELECT * FROM transactions
 WHERE id = ? LIMIT 1;
 
 -- name: ListTransactions :many
-SELECT * FROM transactions
-WHERE (
-    :search IS NULL
-    OR source_id   LIKE '%' || :search || '%'
-    OR date LIKE '%' || :search || '%'
-    OR value         LIKE '%' || :search || '%'
-    OR type      LIKE '%' || :search || '%'
-    OR desc    LIKE '%' || :search || '%'
-)
+SELECT *
+FROM transactions
+WHERE
+    (
+        :search IS NULL
+        OR source_id LIKE '%' || :search || '%'
+        OR date      LIKE '%' || :search || '%'
+        OR "desc"    LIKE '%' || :search || '%'
+    )
+AND
+    (
+        :searchType IS NULL
+        OR type LIKE '%' || :searchType || '%'
+    )
+AND
+    (
+        :searchMaxValue IS NULL
+        OR value <= :searchMaxValue
+    )
+AND
+    (
+        :searchMinValue IS NULL
+        OR value >= :searchMinValue
+    )
+AND
+    (
+        :searchFrom IS NULL
+        OR date >= :searchFrom
+    )
+    AND
+        (
+            :searchTo IS NULL
+            OR date <= :searchTo
+        )
 ORDER BY id DESC
 LIMIT :limit OFFSET :offset;
 
 -- name: CountTransactions :one
 SELECT count(id)
 FROM transactions
-WHERE (
-:search IS NULL
-OR source_id   LIKE '%' || :search || '%'
-OR date LIKE '%' || :search || '%'
-OR value         LIKE '%' || :search || '%'
-OR type      LIKE '%' || :search || '%'
-OR desc    LIKE '%' || :search || '%'
-);
+WHERE
+(
+    :search IS NULL
+    OR source_id LIKE '%' || :search || '%'
+    OR date      LIKE '%' || :search || '%'
+    OR "desc"    LIKE '%' || :search || '%'
+)
+AND
+(
+    :searchType IS NULL
+    OR type LIKE '%' || :searchType || '%'
+)
+AND
+(
+    :searchMaxValue IS NULL
+    OR value <= :searchMaxValue
+)
+AND
+(
+    :searchMinValue IS NULL
+    OR value >= :searchMinValue
+)
+AND
+(
+    :searchFrom IS NULL
+    OR date >= :searchFrom
+)
+AND
+    (
+        :searchTo IS NULL
+        OR date <= :searchTo
+    );
 
--- name: TransactionInfo :one
+-- name: TransactionsInfo :one
 SELECT
   COALESCE(SUM(CASE WHEN value > ? THEN value ELSE 0 END), 0) AS positive,
   COALESCE(SUM(CASE WHEN value < ? THEN value ELSE 0 END), 0) AS negative,
@@ -206,7 +246,7 @@ WHERE id = ?;
 
 ---------------------- Source
 
--- name: GetSource :many
+-- name: GetSources :many
 SELECT source.id, cards.name
 FROM source
 JOIN cards ON cards.id = source.card_id
@@ -243,10 +283,6 @@ WHERE id = ?;
 ---------------------- Statements
 
 -- name: GetStatement :one
-SELECT * FROM statements
-WHERE id = ? LIMIT 1;
-
--- name: CheckStatement :one
 SELECT id FROM statements
 WHERE start_date = ? AND end_date = ? AND ledger_balance = ?
 LIMIT 1;
@@ -258,34 +294,73 @@ WHERE (
     OR source_id         LIKE '%' || :search || '%'
     OR start_date   LIKE '%' || :search || '%'
     OR end_date LIKE '%' || :search || '%'
-    OR ledger_balance         LIKE '%' || :search || '%'
     OR balance_date      LIKE '%' || :search || '%'
     OR server_date      LIKE '%' || :search || '%'
     OR language      LIKE '%' || :search || '%'
 )
+AND
+(
+    :searchMaxValue IS NULL
+    OR ledger_balance <= :searchMaxValue
+)
+AND
+(
+    :searchMinValue IS NULL
+    OR ledger_balance >= :searchMinValue
+)
+AND
+(
+    :searchFrom IS NULL
+    OR start_date >= :searchFrom
+)
+AND
+    (
+        :searchTo IS NULL
+        OR start_date <= :searchTo
+    )
+ORDER BY id DESC
 LIMIT :limit OFFSET :offset;
 
 -- name: CountStatements :one
 SELECT count(id) FROM statements
-WHERE (
+WHERE  (
     :search IS NULL
     OR source_id         LIKE '%' || :search || '%'
     OR start_date   LIKE '%' || :search || '%'
     OR end_date LIKE '%' || :search || '%'
-    OR ledger_balance         LIKE '%' || :search || '%'
     OR balance_date      LIKE '%' || :search || '%'
     OR server_date      LIKE '%' || :search || '%'
     OR language      LIKE '%' || :search || '%'
-);
+)
+AND
+(
+    :searchMaxValue IS NULL
+    OR ledger_balance <= :searchMaxValue
+)
+AND
+(
+    :searchMinValue IS NULL
+    OR ledger_balance >= :searchMinValue
+)
+AND
+(
+    :searchFrom IS NULL
+    OR start_date >= :searchFrom
+)
+AND
+    (
+        :searchTo IS NULL
+        OR start_date <= :searchTo
+    );
 
--- name: LargestBalanceQuery :one
+-- name: GetLargestBalanceQuery :one
 SELECT *
 FROM statements
 WHERE source_id = ?
 ORDER BY ledger_balance DESC
 LIMIT 1;
 
--- name: CurrentBalanceQuery :one
+-- name: GetCurrentBalanceQuery :one
 SELECT *
 FROM statements
 WHERE source_id = ?

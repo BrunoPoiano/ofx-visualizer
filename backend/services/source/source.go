@@ -54,6 +54,6 @@ func InsertItem(queries *databaseSqlc.Queries, ctx context.Context, bank databas
 	return int(newSource.ID), nil
 }
 
-func GetItems(queries *databaseSqlc.Queries, ctx context.Context) ([]databaseSqlc.GetSourceRow, error) {
-	return queries.GetSource(ctx)
+func GetItems(queries *databaseSqlc.Queries, ctx context.Context) ([]databaseSqlc.GetSourcesRow, error) {
+	return queries.GetSources(ctx)
 }

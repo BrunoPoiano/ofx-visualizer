@@ -195,10 +195,7 @@ func parseSTMTTRNIntoTransaction(stmttrn string) (databaseSqlc.CreateTransaction
 	transaction.Value, _ = strconv.ParseFloat(value, 64)
 	transaction.Type = types.TransactionType(tType)
 	transaction.ID = id
-	transaction.Desc = sql.NullString{
-		String: desc,
-		Valid:  desc != "",
-	}
+	transaction.Desc = desc
 	transaction.Date, _ = parseOfxDate(date)
 
 	return transaction, nil

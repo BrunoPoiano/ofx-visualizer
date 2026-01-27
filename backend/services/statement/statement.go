@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"math"
 
+	"main/services/utils"
 	"main/types"
 
 	databaseSqlc "main/database/databaseSQL"
@@ -22,7 +23,7 @@ import (
 //   - The ID of the statement.
 //   - An error if the operation fails, nil otherwise.
 func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databaseSqlc.StatementYields, SourceId int) (int, error) {
-	accountId, err := queries.CheckStatement(ctx, databaseSqlc.CheckStatementParams{
+	accountId, err := queries.GetStatement(ctx, databaseSqlc.GetStatementParams{
 		StartDate:     item.Statement.StartDate,
 		EndDate:       item.Statement.EndDate,
 		LedgerBalance: item.Statement.LedgerBalance,
@@ -62,15 +63,25 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databa
 func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.StatementSearch) ([]databaseSqlc.Statement, int, int, error) {
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 	statements, err := queries.ListStatements(ctx, databaseSqlc.ListStatementsParams{
-		Search: filter.Search,
-		Offset: offset,
-		Limit:  filter.PerPage,
+		Search:         filter.Search,
+		Offset:         offset,
+		Limit:          filter.PerPage,
+		SearchMaxValue: utils.CheckIfZero(filter.MaxValue),
+		SearchMinValue: utils.CheckIfZero(filter.MinValue),
+		SearchFrom:     utils.FixSearchDate(filter.From, true),
+		SearchTo:       utils.FixSearchDate(filter.To, false),
 	})
 	if err != nil {
 		return nil, 0, 0, err
 	}
 
-	totalItems, err := queries.CountStatements(ctx, filter.Search)
+	totalItems, err := queries.CountStatements(ctx, databaseSqlc.CountStatementsParams{
+		Search:         filter.Search,
+		SearchMaxValue: utils.CheckIfZero(filter.MaxValue),
+		SearchMinValue: utils.CheckIfZero(filter.MinValue),
+		SearchFrom:     utils.FixSearchDate(filter.From, true),
+		SearchTo:       utils.FixSearchDate(filter.To, false),
+	})
 
 	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
 	return statements, int(totalItems), int(last_page), nil
@@ -90,7 +101,7 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.S
 func GetInfo(queries *databaseSqlc.Queries, ctx context.Context, bankId int64) (databaseSqlc.Statement, databaseSqlc.Statement, error) {
 	var largestBalance, currentBalance databaseSqlc.Statement
 
-	largestBalance, err := queries.LargestBalanceQuery(ctx, sql.NullInt64{
+	largestBalance, err := queries.GetLargestBalanceQuery(ctx, sql.NullInt64{
 		Int64: bankId,
 		Valid: bankId != 0,
 	})
@@ -98,7 +109,7 @@ func GetInfo(queries *databaseSqlc.Queries, ctx context.Context, bankId int64) (
 		return largestBalance, currentBalance, err
 	}
 
-	currentBalance, err = queries.CurrentBalanceQuery(ctx, sql.NullInt64{
+	currentBalance, err = queries.GetCurrentBalanceQuery(ctx, sql.NullInt64{
 		Int64: bankId,
 		Valid: bankId != 0,
 	})

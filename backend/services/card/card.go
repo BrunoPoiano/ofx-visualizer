@@ -20,7 +20,7 @@ import (
 // Returns:
 //   - An error if the insertion fails, nil otherwise.
 func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databaseSqlc.CreateCardParams) (int, error) {
-	card_id, err := queries.GetCardByAccountId(ctx, item.AccountID)
+	card_id, err := queries.GetCardIdByAccountId(ctx, item.AccountID)
 	if err != nil {
 		return 0, err
 	}

@@ -52,7 +52,7 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databa
 func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.DefaultSearch, statementId int64) ([]databaseSqlc.Balance, int, int, error) {
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 
-	balances, err := queries.ListBalancess(ctx, databaseSqlc.ListBalancessParams{
+	balances, err := queries.ListBalances(ctx, databaseSqlc.ListBalancesParams{
 		Search: filter.Search,
 		Limit:  filter.PerPage,
 		Offset: offset,
@@ -64,10 +64,8 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.D
 		return nil, 0, 0, err
 	}
 
-	count, err := queries.CountListBalancess(ctx, databaseSqlc.CountListBalancessParams{
+	count, err := queries.CountBalances(ctx, databaseSqlc.CountBalancesParams{
 		Search: filter.Search,
-		Limit:  filter.PerPage,
-		Offset: offset,
 		StatementID: sql.NullInt64{
 			Int64: int64(statementId),
 		},

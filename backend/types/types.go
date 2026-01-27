@@ -31,8 +31,8 @@ type StatementSearch struct {
 	DefaultSearch
 	From     string
 	To       string
-	MinValue string
-	MaxValue string
+	MinValue int64
+	MaxValue int64
 	SourceId string
 }
 
