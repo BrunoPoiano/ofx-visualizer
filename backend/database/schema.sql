@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS cards (
 
 CREATE TABLE IF NOT EXISTS transactions (
     id             STRING PRIMARY KEY,
-    source_id      INTEGER,
+    source_id      INTEGER NOT NULL,
     date           STRING NOT NULL,
     value          REAL NOT NULL,
     type           STRING,

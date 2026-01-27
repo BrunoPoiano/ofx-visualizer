@@ -22,19 +22,6 @@ WHERE
             OR name LIKE '%' || @search || '%'
         )
     )
-ORDER BY
-    CASE WHEN @order = 'name' AND @direction = 'asc'  THEN name END ASC,
-    CASE WHEN @order = 'name' AND @direction = 'desc' THEN name END DESC,
-    CASE WHEN @order = 'description' AND @direction = 'asc'  THEN description END ASC,
-    CASE WHEN @order = 'description' AND @direction = 'desc' THEN description END DESC,
-    CASE WHEN @order = 'balance_type' AND @direction = 'asc'  THEN balance_type END ASC,
-    CASE WHEN @order = 'balance_type' AND @direction = 'desc' THEN balance_type END DESC,
-    CASE WHEN @order = 'value' AND @direction = 'asc'  THEN value END ASC,
-    CASE WHEN @order = 'value' AND @direction = 'desc' THEN value END DESC,
-    CASE WHEN @order = 'statement_id' AND @direction = 'asc'  THEN statement_id END ASC,
-    CASE WHEN @order = 'statement_id' AND @direction = 'desc' THEN statement_id END DESC,
-    AND (:order IS NULL OR :order IS NOT NULL)
-    AND (:direction IS NULL OR :direction IS NOT NULL)
 LIMIT @limit OFFSET @offset;
 
 
@@ -53,21 +40,7 @@ WHERE
             OR name LIKE '%' || @search || '%'
         )
     )
-ORDER BY
-    CASE WHEN @order = 'name' AND @direction = 'asc'  THEN name END ASC,
-    CASE WHEN @order = 'name' AND @direction = 'desc' THEN name END DESC,
-    CASE WHEN @order = 'description' AND @direction = 'asc'  THEN description END ASC,
-    CASE WHEN @order = 'description' AND @direction = 'desc' THEN description END DESC,
-    CASE WHEN @order = 'balance_type' AND @direction = 'asc'  THEN balance_type END ASC,
-    CASE WHEN @order = 'balance_type' AND @direction = 'desc' THEN balance_type END DESC,
-    CASE WHEN @order = 'value' AND @direction = 'asc'  THEN value END ASC,
-    CASE WHEN @order = 'value' AND @direction = 'desc' THEN value END DESC,
-    CASE WHEN @order = 'statement_id' AND @direction = 'asc'  THEN statement_id END ASC,
-    CASE WHEN @order = 'statement_id' AND @direction = 'desc' THEN statement_id END DESC
 LIMIT @limit OFFSET @offset;
-
-
-
 
 -- name: CreateBalance :one
 INSERT INTO balances (
@@ -99,15 +72,14 @@ WHERE account_id = ? LIMIT 1;
 SELECT count(id)
 FROM banks
 WHERE (
-    @query IS NULL
-    OR name      LIKE '%' || @query || '%'
-    OR account_id  LIKE '%' || @query || '%'
-    OR account_type  LIKE '%' || @query || '%'
-    OR f_id  LIKE '%' || @query || '%'
-    OR bank_id  LIKE '%' || @query || '%'
-    OR branch_id  LIKE '%' || @query || '%'
-)
-ORDER BY id;
+    :search IS NULL
+    OR name      LIKE '%' || :search || '%'
+    OR account_id  LIKE '%' || :search || '%'
+    OR account_type  LIKE '%' || :search || '%'
+    OR f_id  LIKE '%' || :search || '%'
+    OR bank_id  LIKE '%' || :search || '%'
+    OR branch_id  LIKE '%' || :search || '%'
+);
 
 -- name: ListBanks :many
 SELECT *
@@ -120,12 +92,8 @@ WHERE (
     OR f_id         LIKE '%' || :search || '%'
     OR bank_id      LIKE '%' || :search || '%'
     OR branch_id    LIKE '%' || :search || '%'
-    AND (:order IS NULL OR :order IS NOT NULL)
-    AND (:direction IS NULL OR :direction IS NOT NULL)
 )
-ORDER BY
-    CASE WHEN :order = 'name' AND :direction = 'asc'  THEN name END ASC,
-    CASE WHEN :order = 'name' AND :direction = 'desc' THEN name END DESC
+ORDER BY id DESC
 LIMIT :limit OFFSET :offset;
 
 -- name: CreateBank :one
@@ -186,7 +154,37 @@ WHERE id = ? LIMIT 1;
 
 -- name: ListTransactions :many
 SELECT * FROM transactions
-ORDER BY date DESC;
+WHERE (
+    :search IS NULL
+    OR source_id   LIKE '%' || :search || '%'
+    OR date LIKE '%' || :search || '%'
+    OR value         LIKE '%' || :search || '%'
+    OR type      LIKE '%' || :search || '%'
+    OR desc    LIKE '%' || :search || '%'
+)
+ORDER BY id DESC
+LIMIT :limit OFFSET :offset;
+
+-- name: CountTransactions :one
+SELECT count(id)
+FROM transactions
+WHERE (
+:search IS NULL
+OR source_id   LIKE '%' || :search || '%'
+OR date LIKE '%' || :search || '%'
+OR value         LIKE '%' || :search || '%'
+OR type      LIKE '%' || :search || '%'
+OR desc    LIKE '%' || :search || '%'
+);
+
+-- name: TransactionInfo :one
+SELECT
+  COALESCE(SUM(CASE WHEN value > ? THEN value ELSE 0 END), 0) AS positive,
+  COALESCE(SUM(CASE WHEN value < ? THEN value ELSE 0 END), 0) AS negative,
+  COALESCE(SUM(value), 0)                                    AS value
+FROM transactions
+WHERE source_id = ?
+LIMIT 1;
 
 -- name: CreateTransaction :one
 INSERT INTO transactions (
@@ -208,10 +206,14 @@ WHERE id = ?;
 
 ---------------------- Source
 
--- name: GetSource :one
-SELECT * FROM source
-WHERE id = ? LIMIT 1;
-
+-- name: GetSource :many
+SELECT source.id, cards.name
+FROM source
+JOIN cards ON cards.id = source.card_id
+UNION ALL
+SELECT source.id, banks.name
+FROM source
+JOIN banks ON banks.id = source.bank_id;
 
 -- name: FindSource :one
 SELECT id
@@ -244,9 +246,51 @@ WHERE id = ?;
 SELECT * FROM statements
 WHERE id = ? LIMIT 1;
 
+-- name: CheckStatement :one
+SELECT id FROM statements
+WHERE start_date = ? AND end_date = ? AND ledger_balance = ?
+LIMIT 1;
+
 -- name: ListStatements :many
 SELECT * FROM statements
-ORDER BY start_date DESC;
+WHERE (
+    :search IS NULL
+    OR source_id         LIKE '%' || :search || '%'
+    OR start_date   LIKE '%' || :search || '%'
+    OR end_date LIKE '%' || :search || '%'
+    OR ledger_balance         LIKE '%' || :search || '%'
+    OR balance_date      LIKE '%' || :search || '%'
+    OR server_date      LIKE '%' || :search || '%'
+    OR language      LIKE '%' || :search || '%'
+)
+LIMIT :limit OFFSET :offset;
+
+-- name: CountStatements :one
+SELECT count(id) FROM statements
+WHERE (
+    :search IS NULL
+    OR source_id         LIKE '%' || :search || '%'
+    OR start_date   LIKE '%' || :search || '%'
+    OR end_date LIKE '%' || :search || '%'
+    OR ledger_balance         LIKE '%' || :search || '%'
+    OR balance_date      LIKE '%' || :search || '%'
+    OR server_date      LIKE '%' || :search || '%'
+    OR language      LIKE '%' || :search || '%'
+);
+
+-- name: LargestBalanceQuery :one
+SELECT *
+FROM statements
+WHERE source_id = ?
+ORDER BY ledger_balance DESC
+LIMIT 1;
+
+-- name: CurrentBalanceQuery :one
+SELECT *
+FROM statements
+WHERE source_id = ?
+ORDER BY balance_date DESC
+LIMIT 1;
 
 -- name: CreateStatement :one
 INSERT INTO statements (

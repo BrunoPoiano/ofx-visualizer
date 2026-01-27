@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 
+	_ "embed"
 	databaseSqlc "main/database/databaseSQL"
 )
 

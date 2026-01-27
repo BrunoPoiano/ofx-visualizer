@@ -63,7 +63,7 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, params databas
 		return banks, 0, 0, err
 	}
 
-	totalItems, err := queries.CountBanks(ctx, params)
+	totalItems, err := queries.CountBanks(ctx, params.Search)
 	if err != nil {
 		return nil, 0, 1, err
 	}

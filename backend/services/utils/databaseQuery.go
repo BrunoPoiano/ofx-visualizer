@@ -54,12 +54,12 @@ func CheckRequestParams[T ListParams](params url.Values) T {
 	}
 
 	order := params.Get("order")
-	if err != nil {
+	if order == "" {
 		order = "id"
 	}
 
 	direction := params.Get("direction")
-	if err != nil {
+	if direction == "" {
 		direction = "ASC"
 	}
 
@@ -67,8 +67,6 @@ func CheckRequestParams[T ListParams](params url.Values) T {
 
 	return T{
 		search,
-		order,
-		direction,
 		offset,
 		perpage,
 	}
@@ -91,6 +89,30 @@ func InterfaceToInt(value interface{}) (int, error) {
 		v = int(t)
 	case float64:
 		v = int(t)
+	default:
+		return 0, fmt.Errorf("Invalid value")
+	}
+
+	return v, nil
+}
+
+func InterfaceToFloat(value interface{}) (float64, error) {
+	var v float64
+	switch t := value.(type) {
+	case int:
+		v = float64(t)
+	case int8:
+		v = float64(t)
+	case int16:
+		v = float64(t)
+	case int32:
+		v = float64(t)
+	case int64:
+		v = float64(t)
+	case float32:
+		v = float64(t)
+	case float64:
+		v = t
 	default:
 		return 0, fmt.Errorf("Invalid value")
 	}

@@ -1,17 +1,17 @@
 package SourceController
 
 import (
-	"database/sql"
 	"encoding/json"
-	sourceService "main/services/source"
 	"net/http"
+
+	"main/database/databaseSQL"
+	sourceService "main/services/source"
 )
 
 func GetItems(w http.ResponseWriter, r *http.Request) {
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 
-	database := r.Context().Value("db").(*sql.DB)
-
-	items, err := sourceService.GetItems(database)
+	items, err := sourceService.GetItems(queries, r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

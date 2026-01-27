@@ -1,12 +1,12 @@
 package StatementsController
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
+	"main/database/databaseSQL"
 	databaseSqlc "main/database/databaseSQL"
 	StatementService "main/services/statement"
 	"main/types"
@@ -21,8 +21,7 @@ import (
 // @Param r *http.Request - The request object, containing the bank ID and query parameters
 // @Return void
 func GetStatements(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
-
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
 	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
@@ -67,7 +66,7 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 		search.SourceId = fmt.Sprintf("%v", bankIdParam)
 	}
 
-	items, totalItems, lastpage, err := StatementService.GetItems(database, search)
+	items, totalItems, lastpage, err := StatementService.GetItems(queries, r.Context(), search)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -96,8 +95,7 @@ type ReturnType struct {
 // @Param r *http.Request - The request object, containing the bank ID
 // @Return void
 func GetStatementsInfo(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
-
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	vars := mux.Vars(r)
 
 	bankId, err := strconv.ParseInt(vars["bank_id"], 10, 64)
@@ -106,9 +104,9 @@ func GetStatementsInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	largestBalance, currentBalance, err := StatementService.GetInfo(database, bankId)
+	largestBalance, currentBalance, err := StatementService.GetInfo(queries, r.Context(), bankId)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Error getting balance", http.StatusInternalServerError)
 		return
 	}
 

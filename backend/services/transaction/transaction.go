@@ -2,8 +2,6 @@ package transactionService
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"math"
 
 	"main/services/utils"
@@ -42,43 +40,26 @@ func InsertTransaction(queries *databaseSqlc.Queries, ctx context.Context, items
 //   - []databaseSqlc.Transaction: A slice of Transaction structs representing the transactions on the current page.
 //   - int: The total number of transactions in the database.
 //   - error: An error if the retrieval fails, nil otherwise.
-func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]databaseSqlc.Transaction, int, int, error) {
-	// TRANSACTION
+func GetTransactions(queries *databaseSqlc.Queries, ctx context.Context, filter types.TransactionSearch) ([]databaseSqlc.Transaction, int, int, error) {
 	offset := filter.PerPage * (filter.CurrentPage - 1)
-	query := makeQuery("*", filter)
-	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
-	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
-	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]databaseSqlc.Transaction, error) {
-		var s []databaseSqlc.Transaction
-		for rows.Next() {
-			var item databaseSqlc.Transaction
-			if err := rows.Scan(&item.ID, &item.SourceID, &item.Date, &item.Value, &item.Type, &item.Desc); err != nil {
-				return nil, err
-			}
-			s = append(s, item)
-		}
-		return s, nil
+	items, err := queries.ListTransactions(ctx, databaseSqlc.ListTransactionsParams{
+		Search: filter.Search,
+		Offset: offset,
+		Limit:  filter.PerPage,
 	})
 	if err != nil {
 		return nil, 0, 0, err
 	}
 
-	totalQuery := makeQuery("count(id) as totalItems", filter)
-	totalItems, err := utils.MakeQueryCall(database, totalQuery, func(rows *sql.Rows) (int, error) {
-		var s int
-		for rows.Next() {
-			rows.Scan(&s)
-		}
-		return s, nil
-	})
+	totalItems, err := queries.CountTransactions(ctx, filter.Search)
 	if err != nil {
 		return nil, 0, 0, err
 	}
 
 	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
 
-	return items, totalItems, int(last_page), nil
+	return items, int(totalItems), int(last_page), nil
 }
 
 // GetTransactionInfos retrieves sum of positive, negative and total transaction values from the database.
@@ -92,21 +73,27 @@ func GetTransactions(database *sql.DB, filter types.TransactionSearch) ([]databa
 //   - float64: The sum of negative transaction values.
 //   - float64: The sum of all transaction values.
 //   - error: An error if the retrieval fails, nil otherwise.
-func GetTransactionInfos(database *sql.DB, filter types.TransactionSearch) (float64, float64, float64, error) {
-	var positive, negative, value float64
-
-	queryFilter := makeQuery("SUM(value)", filter)
-	positiveQuery := fmt.Sprintf("%s AND value > 0", queryFilter)
-	negativeQuery := fmt.Sprintf("%s AND value < 0", queryFilter)
-	valueQuery := queryFilter
-
-	query := fmt.Sprintf("SELECT (%s) as positive, (%s) as negative, (%s) as value from transactions LIMIT 1", positiveQuery, negativeQuery, valueQuery)
-	_, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) (int, error) {
-		for rows.Next() {
-			rows.Scan(&positive, &negative, &value)
-		}
-		return 0, nil
+func GetTransactionInfos(queries *databaseSqlc.Queries, ctx context.Context, filter types.TransactionSearch) (float64, float64, float64, error) {
+	values, err := queries.TransactionInfo(ctx, databaseSqlc.TransactionInfoParams{
+		Value:    float64(filter.MaxValue),
+		Value_2:  float64(filter.MaxValue),
+		SourceID: filter.SourceId,
 	})
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	positive, err := utils.InterfaceToFloat(values.Positive)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	negative, err := utils.InterfaceToFloat(values.Negative)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	value, err := utils.InterfaceToFloat(values.Value)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -122,68 +109,6 @@ func GetTransactionInfos(database *sql.DB, filter types.TransactionSearch) (floa
 //
 // Returns:
 //   - error: An error if the deletion fails, nil otherwise.
-func DeleteTransaction(database *sql.DB, bankId int64) error {
-	query := fmt.Sprintf("DELETE FROM transactions WHERE bank_id = '%v'", bankId)
-	_, err := database.Exec(query)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// makeQuery constructs a SQL query based on the provided filter criteria.
-//
-// Parameters:
-//   - s: The SELECT clause of the query.
-//   - filter: A TransactionSearch struct containing filter criteria.
-//
-// Returns:
-//   - string: The constructed SQL query string.
-func makeQuery(s string, filter types.TransactionSearch) string {
-	query := fmt.Sprintf("SELECT %s FROM transactions", s)
-
-	where := []string{}
-
-	if filter.Type != "" {
-		where = append(where, fmt.Sprintf("type = '%s'", filter.Type))
-	}
-
-	if filter.MaxValue != "" {
-		where = append(where, fmt.Sprintf("value < '%s'", filter.MaxValue))
-	}
-
-	if filter.MinValue != "" {
-		where = append(where, fmt.Sprintf("value > '%s'", filter.MinValue))
-	}
-
-	if filter.From != "" {
-		if filter.To == "" {
-			where = append(where, fmt.Sprintf("date >= '%s 00:00:00'", filter.From))
-			where = append(where, fmt.Sprintf("date <= '%s 23:59:59'", filter.From))
-		} else {
-			where = append(where, fmt.Sprintf("date >= '%s 00:00:00'", filter.From))
-		}
-	}
-
-	if filter.To != "" {
-		where = append(where, fmt.Sprintf("date <= '%s 23:59:59'", filter.To))
-	}
-
-	if filter.Search != "" {
-		where = append(where, fmt.Sprintf("desc LIKE '%%%s%%'", filter.Search))
-	}
-
-	if filter.SourceId != "" {
-		where = append(where, fmt.Sprintf("source_id = '%s'", filter.SourceId))
-	}
-
-	if len(where) > 0 {
-		query = fmt.Sprintf("%s WHERE %s", query, where[0])
-		for i := 1; i < len(where); i++ {
-			query = fmt.Sprintf("%s AND %s", query, where[i])
-		}
-	}
-
-	return query
+func DeleteTransaction(queries *databaseSqlc.Queries, ctx context.Context, bankId int64) error {
+	return queries.DeleteTransaction(ctx, bankId)
 }

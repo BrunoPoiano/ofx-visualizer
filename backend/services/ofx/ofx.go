@@ -23,10 +23,10 @@ import (
 //   - []databaseSqlc.Transaction: A slice of Transaction structs, each representing a transaction from the OFX file.
 //   - databaseSqlc.CreateBankParams: A Bank struct containing bank information extracted from the OFX file.
 //   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
-func ParseOfx(file multipart.File) ([]databaseSqlc.CreateTransactionParams, databaseSqlc.Statement, databaseSqlc.CreateBankParams, databaseSqlc.CreateCardParams, error) {
+func ParseOfx(file multipart.File) ([]databaseSqlc.CreateTransactionParams, databaseSqlc.StatementYields, databaseSqlc.CreateBankParams, databaseSqlc.CreateCardParams, error) {
 	var Transactions []databaseSqlc.CreateTransactionParams
 	var Bank databaseSqlc.CreateBankParams
-	var Statement databaseSqlc.Statement
+	var Statement databaseSqlc.StatementYields
 	var Card databaseSqlc.CreateCardParams
 
 	fileContent, err := io.ReadAll(file)
@@ -310,8 +310,8 @@ func parseCardInfo(file string) (databaseSqlc.CreateCardParams, error) {
 // Returns:
 //   - databaseSqlc.Statement: A Statement struct containing the parsed statement information.
 //   - error: An error if any occurred during the parsing process, or nil if parsing was successful.
-func parseStatement(fileString string) (databaseSqlc.Statement, error) {
-	var statement databaseSqlc.Statement
+func parseStatement(fileString string) (databaseSqlc.StatementYields, error) {
+	var statement databaseSqlc.StatementYields
 
 	tagDtStart, err := getItensFromTag("DTSTART", fileString)
 	if err != nil {
@@ -364,12 +364,12 @@ func parseStatement(fileString string) (databaseSqlc.Statement, error) {
 		language = tagLang
 	}
 
-	statement.StartDate = dtStart
-	statement.EndDate = dtEnd
-	statement.BalanceDate = dtasof
-	statement.ServerDate = dtserver
-	statement.LedgerBalance = balamt
-	statement.Language = language
+	statement.Statement.StartDate = dtStart
+	statement.Statement.EndDate = dtEnd
+	statement.Statement.BalanceDate = dtasof
+	statement.Statement.ServerDate = dtserver
+	statement.Statement.LedgerBalance = balamt
+	statement.Statement.Language = language
 
 	statement.Yields = parseBalance(fileString)
 	return statement, nil

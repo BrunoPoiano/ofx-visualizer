@@ -2,15 +2,12 @@ package sourceService
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	databaseSqlc "main/database/databaseSQL"
 	BankService "main/services/bank"
 
 	CardService "main/services/card"
-	"main/services/utils"
-	"main/types"
 )
 
 func InsertItem(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.CreateBankParams, card databaseSqlc.CreateCardParams) (int, error) {
@@ -57,32 +54,6 @@ func InsertItem(queries *databaseSqlc.Queries, ctx context.Context, bank databas
 	return int(newSource.ID), nil
 }
 
-func GetItems(database *sql.DB) ([]types.ReturnSource, error) {
-	var items []types.ReturnSource
-
-	query := fmt.Sprintf(`SELECT source.id, cards.name
-FROM source
-JOIN cards ON cards.id = source.card_id
- UNION ALL
- SELECT source.id, banks.name
-FROM source
-JOIN banks ON banks.id = source.bank_id `)
-
-	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.ReturnSource, error) {
-		var s []types.ReturnSource
-		for rows.Next() {
-			var item types.ReturnSource
-			err := rows.Scan(&item.Id, &item.Name)
-			if err != nil {
-				return nil, err
-			}
-			s = append(s, item)
-		}
-		return s, rows.Err()
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
+func GetItems(queries *databaseSqlc.Queries, ctx context.Context) ([]databaseSqlc.GetSourceRow, error) {
+	return queries.GetSource(ctx)
 }

@@ -53,7 +53,7 @@ type Statement struct {
 
 type Transaction struct {
 	ID       interface{}    `json:"id"`
-	SourceID sql.NullInt64  `json:"source_id"`
+	SourceID int64          `json:"source_id"`
 	Date     interface{}    `json:"date"`
 	Value    float64        `json:"value"`
 	Type     interface{}    `json:"type"`

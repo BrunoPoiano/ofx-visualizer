@@ -38,10 +38,10 @@ type StatementSearch struct {
 
 type TransactionSearch struct {
 	DefaultSearch
-	MinValue string
-	MaxValue string
+	MinValue int64
+	MaxValue int64
 	From     string
 	To       string
 	Type     TransactionType
-	SourceId string
+	SourceId int64
 }

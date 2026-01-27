@@ -10,6 +10,25 @@ import (
 	"database/sql"
 )
 
+const checkStatement = `-- name: CheckStatement :one
+SELECT id FROM statements
+WHERE start_date = ? AND end_date = ? AND ledger_balance = ?
+LIMIT 1
+`
+
+type CheckStatementParams struct {
+	StartDate     interface{} `json:"start_date"`
+	EndDate       interface{} `json:"end_date"`
+	LedgerBalance float64     `json:"ledger_balance"`
+}
+
+func (q *Queries) CheckStatement(ctx context.Context, arg CheckStatementParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkStatement, arg.StartDate, arg.EndDate, arg.LedgerBalance)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 const countBanks = `-- name: CountBanks :one
 SELECT count(id)
 FROM banks
@@ -22,11 +41,10 @@ WHERE (
     OR bank_id  LIKE '%' || ?1 || '%'
     OR branch_id  LIKE '%' || ?1 || '%'
 )
-ORDER BY id
 `
 
-func (q *Queries) CountBanks(ctx context.Context, query interface{}) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countBanks, query)
+func (q *Queries) CountBanks(ctx context.Context, search interface{}) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countBanks, search)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -47,17 +65,6 @@ WHERE
             OR name LIKE '%' || ?2 || '%'
         )
     )
-ORDER BY
-    CASE WHEN @order = 'name' AND @direction = 'asc'  THEN name END ASC,
-    CASE WHEN @order = 'name' AND @direction = 'desc' THEN name END DESC,
-    CASE WHEN @order = 'description' AND @direction = 'asc'  THEN description END ASC,
-    CASE WHEN @order = 'description' AND @direction = 'desc' THEN description END DESC,
-    CASE WHEN @order = 'balance_type' AND @direction = 'asc'  THEN balance_type END ASC,
-    CASE WHEN @order = 'balance_type' AND @direction = 'desc' THEN balance_type END DESC,
-    CASE WHEN @order = 'value' AND @direction = 'asc'  THEN value END ASC,
-    CASE WHEN @order = 'value' AND @direction = 'desc' THEN value END DESC,
-    CASE WHEN @order = 'statement_id' AND @direction = 'asc'  THEN statement_id END ASC,
-    CASE WHEN @order = 'statement_id' AND @direction = 'desc' THEN statement_id END DESC
 LIMIT ?4 OFFSET ?3
 `
 
@@ -75,6 +82,47 @@ func (q *Queries) CountListBalancess(ctx context.Context, arg CountListBalancess
 		arg.Offset,
 		arg.Limit,
 	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countStatements = `-- name: CountStatements :one
+SELECT count(id) FROM statements
+WHERE (
+    ?1 IS NULL
+    OR source_id         LIKE '%' || ?1 || '%'
+    OR start_date   LIKE '%' || ?1 || '%'
+    OR end_date LIKE '%' || ?1 || '%'
+    OR ledger_balance         LIKE '%' || ?1 || '%'
+    OR balance_date      LIKE '%' || ?1 || '%'
+    OR server_date      LIKE '%' || ?1 || '%'
+    OR language      LIKE '%' || ?1 || '%'
+)
+`
+
+func (q *Queries) CountStatements(ctx context.Context, search interface{}) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countStatements, search)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countTransactions = `-- name: CountTransactions :one
+SELECT count(id)
+FROM transactions
+WHERE (
+?1 IS NULL
+OR source_id   LIKE '%' || ?1 || '%'
+OR date LIKE '%' || ?1 || '%'
+OR value         LIKE '%' || ?1 || '%'
+OR type      LIKE '%' || ?1 || '%'
+OR desc    LIKE '%' || ?1 || '%'
+)
+`
+
+func (q *Queries) CountTransactions(ctx context.Context, search interface{}) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countTransactions, search)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -259,7 +307,7 @@ RETURNING id, source_id, date, value, type, "desc"
 
 type CreateTransactionParams struct {
 	ID       interface{}    `json:"id"`
-	SourceID sql.NullInt64  `json:"source_id"`
+	SourceID int64          `json:"source_id"`
 	Date     interface{}    `json:"date"`
 	Value    float64        `json:"value"`
 	Type     interface{}    `json:"type"`
@@ -283,6 +331,30 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		&i.Value,
 		&i.Type,
 		&i.Desc,
+	)
+	return i, err
+}
+
+const currentBalanceQuery = `-- name: CurrentBalanceQuery :one
+SELECT id, source_id, start_date, end_date, ledger_balance, balance_date, server_date, language
+FROM statements
+WHERE source_id = ?
+ORDER BY balance_date DESC
+LIMIT 1
+`
+
+func (q *Queries) CurrentBalanceQuery(ctx context.Context, sourceID sql.NullInt64) (Statement, error) {
+	row := q.db.QueryRowContext(ctx, currentBalanceQuery, sourceID)
+	var i Statement
+	err := row.Scan(
+		&i.ID,
+		&i.SourceID,
+		&i.StartDate,
+		&i.EndDate,
+		&i.LedgerBalance,
+		&i.BalanceDate,
+		&i.ServerDate,
+		&i.Language,
 	)
 	return i, err
 }
@@ -477,18 +549,44 @@ func (q *Queries) GetCardByAccountId(ctx context.Context, accountID interface{})
 	return id, err
 }
 
-const getSource = `-- name: GetSource :one
+const getSource = `-- name: GetSource :many
 
-SELECT id, card_id, bank_id FROM source
-WHERE id = ? LIMIT 1
+SELECT source.id, cards.name
+FROM source
+JOIN cards ON cards.id = source.card_id
+UNION ALL
+SELECT source.id, banks.name
+FROM source
+JOIN banks ON banks.id = source.bank_id
 `
 
+type GetSourceRow struct {
+	ID   int64       `json:"id"`
+	Name interface{} `json:"name"`
+}
+
 // -------------------- Source
-func (q *Queries) GetSource(ctx context.Context, id int64) (Source, error) {
-	row := q.db.QueryRowContext(ctx, getSource, id)
-	var i Source
-	err := row.Scan(&i.ID, &i.CardID, &i.BankID)
-	return i, err
+func (q *Queries) GetSource(ctx context.Context) ([]GetSourceRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSource)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSourceRow
+	for rows.Next() {
+		var i GetSourceRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getStatement = `-- name: GetStatement :one
@@ -535,6 +633,30 @@ func (q *Queries) GetTransaction(ctx context.Context, id interface{}) (Transacti
 	return i, err
 }
 
+const largestBalanceQuery = `-- name: LargestBalanceQuery :one
+SELECT id, source_id, start_date, end_date, ledger_balance, balance_date, server_date, language
+FROM statements
+WHERE source_id = ?
+ORDER BY ledger_balance DESC
+LIMIT 1
+`
+
+func (q *Queries) LargestBalanceQuery(ctx context.Context, sourceID sql.NullInt64) (Statement, error) {
+	row := q.db.QueryRowContext(ctx, largestBalanceQuery, sourceID)
+	var i Statement
+	err := row.Scan(
+		&i.ID,
+		&i.SourceID,
+		&i.StartDate,
+		&i.EndDate,
+		&i.LedgerBalance,
+		&i.BalanceDate,
+		&i.ServerDate,
+		&i.Language,
+	)
+	return i, err
+}
+
 const listBalancess = `-- name: ListBalancess :many
 SELECT id, statement_id, name, description, balance_type, value FROM balances
 WHERE
@@ -550,19 +672,6 @@ WHERE
             OR name LIKE '%' || ?2 || '%'
         )
     )
-ORDER BY
-    CASE WHEN @order = 'name' AND @direction = 'asc'  THEN name END ASC,
-    CASE WHEN @order = 'name' AND @direction = 'desc' THEN name END DESC,
-    CASE WHEN @order = 'description' AND @direction = 'asc'  THEN description END ASC,
-    CASE WHEN @order = 'description' AND @direction = 'desc' THEN description END DESC,
-    CASE WHEN @order = 'balance_type' AND @direction = 'asc'  THEN balance_type END ASC,
-    CASE WHEN @order = 'balance_type' AND @direction = 'desc' THEN balance_type END DESC,
-    CASE WHEN @order = 'value' AND @direction = 'asc'  THEN value END ASC,
-    CASE WHEN @order = 'value' AND @direction = 'desc' THEN value END DESC,
-    CASE WHEN @order = 'statement_id' AND @direction = 'asc'  THEN statement_id END ASC,
-    CASE WHEN @order = 'statement_id' AND @direction = 'desc' THEN statement_id END DESC,
-    AND (:order IS NULL OR :order IS NOT NULL)
-    AND (:direction IS NULL OR :direction IS NOT NULL)
 LIMIT ?4 OFFSET ?3
 `
 
@@ -619,31 +728,19 @@ WHERE (
     OR f_id         LIKE '%' || ?1 || '%'
     OR bank_id      LIKE '%' || ?1 || '%'
     OR branch_id    LIKE '%' || ?1 || '%'
-    AND (?2 IS NULL OR ?2 IS NOT NULL)
-    AND (?3 IS NULL OR ?3 IS NOT NULL)
 )
-ORDER BY
-    CASE WHEN :order = 'name' AND :direction = 'asc'  THEN name END ASC,
-    CASE WHEN :order = 'name' AND :direction = 'desc' THEN name END DESC
-LIMIT ?5 OFFSET ?4
+ORDER BY id DESC
+LIMIT ?3 OFFSET ?2
 `
 
 type ListBanksParams struct {
-	Search    interface{} `json:"search"`
-	Order     interface{} `json:"order"`
-	Direction interface{} `json:"direction"`
-	Offset    int64       `json:"offset"`
-	Limit     int64       `json:"limit"`
+	Search interface{} `json:"search"`
+	Offset int64       `json:"offset"`
+	Limit  int64       `json:"limit"`
 }
 
 func (q *Queries) ListBanks(ctx context.Context, arg ListBanksParams) ([]Bank, error) {
-	rows, err := q.db.QueryContext(ctx, listBanks,
-		arg.Search,
-		arg.Order,
-		arg.Direction,
-		arg.Offset,
-		arg.Limit,
-	)
+	rows, err := q.db.QueryContext(ctx, listBanks, arg.Search, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -708,11 +805,27 @@ func (q *Queries) ListCards(ctx context.Context) ([]Card, error) {
 
 const listStatements = `-- name: ListStatements :many
 SELECT id, source_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements
-ORDER BY start_date DESC
+WHERE (
+    ?1 IS NULL
+    OR source_id         LIKE '%' || ?1 || '%'
+    OR start_date   LIKE '%' || ?1 || '%'
+    OR end_date LIKE '%' || ?1 || '%'
+    OR ledger_balance         LIKE '%' || ?1 || '%'
+    OR balance_date      LIKE '%' || ?1 || '%'
+    OR server_date      LIKE '%' || ?1 || '%'
+    OR language      LIKE '%' || ?1 || '%'
+)
+LIMIT ?3 OFFSET ?2
 `
 
-func (q *Queries) ListStatements(ctx context.Context) ([]Statement, error) {
-	rows, err := q.db.QueryContext(ctx, listStatements)
+type ListStatementsParams struct {
+	Search interface{} `json:"search"`
+	Offset int64       `json:"offset"`
+	Limit  int64       `json:"limit"`
+}
+
+func (q *Queries) ListStatements(ctx context.Context, arg ListStatementsParams) ([]Statement, error) {
+	rows, err := q.db.QueryContext(ctx, listStatements, arg.Search, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -745,11 +858,26 @@ func (q *Queries) ListStatements(ctx context.Context) ([]Statement, error) {
 
 const listTransactions = `-- name: ListTransactions :many
 SELECT id, source_id, date, value, type, "desc" FROM transactions
-ORDER BY date DESC
+WHERE (
+    ?1 IS NULL
+    OR source_id   LIKE '%' || ?1 || '%'
+    OR date LIKE '%' || ?1 || '%'
+    OR value         LIKE '%' || ?1 || '%'
+    OR type      LIKE '%' || ?1 || '%'
+    OR desc    LIKE '%' || ?1 || '%'
+)
+ORDER BY id DESC
+LIMIT ?3 OFFSET ?2
 `
 
-func (q *Queries) ListTransactions(ctx context.Context) ([]Transaction, error) {
-	rows, err := q.db.QueryContext(ctx, listTransactions)
+type ListTransactionsParams struct {
+	Search interface{} `json:"search"`
+	Offset int64       `json:"offset"`
+	Limit  int64       `json:"limit"`
+}
+
+func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsParams) ([]Transaction, error) {
+	rows, err := q.db.QueryContext(ctx, listTransactions, arg.Search, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -776,6 +904,35 @@ func (q *Queries) ListTransactions(ctx context.Context) ([]Transaction, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const transactionInfo = `-- name: TransactionInfo :one
+SELECT
+  COALESCE(SUM(CASE WHEN value > ? THEN value ELSE 0 END), 0) AS positive,
+  COALESCE(SUM(CASE WHEN value < ? THEN value ELSE 0 END), 0) AS negative,
+  COALESCE(SUM(value), 0)                                    AS value
+FROM transactions
+WHERE source_id = ?
+LIMIT 1
+`
+
+type TransactionInfoParams struct {
+	Value    float64 `json:"value"`
+	Value_2  float64 `json:"value_2"`
+	SourceID int64   `json:"source_id"`
+}
+
+type TransactionInfoRow struct {
+	Positive interface{} `json:"positive"`
+	Negative interface{} `json:"negative"`
+	Value    interface{} `json:"value"`
+}
+
+func (q *Queries) TransactionInfo(ctx context.Context, arg TransactionInfoParams) (TransactionInfoRow, error) {
+	row := q.db.QueryRowContext(ctx, transactionInfo, arg.Value, arg.Value_2, arg.SourceID)
+	var i TransactionInfoRow
+	err := row.Scan(&i.Positive, &i.Negative, &i.Value)
+	return i, err
 }
 
 const updateBalance = `-- name: UpdateBalance :exec
@@ -912,7 +1069,7 @@ WHERE id = ?
 `
 
 type UpdateTransactionParams struct {
-	SourceID sql.NullInt64  `json:"source_id"`
+	SourceID int64          `json:"source_id"`
 	Date     interface{}    `json:"date"`
 	Value    float64        `json:"value"`
 	Type     interface{}    `json:"type"`

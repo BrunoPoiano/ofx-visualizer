@@ -1,9 +1,9 @@
 package TransactionController
 
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -66,10 +66,7 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for _, item := range transactions {
-			item.SourceID = sql.NullInt64{
-				Int64: int64(SourceId),
-				Valid: SourceId > 0,
-			}
+			item.SourceID = int64(SourceId)
 		}
 
 		err = transactionService.InsertTransaction(queries, r.Context(), transactions)
@@ -78,14 +75,20 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		StatementId, err := StatementService.InsertItems(database, statement, SourceId)
+		StatementId, err := StatementService.InsertItems(queries, r.Context(), statement, SourceId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		for _, item := range statement.Yields {
-			err = BalanceService.InsertItems(database, item, StatementId)
+			err = BalanceService.InsertItems(queries, r.Context(), databaseSQL.CreateBalanceParams{
+				StatementID: item.StatementID,
+				Name:        item.Name,
+				Description: item.Description,
+				BalanceType: item.BalanceType,
+				Value:       item.Value,
+			}, StatementId)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
@@ -105,47 +108,12 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The request object, containing filter parameters
 // @Return void
 func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
-
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
-	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
-	if err != nil {
-		currentPage = 1
-	}
+	filter := ParseUrlValues(params)
 
-	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
-	if err != nil {
-		perPage = 5
-	}
-
-	order := params.Get("order")
-	if order == "" {
-		order = "date"
-	}
-
-	direction := params.Get("direction")
-	if direction == "" {
-		direction = "DESC"
-	}
-
-	filter := types.TransactionSearch{
-		DefaultSearch: types.DefaultSearch{
-			CurrentPage: currentPage,
-			PerPage:     perPage,
-			Order:       order,
-			Direction:   direction,
-			Search:      params.Get("search"),
-		},
-		MinValue: params.Get("min_value"),
-		MaxValue: params.Get("max_value"),
-		From:     params.Get("from"),
-		To:       params.Get("to"),
-		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
-		SourceId: params.Get("source_id"),
-	}
-
-	positive, negative, value, err := transactionService.GetTransactionInfos(database, filter)
+	positive, negative, value, err := transactionService.GetTransactionInfos(queries, r.Context(), filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -167,7 +135,7 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The request object, containing the bank ID
 // @Return void
 func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	vars := mux.Vars(r)
 
 	bankId, err := strconv.ParseInt(vars["bank_id"], 10, 64)
@@ -176,7 +144,7 @@ func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = transactionService.DeleteTransaction(database, bankId)
+	err = transactionService.DeleteTransaction(queries, r.Context(), bankId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -193,9 +161,29 @@ func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The request object, containing pagination parameters
 // @Return void
 func GetItems(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
+	filter := ParseUrlValues(params)
+
+	items, totalItems, lastpage, err := transactionService.GetTransactions(queries, r.Context(), filter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := types.ReturnPagination{
+		Data:        items,
+		Total:       totalItems,
+		LastPage:    lastpage,
+		CurrentPage: int(filter.CurrentPage),
+		PerPage:     int(filter.PerPage),
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
+func ParseUrlValues(params url.Values) types.TransactionSearch {
 	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
 	if err != nil {
 		currentPage = 1
@@ -206,6 +194,21 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		perPage = 5
 	}
 
+	minValue, err := strconv.ParseInt(params.Get("min_value"), 10, 64)
+	if err != nil {
+		minValue = 0
+	}
+
+	maxValue, err := strconv.ParseInt(params.Get("max_value"), 10, 64)
+	if err != nil {
+		maxValue = 0
+	}
+
+	sourceId, err := strconv.ParseInt(params.Get("source_id"), 10, 64)
+	if err != nil {
+		sourceId = 0
+	}
+
 	order := params.Get("order")
 	if order == "" {
 		order = "date"
@@ -213,10 +216,10 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 
 	direction := params.Get("direction")
 	if direction == "" {
-		direction = "ASC"
+		direction = "DESC"
 	}
 
-	filter := types.TransactionSearch{
+	return types.TransactionSearch{
 		DefaultSearch: types.DefaultSearch{
 			CurrentPage: currentPage,
 			PerPage:     perPage,
@@ -224,27 +227,11 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 			Direction:   direction,
 			Search:      params.Get("search"),
 		},
-		MinValue: params.Get("min_value"),
-		MaxValue: params.Get("max_value"),
+		MinValue: minValue,
+		MaxValue: maxValue,
 		From:     params.Get("from"),
 		To:       params.Get("to"),
 		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
-		SourceId: params.Get("source_id"),
+		SourceId: sourceId,
 	}
-
-	items, totalItems, lastpage, err := transactionService.GetTransactions(database, filter)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	response := types.ReturnPagination{
-		Data:        items,
-		Total:       totalItems,
-		LastPage:    lastpage,
-		CurrentPage: int(currentPage),
-		PerPage:     int(perPage),
-	}
-
-	json.NewEncoder(w).Encode(response)
 }
