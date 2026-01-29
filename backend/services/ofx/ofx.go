@@ -193,7 +193,7 @@ func parseSTMTTRNIntoTransaction(stmttrn string) (databaseSqlc.CreateTransaction
 	}
 
 	transaction.Value, _ = strconv.ParseFloat(value, 64)
-	transaction.Type = types.TransactionType(tType)
+	transaction.Type = tType
 	transaction.ID = id
 	transaction.Desc = desc
 	transaction.Date, _ = parseOfxDate(date)
@@ -267,7 +267,7 @@ func parseBankInfo(file string) (databaseSqlc.CreateBankParams, error) {
 	Bank.FID = fId
 	Bank.BankID = bankId
 	Bank.BranchID = branchId
-	Bank.AccountType = types.AccountType(accountType)
+	Bank.AccountType = accountType
 
 	return Bank, nil
 }

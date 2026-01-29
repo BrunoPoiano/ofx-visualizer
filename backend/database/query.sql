@@ -1,3 +1,4 @@
+-- Balances
 -- name: FindBalance :one
 SELECT id FROM balances
 WHERE statement_id = ? AND name = ? AND value = ?
@@ -20,7 +21,6 @@ WHERE
     )
 LIMIT :limit OFFSET :offset;
 
-
 -- name: CountBalances :one
 SELECT count(id) FROM balances
 WHERE
@@ -39,22 +39,22 @@ WHERE
 
 -- name: CreateBalance :one
 INSERT INTO balances (
-statement_id,name,description,balance_type,value
+    statement_id, name, description, balance_type, value
 ) VALUES (
-  ?, ?,?,?,?
+    ?, ?, ?, ?, ?
 )
 RETURNING *;
 
 -- name: UpdateBalance :exec
 UPDATE balances
-set statement_id = ?,name = ?,description = ?,balance_type = ?,value = ?
+SET statement_id = ?, name = ?, description = ?, balance_type = ?, value = ?
 WHERE id = ?;
 
 -- name: DeleteBalance :exec
 DELETE FROM balances
 WHERE id = ?;
 
----------------------- BANKS
+-- Banks
 -- name: GetBank :one
 SELECT * FROM banks
 WHERE id = ? LIMIT 1;
@@ -68,12 +68,12 @@ SELECT count(id)
 FROM banks
 WHERE (
     :search IS NULL
-    OR name      LIKE '%' || :search || '%'
-    OR account_id  LIKE '%' || :search || '%'
-    OR account_type  LIKE '%' || :search || '%'
-    OR f_id  LIKE '%' || :search || '%'
-    OR bank_id  LIKE '%' || :search || '%'
-    OR branch_id  LIKE '%' || :search || '%'
+    OR name LIKE '%' || :search || '%'
+    OR account_id LIKE '%' || :search || '%'
+    OR account_type LIKE '%' || :search || '%'
+    OR f_id LIKE '%' || :search || '%'
+    OR bank_id LIKE '%' || :search || '%'
+    OR branch_id LIKE '%' || :search || '%'
 );
 
 -- name: ListBanks :many
@@ -81,36 +81,34 @@ SELECT *
 FROM banks
 WHERE (
     :search IS NULL
-    OR name         LIKE '%' || :search || '%'
-    OR account_id   LIKE '%' || :search || '%'
+    OR name LIKE '%' || :search || '%'
+    OR account_id LIKE '%' || :search || '%'
     OR account_type LIKE '%' || :search || '%'
-    OR f_id         LIKE '%' || :search || '%'
-    OR bank_id      LIKE '%' || :search || '%'
-    OR branch_id    LIKE '%' || :search || '%'
+    OR f_id LIKE '%' || :search || '%'
+    OR bank_id LIKE '%' || :search || '%'
+    OR branch_id LIKE '%' || :search || '%'
 )
 ORDER BY id DESC
 LIMIT :limit OFFSET :offset;
 
 -- name: CreateBank :one
 INSERT INTO banks (
-name,account_id,account_type,f_id,bank_id,branch_id
+    name, account_id, account_type, f_id, bank_id, branch_id
 ) VALUES (
-  ?, ?,?,?,?,?
+    ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
 -- name: UpdateBank :exec
 UPDATE banks
-set name = ?,account_id = ?,account_type = ?,f_id = ?,bank_id = ?,branch_id =?
+SET name = ?, account_id = ?, account_type = ?, f_id = ?, bank_id = ?, branch_id = ?
 WHERE id = ?;
 
 -- name: DeleteBank :exec
 DELETE FROM banks
 WHERE id = ?;
 
-
----------------------- Cards
-
+-- Cards
 -- name: GetCard :one
 SELECT * FROM cards
 WHERE id = ? LIMIT 1;
@@ -121,24 +119,22 @@ WHERE account_id = :account_id LIMIT 1;
 
 -- name: CreateCard :one
 INSERT INTO cards (
-name,account_id,f_id
+    name, account_id, f_id
 ) VALUES (
-  ?, ?,?
+    ?, ?, ?
 )
 RETURNING *;
 
 -- name: UpdateCard :exec
 UPDATE cards
-set name =?,account_id =?,f_id =?
+SET name = ?, account_id = ?, f_id = ?
 WHERE id = ?;
 
 -- name: DeleteCard :exec
 DELETE FROM cards
 WHERE id = ?;
 
-
----------------------- Transactions
-
+-- Transactions
 -- name: GetTransaction :one
 SELECT * FROM transactions
 WHERE id = :id LIMIT 1;
@@ -151,38 +147,31 @@ WHERE id = :id LIMIT 1;
 SELECT *
 FROM transactions
 WHERE source_id = :source_id
-AND
-    (
-        :search IS NULL
-        OR source_id LIKE '%' || :search || '%'
-        OR date      LIKE '%' || :search || '%'
-        OR "desc"    LIKE '%' || :search || '%'
-    )
-AND
-    (
-        :searchType IS NULL
-        OR type LIKE '%' || :searchType || '%'
-    )
-AND
-    (
-        :searchMaxValue IS NULL
-        OR value <= :searchMaxValue
-    )
-AND
-    (
-        :searchMinValue IS NULL
-        OR value >= :searchMinValue
-    )
-AND
-    (
-        :searchFrom IS NULL
-        OR date >= :searchFrom
-    )
-    AND
-        (
-            :searchTo IS NULL
-            OR date <= :searchTo
-        )
+AND (
+    :search IS NULL
+    OR date LIKE '%' || :search || '%'
+    OR "desc" LIKE '%' || :search || '%'
+)
+AND (
+    :searchType IS NULL
+    OR type LIKE '%' || :searchType || '%'
+)
+AND (
+    :searchMaxValue IS NULL
+    OR value <= :searchMaxValue
+)
+AND (
+    :searchMinValue IS NULL
+    OR value >= :searchMinValue
+)
+AND (
+    :searchFrom IS NULL
+    OR date >= :searchFrom
+)
+AND (
+    :searchTo IS NULL
+    OR date <= :searchTo
+)
 ORDER BY date DESC
 LIMIT :limit OFFSET :offset;
 
@@ -190,67 +179,59 @@ LIMIT :limit OFFSET :offset;
 SELECT count(id)
 FROM transactions
 WHERE source_id = :source_id
-AND
-(
+AND (
     :search IS NULL
-    OR date      LIKE '%' || :search || '%'
-    OR "desc"    LIKE '%' || :search || '%'
+    OR date LIKE '%' || :search || '%'
+    OR "desc" LIKE '%' || :search || '%'
 )
-AND
-(
+AND (
     :searchType IS NULL
     OR type LIKE '%' || :searchType || '%'
 )
-AND
-(
+AND (
     :searchMaxValue IS NULL
     OR value <= :searchMaxValue
 )
-AND
-(
+AND (
     :searchMinValue IS NULL
     OR value >= :searchMinValue
 )
-AND
-(
+AND (
     :searchFrom IS NULL
     OR date >= :searchFrom
 )
-AND
-    (
-        :searchTo IS NULL
-        OR date <= :searchTo
-    );
+AND (
+    :searchTo IS NULL
+    OR date <= :searchTo
+);
 
 -- name: TransactionsInfo :one
 SELECT
-  COALESCE(SUM(CASE WHEN value > ? THEN value ELSE 0 END), 0) AS positive,
-  COALESCE(SUM(CASE WHEN value < ? THEN value ELSE 0 END), 0) AS negative,
-  COALESCE(SUM(value), 0)                                    AS value
+    COALESCE(SUM(CASE WHEN value > ? THEN value ELSE 0 END), 0) AS positive,
+    COALESCE(SUM(CASE WHEN value < ? THEN value ELSE 0 END), 0) AS negative,
+    COALESCE(SUM(value), 0) AS value
 FROM transactions
 WHERE source_id = ?
 LIMIT 1;
 
 -- name: CreateTransaction :one
 INSERT INTO transactions (
-id,source_id,date,value,type,desc
+    id, source_id, date, value, type, desc
 ) VALUES (
-  ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
 -- name: UpdateTransaction :exec
 UPDATE transactions
-SET source_id = ?,date = ?,value = ?,type = ?,desc = ?
+SET source_id = ?, date = ?, value = ?, type = ?, desc = ?
 WHERE id = ?;
 
 -- name: DeleteTransaction :exec
 DELETE FROM transactions
 WHERE id = ?;
 
-
----------------------- Source
-
+-- Source
 -- name: GetSources :many
 SELECT source.id, cards.name
 FROM source
@@ -263,30 +244,28 @@ JOIN banks ON banks.id = source.bank_id;
 -- name: FindSource :one
 SELECT id
 FROM source
-WHERE (bank_id = :bank_id AND card_id is null)
-   OR (bank_id is null AND card_id = :card_id)
+WHERE (bank_id = :bank_id AND card_id IS NULL)
+   OR (bank_id IS NULL AND card_id = :card_id)
 LIMIT 1;
 
 -- name: CreateSource :one
 INSERT INTO source (
-card_id,bank_id
+    card_id, bank_id
 ) VALUES (
-  ?, ?
+    ?, ?
 )
 RETURNING *;
 
 -- name: UpdateSource :exec
 UPDATE source
-SET bank_id = ?,card_id = ?
+SET bank_id = ?, card_id = ?
 WHERE id = ?;
 
 -- name: DeleteSource :exec
 DELETE FROM source
 WHERE id = ?;
 
-
----------------------- Statements
-
+-- Statements
 -- name: GetStatement :one
 SELECT id FROM statements
 WHERE start_date = ? AND end_date = ? AND ledger_balance = ?
@@ -301,30 +280,26 @@ SELECT * FROM statements
 WHERE source_id = :source_id
 AND (
     :search IS NULL
-    OR balance_date      LIKE '%' || :search || '%'
-    OR server_date      LIKE '%' || :search || '%'
-    OR language      LIKE '%' || :search || '%'
+    OR balance_date LIKE '%' || :search || '%'
+    OR server_date LIKE '%' || :search || '%'
+    OR language LIKE '%' || :search || '%'
 )
-AND
-(
+AND (
     :searchMaxValue IS NULL
     OR ledger_balance <= :searchMaxValue
 )
-AND
-(
+AND (
     :searchMinValue IS NULL
     OR ledger_balance >= :searchMinValue
 )
-AND
-(
+AND (
     :searchFrom IS NULL
     OR start_date >= :searchFrom
 )
-AND
-    (
-        :searchTo IS NULL
-        OR start_date <= :searchTo
-    )
+AND (
+    :searchTo IS NULL
+    OR start_date <= :searchTo
+)
 ORDER BY start_date DESC
 LIMIT :limit OFFSET :offset;
 
@@ -333,30 +308,26 @@ SELECT count(id) FROM statements
 WHERE source_id = :source_id
 AND (
     :search IS NULL
-    OR balance_date      LIKE '%' || :search || '%'
-    OR server_date      LIKE '%' || :search || '%'
-    OR language      LIKE '%' || :search || '%'
+    OR balance_date LIKE '%' || :search || '%'
+    OR server_date LIKE '%' || :search || '%'
+    OR language LIKE '%' || :search || '%'
 )
-AND
-(
+AND (
     :searchMaxValue IS NULL
     OR ledger_balance <= :searchMaxValue
 )
-AND
-(
+AND (
     :searchMinValue IS NULL
     OR ledger_balance >= :searchMinValue
 )
-AND
-(
+AND (
     :searchFrom IS NULL
     OR start_date >= :searchFrom
 )
-AND
-    (
-        :searchTo IS NULL
-        OR start_date <= :searchTo
-    );
+AND (
+    :searchTo IS NULL
+    OR start_date <= :searchTo
+);
 
 -- name: GetLargestBalanceQuery :one
 SELECT *
@@ -374,15 +345,15 @@ LIMIT 1;
 
 -- name: CreateStatement :one
 INSERT INTO statements (
-source_id,start_date,end_date,ledger_balance,balance_date,server_date,language
+    source_id, start_date, end_date, ledger_balance, balance_date, server_date, language
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
 -- name: UpdateStatement :exec
 UPDATE statements
-SET source_id = ?,start_date = ?,end_date = ?,ledger_balance = ?,balance_date = ?,server_date = ?,language = ?
+SET source_id = ?, start_date = ?, end_date = ?, ledger_balance = ?, balance_date = ?, server_date = ?, language = ?
 WHERE id = ?;
 
 -- name: DeleteStatement :exec

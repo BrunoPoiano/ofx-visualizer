@@ -210,10 +210,10 @@ RETURNING id, statement_id, name, description, balance_type, value
 `
 
 type CreateBalanceParams struct {
-	StatementID sql.NullInt64  `json:"statement_id"`
-	Name        interface{}    `json:"name"`
+	StatementID int64          `json:"statement_id"`
+	Name        string         `json:"name"`
 	Description sql.NullString `json:"description"`
-	BalanceType interface{}    `json:"balance_type"`
+	BalanceType string         `json:"balance_type"`
 	Value       float64        `json:"value"`
 }
 
@@ -247,12 +247,12 @@ RETURNING id, name, account_id, account_type, f_id, bank_id, branch_id
 `
 
 type CreateBankParams struct {
-	Name        interface{} `json:"name"`
-	AccountID   interface{} `json:"account_id"`
-	AccountType interface{} `json:"account_type"`
-	FID         interface{} `json:"f_id"`
-	BankID      interface{} `json:"bank_id"`
-	BranchID    interface{} `json:"branch_id"`
+	Name        string `json:"name"`
+	AccountID   string `json:"account_id"`
+	AccountType string `json:"account_type"`
+	FID         string `json:"f_id"`
+	BankID      string `json:"bank_id"`
+	BranchID    string `json:"branch_id"`
 }
 
 func (q *Queries) CreateBank(ctx context.Context, arg CreateBankParams) (Bank, error) {
@@ -287,9 +287,9 @@ RETURNING id, account_id, name, f_id
 `
 
 type CreateCardParams struct {
-	Name      interface{} `json:"name"`
-	AccountID interface{} `json:"account_id"`
-	FID       interface{} `json:"f_id"`
+	Name      string `json:"name"`
+	AccountID string `json:"account_id"`
+	FID       string `json:"f_id"`
 }
 
 func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (Card, error) {
@@ -314,8 +314,8 @@ RETURNING id, card_id, bank_id
 `
 
 type CreateSourceParams struct {
-	CardID interface{} `json:"card_id"`
-	BankID interface{} `json:"bank_id"`
+	CardID sql.NullInt64 `json:"card_id"`
+	BankID sql.NullInt64 `json:"bank_id"`
 }
 
 func (q *Queries) CreateSource(ctx context.Context, arg CreateSourceParams) (Source, error) {
@@ -335,13 +335,13 @@ RETURNING id, source_id, start_date, end_date, ledger_balance, balance_date, ser
 `
 
 type CreateStatementParams struct {
-	SourceID      int64       `json:"source_id"`
-	StartDate     interface{} `json:"start_date"`
-	EndDate       interface{} `json:"end_date"`
-	LedgerBalance float64     `json:"ledger_balance"`
-	BalanceDate   interface{} `json:"balance_date"`
-	ServerDate    interface{} `json:"server_date"`
-	Language      interface{} `json:"language"`
+	SourceID      int64   `json:"source_id"`
+	StartDate     string  `json:"start_date"`
+	EndDate       string  `json:"end_date"`
+	LedgerBalance float64 `json:"ledger_balance"`
+	BalanceDate   string  `json:"balance_date"`
+	ServerDate    string  `json:"server_date"`
+	Language      string  `json:"language"`
 }
 
 func (q *Queries) CreateStatement(ctx context.Context, arg CreateStatementParams) (Statement, error) {
@@ -380,9 +380,9 @@ RETURNING id, source_id, date, value, type, "desc"
 type CreateTransactionParams struct {
 	ID       interface{} `json:"id"`
 	SourceID int64       `json:"source_id"`
-	Date     interface{} `json:"date"`
+	Date     string      `json:"date"`
 	Value    float64     `json:"value"`
-	Type     interface{} `json:"type"`
+	Type     string      `json:"type"`
 	Desc     string      `json:"desc"`
 }
 
@@ -474,9 +474,9 @@ LIMIT 1
 `
 
 type FindBalanceParams struct {
-	StatementID sql.NullInt64 `json:"statement_id"`
-	Name        interface{}   `json:"name"`
-	Value       float64       `json:"value"`
+	StatementID int64   `json:"statement_id"`
+	Name        string  `json:"name"`
+	Value       float64 `json:"value"`
 }
 
 func (q *Queries) FindBalance(ctx context.Context, arg FindBalanceParams) (int64, error) {
@@ -495,8 +495,8 @@ LIMIT 1
 `
 
 type FindSourceParams struct {
-	BankID interface{} `json:"bank_id"`
-	CardID interface{} `json:"card_id"`
+	BankID sql.NullInt64 `json:"bank_id"`
+	CardID sql.NullInt64 `json:"card_id"`
 }
 
 func (q *Queries) FindSource(ctx context.Context, arg FindSourceParams) (int64, error) {
@@ -532,7 +532,7 @@ SELECT id FROM banks
 WHERE account_id = ? LIMIT 1
 `
 
-func (q *Queries) GetBankIdByAccountId(ctx context.Context, accountID interface{}) (int64, error) {
+func (q *Queries) GetBankIdByAccountId(ctx context.Context, accountID string) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getBankIdByAccountId, accountID)
 	var id int64
 	err := row.Scan(&id)
@@ -563,7 +563,7 @@ SELECT id FROM cards
 WHERE account_id = ?1 LIMIT 1
 `
 
-func (q *Queries) GetCardIdByAccountId(ctx context.Context, accountID interface{}) (int64, error) {
+func (q *Queries) GetCardIdByAccountId(ctx context.Context, accountID string) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getCardIdByAccountId, accountID)
 	var id int64
 	err := row.Scan(&id)
@@ -630,8 +630,8 @@ JOIN banks ON banks.id = source.bank_id
 `
 
 type GetSourcesRow struct {
-	ID   int64       `json:"id"`
-	Name interface{} `json:"name"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 // -------------------- Source
@@ -666,9 +666,9 @@ LIMIT 1
 `
 
 type GetStatementParams struct {
-	StartDate     interface{} `json:"start_date"`
-	EndDate       interface{} `json:"end_date"`
-	LedgerBalance float64     `json:"ledger_balance"`
+	StartDate     string  `json:"start_date"`
+	EndDate       string  `json:"end_date"`
+	LedgerBalance float64 `json:"ledger_balance"`
 }
 
 // -------------------- Statements
@@ -1026,10 +1026,10 @@ WHERE id = ?
 `
 
 type UpdateBalanceParams struct {
-	StatementID sql.NullInt64  `json:"statement_id"`
-	Name        interface{}    `json:"name"`
+	StatementID int64          `json:"statement_id"`
+	Name        string         `json:"name"`
 	Description sql.NullString `json:"description"`
-	BalanceType interface{}    `json:"balance_type"`
+	BalanceType string         `json:"balance_type"`
 	Value       float64        `json:"value"`
 	ID          int64          `json:"id"`
 }
@@ -1053,13 +1053,13 @@ WHERE id = ?
 `
 
 type UpdateBankParams struct {
-	Name        interface{} `json:"name"`
-	AccountID   interface{} `json:"account_id"`
-	AccountType interface{} `json:"account_type"`
-	FID         interface{} `json:"f_id"`
-	BankID      interface{} `json:"bank_id"`
-	BranchID    interface{} `json:"branch_id"`
-	ID          int64       `json:"id"`
+	Name        string `json:"name"`
+	AccountID   string `json:"account_id"`
+	AccountType string `json:"account_type"`
+	FID         string `json:"f_id"`
+	BankID      string `json:"bank_id"`
+	BranchID    string `json:"branch_id"`
+	ID          int64  `json:"id"`
 }
 
 func (q *Queries) UpdateBank(ctx context.Context, arg UpdateBankParams) error {
@@ -1082,10 +1082,10 @@ WHERE id = ?
 `
 
 type UpdateCardParams struct {
-	Name      interface{} `json:"name"`
-	AccountID interface{} `json:"account_id"`
-	FID       interface{} `json:"f_id"`
-	ID        int64       `json:"id"`
+	Name      string `json:"name"`
+	AccountID string `json:"account_id"`
+	FID       string `json:"f_id"`
+	ID        int64  `json:"id"`
 }
 
 func (q *Queries) UpdateCard(ctx context.Context, arg UpdateCardParams) error {
@@ -1105,9 +1105,9 @@ WHERE id = ?
 `
 
 type UpdateSourceParams struct {
-	BankID interface{} `json:"bank_id"`
-	CardID interface{} `json:"card_id"`
-	ID     int64       `json:"id"`
+	BankID sql.NullInt64 `json:"bank_id"`
+	CardID sql.NullInt64 `json:"card_id"`
+	ID     int64         `json:"id"`
 }
 
 func (q *Queries) UpdateSource(ctx context.Context, arg UpdateSourceParams) error {
@@ -1122,14 +1122,14 @@ WHERE id = ?
 `
 
 type UpdateStatementParams struct {
-	SourceID      int64       `json:"source_id"`
-	StartDate     interface{} `json:"start_date"`
-	EndDate       interface{} `json:"end_date"`
-	LedgerBalance float64     `json:"ledger_balance"`
-	BalanceDate   interface{} `json:"balance_date"`
-	ServerDate    interface{} `json:"server_date"`
-	Language      interface{} `json:"language"`
-	ID            int64       `json:"id"`
+	SourceID      int64   `json:"source_id"`
+	StartDate     string  `json:"start_date"`
+	EndDate       string  `json:"end_date"`
+	LedgerBalance float64 `json:"ledger_balance"`
+	BalanceDate   string  `json:"balance_date"`
+	ServerDate    string  `json:"server_date"`
+	Language      string  `json:"language"`
+	ID            int64   `json:"id"`
 }
 
 func (q *Queries) UpdateStatement(ctx context.Context, arg UpdateStatementParams) error {
@@ -1154,9 +1154,9 @@ WHERE id = ?
 
 type UpdateTransactionParams struct {
 	SourceID int64       `json:"source_id"`
-	Date     interface{} `json:"date"`
+	Date     string      `json:"date"`
 	Value    float64     `json:"value"`
-	Type     interface{} `json:"type"`
+	Type     string      `json:"type"`
 	Desc     string      `json:"desc"`
 	ID       interface{} `json:"id"`
 }

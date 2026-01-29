@@ -1,17 +1,20 @@
 package sourceService
 
-import databaseSqlc "main/database/databaseSQL"
+import (
+	"database/sql"
+
+	databaseSqlc "main/database/databaseSQL"
+)
 
 func returnSourceParams(bankId, cardId int) databaseSqlc.FindSourceParams {
-	if bankId == 0 {
-		return databaseSqlc.FindSourceParams{
-			BankID: nil,
-			CardID: cardId,
-		}
-	}
-
 	return databaseSqlc.FindSourceParams{
-		BankID: bankId,
-		CardID: nil,
+		BankID: sql.NullInt64{
+			Int64: int64(bankId),
+			Valid: bankId > 0,
+		},
+		CardID: sql.NullInt64{
+			Int64: int64(cardId),
+			Valid: cardId > 0,
+		},
 	}
 }

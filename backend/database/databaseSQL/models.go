@@ -10,52 +10,52 @@ import (
 
 type Balance struct {
 	ID          int64          `json:"id"`
-	StatementID sql.NullInt64  `json:"statement_id"`
-	Name        interface{}    `json:"name"`
+	StatementID int64          `json:"statement_id"`
+	Name        string         `json:"name"`
 	Description sql.NullString `json:"description"`
-	BalanceType interface{}    `json:"balance_type"`
+	BalanceType string         `json:"balance_type"`
 	Value       float64        `json:"value"`
 }
 
 type Bank struct {
-	ID          int64       `json:"id"`
-	Name        interface{} `json:"name"`
-	AccountID   interface{} `json:"account_id"`
-	AccountType interface{} `json:"account_type"`
-	FID         interface{} `json:"f_id"`
-	BankID      interface{} `json:"bank_id"`
-	BranchID    interface{} `json:"branch_id"`
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	AccountID   string `json:"account_id"`
+	AccountType string `json:"account_type"`
+	FID         string `json:"f_id"`
+	BankID      string `json:"bank_id"`
+	BranchID    string `json:"branch_id"`
 }
 
 type Card struct {
-	ID        int64       `json:"id"`
-	AccountID interface{} `json:"account_id"`
-	Name      interface{} `json:"name"`
-	FID       interface{} `json:"f_id"`
+	ID        int64  `json:"id"`
+	AccountID string `json:"account_id"`
+	Name      string `json:"name"`
+	FID       string `json:"f_id"`
 }
 
 type Source struct {
-	ID     int64       `json:"id"`
-	CardID interface{} `json:"card_id"`
-	BankID interface{} `json:"bank_id"`
+	ID     int64         `json:"id"`
+	CardID sql.NullInt64 `json:"card_id"`
+	BankID sql.NullInt64 `json:"bank_id"`
 }
 
 type Statement struct {
-	ID            int64       `json:"id"`
-	SourceID      int64       `json:"source_id"`
-	StartDate     interface{} `json:"start_date"`
-	EndDate       interface{} `json:"end_date"`
-	LedgerBalance float64     `json:"ledger_balance"`
-	BalanceDate   interface{} `json:"balance_date"`
-	ServerDate    interface{} `json:"server_date"`
-	Language      interface{} `json:"language"`
+	ID            int64   `json:"id"`
+	SourceID      int64   `json:"source_id"`
+	StartDate     string  `json:"start_date"`
+	EndDate       string  `json:"end_date"`
+	LedgerBalance float64 `json:"ledger_balance"`
+	BalanceDate   string  `json:"balance_date"`
+	ServerDate    string  `json:"server_date"`
+	Language      string  `json:"language"`
 }
 
 type Transaction struct {
 	ID       interface{} `json:"id"`
 	SourceID int64       `json:"source_id"`
-	Date     interface{} `json:"date"`
+	Date     string      `json:"date"`
 	Value    float64     `json:"value"`
-	Type     interface{} `json:"type"`
+	Type     string      `json:"type"`
 	Desc     string      `json:"desc"`
 }

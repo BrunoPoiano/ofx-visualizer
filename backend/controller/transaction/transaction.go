@@ -40,8 +40,6 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	json.NewEncoder(w)
 }
 
 // GetTransactionInfos retrieves aggregate transaction information (positive, negative, total value) from the database based on provided filters.
@@ -96,8 +94,6 @@ func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	json.NewEncoder(w)
 }
 
 // GetItems retrieves transactions from the database with pagination.

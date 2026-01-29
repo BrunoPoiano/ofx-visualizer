@@ -18,10 +18,7 @@ import (
 // Returns:
 //   - An error if the insertion fails, nil otherwise.
 func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databaseSqlc.CreateBalanceParams, StatementId int) error {
-	item.StatementID = sql.NullInt64{
-		Int64: int64(StatementId),
-		Valid: StatementId > 0,
-	}
+	item.StatementID = int64(StatementId)
 
 	account_id, err := queries.FindBalance(ctx, databaseSqlc.FindBalanceParams{
 		Name:        item.Name,
