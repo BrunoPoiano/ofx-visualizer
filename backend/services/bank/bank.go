@@ -2,6 +2,7 @@ package BankService
 
 import (
 	"context"
+	"fmt"
 	"math"
 
 	databaseSqlc "main/database/databaseSQL"
@@ -19,30 +20,26 @@ import (
 //   - The ID of the bank (either existing or newly created).
 //   - An error if any database operation or conversion fails.
 func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.CreateBankParams) (int, error) {
-	accountId, err := utils.InterfaceToInt(bank.AccountID)
+	bankAccId, err := queries.GetBankIdByAccountId(ctx, bank.AccountID)
+	if err != nil {
+		newBank, err := queries.CreateBank(ctx, bank)
+		if err != nil {
+			return 0, err
+		}
+
+		return int(newBank.ID), nil
+	}
+
+	account_id, err := utils.InterfaceToInt(bankAccId)
 	if err != nil {
 		return 0, err
 	}
 
-	bankId, err := queries.GetBankIdByAccountId(ctx, int64(accountId))
-	if err != nil {
-		return 0, err
-	}
-
-	account_id, err := utils.InterfaceToInt(bankId)
-	if err != nil {
-		return 0, err
-	}
 	if account_id > 0 {
 		return account_id, nil
 	}
 
-	newBank, err := queries.CreateBank(ctx, bank)
-	if err != nil {
-		return 0, err
-	}
-
-	return int(newBank.ID), nil
+	return 0, fmt.Errorf("Error saving Bank")
 }
 
 // GetItems retrieves a paginated list of Bank items along with pagination metadata.

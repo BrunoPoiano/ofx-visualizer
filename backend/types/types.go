@@ -33,7 +33,7 @@ type StatementSearch struct {
 	To       string
 	MinValue int64
 	MaxValue int64
-	SourceId string
+	SourceId int64
 }
 
 type TransactionSearch struct {

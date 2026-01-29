@@ -18,9 +18,18 @@ import (
 //
 // Returns:
 //   - error: An error if the insertion fails, nil otherwise.
-func InsertTransaction(queries *databaseSqlc.Queries, ctx context.Context, items []databaseSqlc.CreateTransactionParams) error {
+func InsertTransaction(queries *databaseSqlc.Queries, ctx context.Context, items []databaseSqlc.CreateTransactionParams, sourceId int) error {
 	for _, item := range items {
-		_, err := queries.CreateTransaction(ctx, item)
+		countTransaction, err := queries.CheckTransaction(ctx, item.ID)
+		if err != nil {
+			return err
+		}
+		if countTransaction > 0 {
+			return nil
+		}
+
+		item.SourceID = int64(sourceId)
+		_, err = queries.CreateTransaction(ctx, item)
 		if err != nil {
 			return err
 		}
@@ -43,7 +52,6 @@ func InsertTransaction(queries *databaseSqlc.Queries, ctx context.Context, items
 func GetTransactions(queries *databaseSqlc.Queries, ctx context.Context, filter types.TransactionSearch) ([]databaseSqlc.Transaction, int, int, error) {
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 
-	println(filter.MaxValue, filter.MinValue, filter.Type)
 	items, err := queries.ListTransactions(ctx, databaseSqlc.ListTransactionsParams{
 		Search:         filter.Search,
 		SearchType:     filter.Type,
@@ -53,6 +61,7 @@ func GetTransactions(queries *databaseSqlc.Queries, ctx context.Context, filter 
 		SearchTo:       utils.FixSearchDate(filter.To, false),
 		Offset:         offset,
 		Limit:          filter.PerPage,
+		SourceID:       filter.SourceId,
 	})
 	if err != nil {
 		return nil, 0, 0, err
@@ -65,6 +74,7 @@ func GetTransactions(queries *databaseSqlc.Queries, ctx context.Context, filter 
 		SearchMinValue: utils.CheckIfZero(filter.MinValue),
 		SearchFrom:     utils.FixSearchDate(filter.From, true),
 		SearchTo:       utils.FixSearchDate(filter.To, false),
+		SourceID:       filter.SourceId,
 	})
 	if err != nil {
 		return nil, 0, 0, err

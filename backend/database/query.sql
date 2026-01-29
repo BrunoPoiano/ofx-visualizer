@@ -117,7 +117,7 @@ WHERE id = ? LIMIT 1;
 
 -- name: GetCardIdByAccountId :one
 SELECT id FROM cards
-WHERE account_id = ? LIMIT 1;
+WHERE account_id = :account_id LIMIT 1;
 
 -- name: CreateCard :one
 INSERT INTO cards (
@@ -141,12 +141,17 @@ WHERE id = ?;
 
 -- name: GetTransaction :one
 SELECT * FROM transactions
-WHERE id = ? LIMIT 1;
+WHERE id = :id LIMIT 1;
+
+-- name: CheckTransaction :one
+SELECT count(id) FROM transactions
+WHERE id = :id LIMIT 1;
 
 -- name: ListTransactions :many
 SELECT *
 FROM transactions
-WHERE
+WHERE source_id = :source_id
+AND
     (
         :search IS NULL
         OR source_id LIKE '%' || :search || '%'
@@ -178,16 +183,16 @@ AND
             :searchTo IS NULL
             OR date <= :searchTo
         )
-ORDER BY id DESC
+ORDER BY date DESC
 LIMIT :limit OFFSET :offset;
 
 -- name: CountTransactions :one
 SELECT count(id)
 FROM transactions
-WHERE
+WHERE source_id = :source_id
+AND
 (
     :search IS NULL
-    OR source_id LIKE '%' || :search || '%'
     OR date      LIKE '%' || :search || '%'
     OR "desc"    LIKE '%' || :search || '%'
 )
@@ -258,8 +263,8 @@ JOIN banks ON banks.id = source.bank_id;
 -- name: FindSource :one
 SELECT id
 FROM source
-WHERE (bank_id = ?1 AND card_id = 0)
-   OR (bank_id = 0 AND card_id = ?2)
+WHERE (bank_id = :bank_id AND card_id is null)
+   OR (bank_id is null AND card_id = :card_id)
 LIMIT 1;
 
 -- name: CreateSource :one
@@ -272,7 +277,7 @@ RETURNING *;
 
 -- name: UpdateSource :exec
 UPDATE source
-SET card_id = ?,bank_id = ?
+SET bank_id = ?,card_id = ?
 WHERE id = ?;
 
 -- name: DeleteSource :exec
@@ -287,13 +292,15 @@ SELECT id FROM statements
 WHERE start_date = ? AND end_date = ? AND ledger_balance = ?
 LIMIT 1;
 
+-- name: CheckStatement :one
+SELECT count(id) FROM statements
+WHERE id = :id LIMIT 1;
+
 -- name: ListStatements :many
 SELECT * FROM statements
-WHERE (
+WHERE source_id = :source_id
+AND (
     :search IS NULL
-    OR source_id         LIKE '%' || :search || '%'
-    OR start_date   LIKE '%' || :search || '%'
-    OR end_date LIKE '%' || :search || '%'
     OR balance_date      LIKE '%' || :search || '%'
     OR server_date      LIKE '%' || :search || '%'
     OR language      LIKE '%' || :search || '%'
@@ -318,16 +325,14 @@ AND
         :searchTo IS NULL
         OR start_date <= :searchTo
     )
-ORDER BY id DESC
+ORDER BY start_date DESC
 LIMIT :limit OFFSET :offset;
 
 -- name: CountStatements :one
 SELECT count(id) FROM statements
-WHERE  (
+WHERE source_id = :source_id
+AND (
     :search IS NULL
-    OR source_id         LIKE '%' || :search || '%'
-    OR start_date   LIKE '%' || :search || '%'
-    OR end_date LIKE '%' || :search || '%'
     OR balance_date      LIKE '%' || :search || '%'
     OR server_date      LIKE '%' || :search || '%'
     OR language      LIKE '%' || :search || '%'

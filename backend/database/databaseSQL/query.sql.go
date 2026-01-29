@@ -10,6 +10,30 @@ import (
 	"database/sql"
 )
 
+const checkStatement = `-- name: CheckStatement :one
+SELECT count(id) FROM statements
+WHERE id = ?1 LIMIT 1
+`
+
+func (q *Queries) CheckStatement(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkStatement, id)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const checkTransaction = `-- name: CheckTransaction :one
+SELECT count(id) FROM transactions
+WHERE id = ?1 LIMIT 1
+`
+
+func (q *Queries) CheckTransaction(ctx context.Context, id interface{}) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkTransaction, id)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countBalances = `-- name: CountBalances :one
 SELECT count(id) FROM balances
 WHERE
@@ -62,38 +86,37 @@ func (q *Queries) CountBanks(ctx context.Context, search interface{}) (int64, er
 
 const countStatements = `-- name: CountStatements :one
 SELECT count(id) FROM statements
-WHERE  (
-    ?1 IS NULL
-    OR source_id         LIKE '%' || ?1 || '%'
-    OR start_date   LIKE '%' || ?1 || '%'
-    OR end_date LIKE '%' || ?1 || '%'
-    OR balance_date      LIKE '%' || ?1 || '%'
-    OR server_date      LIKE '%' || ?1 || '%'
-    OR language      LIKE '%' || ?1 || '%'
-)
-AND
-(
+WHERE source_id = ?1
+AND (
     ?2 IS NULL
-    OR ledger_balance <= ?2
+    OR balance_date      LIKE '%' || ?2 || '%'
+    OR server_date      LIKE '%' || ?2 || '%'
+    OR language      LIKE '%' || ?2 || '%'
 )
 AND
 (
     ?3 IS NULL
-    OR ledger_balance >= ?3
+    OR ledger_balance <= ?3
 )
 AND
 (
     ?4 IS NULL
-    OR start_date >= ?4
+    OR ledger_balance >= ?4
+)
+AND
+(
+    ?5 IS NULL
+    OR start_date >= ?5
 )
 AND
     (
-        ?5 IS NULL
-        OR start_date <= ?5
+        ?6 IS NULL
+        OR start_date <= ?6
     )
 `
 
 type CountStatementsParams struct {
+	SourceID       int64       `json:"source_id"`
 	Search         interface{} `json:"search"`
 	SearchMaxValue interface{} `json:"searchMaxValue"`
 	SearchMinValue interface{} `json:"searchMinValue"`
@@ -103,6 +126,7 @@ type CountStatementsParams struct {
 
 func (q *Queries) CountStatements(ctx context.Context, arg CountStatementsParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, countStatements,
+		arg.SourceID,
 		arg.Search,
 		arg.SearchMaxValue,
 		arg.SearchMinValue,
@@ -117,41 +141,42 @@ func (q *Queries) CountStatements(ctx context.Context, arg CountStatementsParams
 const countTransactions = `-- name: CountTransactions :one
 SELECT count(id)
 FROM transactions
-WHERE
-(
-    ?1 IS NULL
-    OR source_id LIKE '%' || ?1 || '%'
-    OR date      LIKE '%' || ?1 || '%'
-    OR "desc"    LIKE '%' || ?1 || '%'
-)
+WHERE source_id = ?1
 AND
 (
     ?2 IS NULL
-    OR type LIKE '%' || ?2 || '%'
+    OR date      LIKE '%' || ?2 || '%'
+    OR "desc"    LIKE '%' || ?2 || '%'
 )
 AND
 (
     ?3 IS NULL
-    OR value <= ?3
+    OR type LIKE '%' || ?3 || '%'
 )
 AND
 (
     ?4 IS NULL
-    OR value >= ?4
+    OR value <= ?4
 )
 AND
 (
     ?5 IS NULL
-    OR date >= ?5
+    OR value >= ?5
+)
+AND
+(
+    ?6 IS NULL
+    OR date >= ?6
 )
 AND
     (
-        ?6 IS NULL
-        OR date <= ?6
+        ?7 IS NULL
+        OR date <= ?7
     )
 `
 
 type CountTransactionsParams struct {
+	SourceID       int64       `json:"source_id"`
 	Search         interface{} `json:"search"`
 	SearchType     interface{} `json:"searchType"`
 	SearchMaxValue interface{} `json:"searchMaxValue"`
@@ -162,6 +187,7 @@ type CountTransactionsParams struct {
 
 func (q *Queries) CountTransactions(ctx context.Context, arg CountTransactionsParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, countTransactions,
+		arg.SourceID,
 		arg.Search,
 		arg.SearchType,
 		arg.SearchMaxValue,
@@ -309,13 +335,13 @@ RETURNING id, source_id, start_date, end_date, ledger_balance, balance_date, ser
 `
 
 type CreateStatementParams struct {
-	SourceID      sql.NullInt64 `json:"source_id"`
-	StartDate     interface{}   `json:"start_date"`
-	EndDate       interface{}   `json:"end_date"`
-	LedgerBalance float64       `json:"ledger_balance"`
-	BalanceDate   interface{}   `json:"balance_date"`
-	ServerDate    interface{}   `json:"server_date"`
-	Language      interface{}   `json:"language"`
+	SourceID      int64       `json:"source_id"`
+	StartDate     interface{} `json:"start_date"`
+	EndDate       interface{} `json:"end_date"`
+	LedgerBalance float64     `json:"ledger_balance"`
+	BalanceDate   interface{} `json:"balance_date"`
+	ServerDate    interface{} `json:"server_date"`
+	Language      interface{} `json:"language"`
 }
 
 func (q *Queries) CreateStatement(ctx context.Context, arg CreateStatementParams) (Statement, error) {
@@ -463,8 +489,8 @@ func (q *Queries) FindBalance(ctx context.Context, arg FindBalanceParams) (int64
 const findSource = `-- name: FindSource :one
 SELECT id
 FROM source
-WHERE (bank_id = ?1 AND card_id = 0)
-   OR (bank_id = 0 AND card_id = ?2)
+WHERE (bank_id = ?1 AND card_id is null)
+   OR (bank_id is null AND card_id = ?2)
 LIMIT 1
 `
 
@@ -534,7 +560,7 @@ func (q *Queries) GetCard(ctx context.Context, id int64) (Card, error) {
 
 const getCardIdByAccountId = `-- name: GetCardIdByAccountId :one
 SELECT id FROM cards
-WHERE account_id = ? LIMIT 1
+WHERE account_id = ?1 LIMIT 1
 `
 
 func (q *Queries) GetCardIdByAccountId(ctx context.Context, accountID interface{}) (int64, error) {
@@ -552,7 +578,7 @@ ORDER BY balance_date DESC
 LIMIT 1
 `
 
-func (q *Queries) GetCurrentBalanceQuery(ctx context.Context, sourceID sql.NullInt64) (Statement, error) {
+func (q *Queries) GetCurrentBalanceQuery(ctx context.Context, sourceID int64) (Statement, error) {
 	row := q.db.QueryRowContext(ctx, getCurrentBalanceQuery, sourceID)
 	var i Statement
 	err := row.Scan(
@@ -576,7 +602,7 @@ ORDER BY ledger_balance DESC
 LIMIT 1
 `
 
-func (q *Queries) GetLargestBalanceQuery(ctx context.Context, sourceID sql.NullInt64) (Statement, error) {
+func (q *Queries) GetLargestBalanceQuery(ctx context.Context, sourceID int64) (Statement, error) {
 	row := q.db.QueryRowContext(ctx, getLargestBalanceQuery, sourceID)
 	var i Statement
 	err := row.Scan(
@@ -656,7 +682,7 @@ func (q *Queries) GetStatement(ctx context.Context, arg GetStatementParams) (int
 const getTransaction = `-- name: GetTransaction :one
 
 SELECT id, source_id, date, value, type, "desc" FROM transactions
-WHERE id = ? LIMIT 1
+WHERE id = ?1 LIMIT 1
 `
 
 // -------------------- Transactions
@@ -789,40 +815,39 @@ func (q *Queries) ListBanks(ctx context.Context, arg ListBanksParams) ([]Bank, e
 
 const listStatements = `-- name: ListStatements :many
 SELECT id, source_id, start_date, end_date, ledger_balance, balance_date, server_date, language FROM statements
-WHERE (
-    ?1 IS NULL
-    OR source_id         LIKE '%' || ?1 || '%'
-    OR start_date   LIKE '%' || ?1 || '%'
-    OR end_date LIKE '%' || ?1 || '%'
-    OR balance_date      LIKE '%' || ?1 || '%'
-    OR server_date      LIKE '%' || ?1 || '%'
-    OR language      LIKE '%' || ?1 || '%'
-)
-AND
-(
+WHERE source_id = ?1
+AND (
     ?2 IS NULL
-    OR ledger_balance <= ?2
+    OR balance_date      LIKE '%' || ?2 || '%'
+    OR server_date      LIKE '%' || ?2 || '%'
+    OR language      LIKE '%' || ?2 || '%'
 )
 AND
 (
     ?3 IS NULL
-    OR ledger_balance >= ?3
+    OR ledger_balance <= ?3
 )
 AND
 (
     ?4 IS NULL
-    OR start_date >= ?4
+    OR ledger_balance >= ?4
+)
+AND
+(
+    ?5 IS NULL
+    OR start_date >= ?5
 )
 AND
     (
-        ?5 IS NULL
-        OR start_date <= ?5
+        ?6 IS NULL
+        OR start_date <= ?6
     )
-ORDER BY id DESC
-LIMIT ?7 OFFSET ?6
+ORDER BY start_date DESC
+LIMIT ?8 OFFSET ?7
 `
 
 type ListStatementsParams struct {
+	SourceID       int64       `json:"source_id"`
 	Search         interface{} `json:"search"`
 	SearchMaxValue interface{} `json:"searchMaxValue"`
 	SearchMinValue interface{} `json:"searchMinValue"`
@@ -834,6 +859,7 @@ type ListStatementsParams struct {
 
 func (q *Queries) ListStatements(ctx context.Context, arg ListStatementsParams) ([]Statement, error) {
 	rows, err := q.db.QueryContext(ctx, listStatements,
+		arg.SourceID,
 		arg.Search,
 		arg.SearchMaxValue,
 		arg.SearchMinValue,
@@ -875,43 +901,45 @@ func (q *Queries) ListStatements(ctx context.Context, arg ListStatementsParams) 
 const listTransactions = `-- name: ListTransactions :many
 SELECT id, source_id, date, value, type, "desc"
 FROM transactions
-WHERE
-    (
-        ?1 IS NULL
-        OR source_id LIKE '%' || ?1 || '%'
-        OR date      LIKE '%' || ?1 || '%'
-        OR "desc"    LIKE '%' || ?1 || '%'
-    )
+WHERE source_id = ?1
 AND
     (
         ?2 IS NULL
-        OR type LIKE '%' || ?2 || '%'
+        OR source_id LIKE '%' || ?2 || '%'
+        OR date      LIKE '%' || ?2 || '%'
+        OR "desc"    LIKE '%' || ?2 || '%'
     )
 AND
     (
         ?3 IS NULL
-        OR value <= ?3
+        OR type LIKE '%' || ?3 || '%'
     )
 AND
     (
         ?4 IS NULL
-        OR value >= ?4
+        OR value <= ?4
     )
 AND
     (
         ?5 IS NULL
-        OR date >= ?5
+        OR value >= ?5
+    )
+AND
+    (
+        ?6 IS NULL
+        OR date >= ?6
     )
     AND
         (
-            ?6 IS NULL
-            OR date <= ?6
+            ?7 IS NULL
+            OR date <= ?7
         )
-ORDER BY id DESC
-LIMIT ?8 OFFSET ?7
+ORDER BY date DESC
+LIMIT ?9 OFFSET ?8
 `
 
 type ListTransactionsParams struct {
+	SourceID       int64       `json:"source_id"`
 	Search         interface{} `json:"search"`
 	SearchType     interface{} `json:"searchType"`
 	SearchMaxValue interface{} `json:"searchMaxValue"`
@@ -924,6 +952,7 @@ type ListTransactionsParams struct {
 
 func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsParams) ([]Transaction, error) {
 	rows, err := q.db.QueryContext(ctx, listTransactions,
+		arg.SourceID,
 		arg.Search,
 		arg.SearchType,
 		arg.SearchMaxValue,
@@ -1071,18 +1100,18 @@ func (q *Queries) UpdateCard(ctx context.Context, arg UpdateCardParams) error {
 
 const updateSource = `-- name: UpdateSource :exec
 UPDATE source
-SET card_id = ?,bank_id = ?
+SET bank_id = ?,card_id = ?
 WHERE id = ?
 `
 
 type UpdateSourceParams struct {
-	CardID interface{} `json:"card_id"`
 	BankID interface{} `json:"bank_id"`
+	CardID interface{} `json:"card_id"`
 	ID     int64       `json:"id"`
 }
 
 func (q *Queries) UpdateSource(ctx context.Context, arg UpdateSourceParams) error {
-	_, err := q.db.ExecContext(ctx, updateSource, arg.CardID, arg.BankID, arg.ID)
+	_, err := q.db.ExecContext(ctx, updateSource, arg.BankID, arg.CardID, arg.ID)
 	return err
 }
 
@@ -1093,14 +1122,14 @@ WHERE id = ?
 `
 
 type UpdateStatementParams struct {
-	SourceID      sql.NullInt64 `json:"source_id"`
-	StartDate     interface{}   `json:"start_date"`
-	EndDate       interface{}   `json:"end_date"`
-	LedgerBalance float64       `json:"ledger_balance"`
-	BalanceDate   interface{}   `json:"balance_date"`
-	ServerDate    interface{}   `json:"server_date"`
-	Language      interface{}   `json:"language"`
-	ID            int64         `json:"id"`
+	SourceID      int64       `json:"source_id"`
+	StartDate     interface{} `json:"start_date"`
+	EndDate       interface{} `json:"end_date"`
+	LedgerBalance float64     `json:"ledger_balance"`
+	BalanceDate   interface{} `json:"balance_date"`
+	ServerDate    interface{} `json:"server_date"`
+	Language      interface{} `json:"language"`
+	ID            int64       `json:"id"`
 }
 
 func (q *Queries) UpdateStatement(ctx context.Context, arg UpdateStatementParams) error {

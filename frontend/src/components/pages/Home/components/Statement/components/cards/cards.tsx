@@ -8,7 +8,7 @@ import {
 	CardDescription,
 	CardTitle
 } from '@/components/ui/card'
-import { parseDate } from '@/lib/utils'
+import { parseDate, returnCardTextColor } from '@/lib/utils'
 import { useStatementContext } from '../../provider'
 
 export const Cards = () => {
@@ -36,7 +36,9 @@ export const Cards = () => {
 					<CardTitle>Largest Balance</CardTitle>
 					<CardContent
 						className='font-bold text-2xl'
-						style={{ color: 'var(--chart-2)' }}
+						style={{
+							color: returnCardTextColor(largestBalance.ledger_balance)
+						}}
 					>
 						{showValue
 							? `${largestBalance.ledger_balance.toLocaleString('pt-BR', {
@@ -55,7 +57,9 @@ export const Cards = () => {
 					<CardTitle>Latest Balance</CardTitle>
 					<CardContent
 						className='font-bold text-2xl'
-						style={{ color: 'var(--chart-2)' }}
+						style={{
+							color: returnCardTextColor(currentBalance.ledger_balance)
+						}}
 					>
 						{showValue
 							? `${currentBalance.ledger_balance.toLocaleString('pt-BR', {

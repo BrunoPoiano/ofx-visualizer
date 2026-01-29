@@ -96,6 +96,23 @@ func InterfaceToInt(value interface{}) (int, error) {
 	return v, nil
 }
 
+func InterfaceToString(v interface{}) string {
+	var s string
+
+	switch v := v.(type) {
+	case string:
+		s = v
+	case []byte:
+		s = string(v)
+	case int:
+		s = strconv.Itoa(v)
+	default:
+		s = ""
+	}
+
+	return s
+}
+
 func InterfaceToFloat(value interface{}) (float64, error) {
 	var v float64
 	switch t := value.(type) {

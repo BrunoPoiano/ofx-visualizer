@@ -22,19 +22,19 @@ import (
 func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databaseSqlc.CreateCardParams) (int, error) {
 	card_id, err := queries.GetCardIdByAccountId(ctx, item.AccountID)
 	if err != nil {
-		return 0, err
+		card, err := queries.CreateCard(ctx, item)
+		if err != nil {
+			return 0, err
+		}
+
+		return int(card.ID), nil
 	}
 
 	if card_id > 0 {
 		return int(card_id), nil
 	}
 
-	card, err := queries.CreateCard(ctx, item)
-	if err != nil {
-		return 0, err
-	}
-
-	return int(card.ID), nil
+	return 0, err
 }
 
 // GetItems retrieves a paginated list of Card items from the database.

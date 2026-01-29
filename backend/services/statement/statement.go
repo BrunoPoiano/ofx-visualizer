@@ -2,7 +2,7 @@ package StatementService
 
 import (
 	"context"
-	"database/sql"
+	"fmt"
 	"math"
 
 	"main/services/utils"
@@ -29,23 +29,21 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databa
 		LedgerBalance: item.Statement.LedgerBalance,
 	})
 	if err != nil {
-		return 0, err
+
+		item.Statement.SourceID = int64(SourceId)
+		stt, err := queries.CreateStatement(ctx, item.Statement)
+		if err != nil {
+			return 0, err
+		}
+
+		return int(stt.ID), nil
 	}
 
 	if accountId > 0 {
 		return int(accountId), nil
 	}
 
-	item.Statement.SourceID = sql.NullInt64{
-		Int64: int64(SourceId),
-	}
-
-	stt, err := queries.CreateStatement(ctx, item.Statement)
-	if err != nil {
-		return 0, err
-	}
-
-	return int(stt.ID), nil
+	return 0, fmt.Errorf("Error saving statement")
 }
 
 // GetItems retrieves a paginated list of Statement items based on search filters.
@@ -62,6 +60,7 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databa
 //   - An error if the retrieval fails, nil otherwise.
 func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.StatementSearch) ([]databaseSqlc.Statement, int, int, error) {
 	offset := filter.PerPage * (filter.CurrentPage - 1)
+
 	statements, err := queries.ListStatements(ctx, databaseSqlc.ListStatementsParams{
 		Search:         filter.Search,
 		Offset:         offset,
@@ -70,6 +69,7 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.S
 		SearchMinValue: utils.CheckIfZero(filter.MinValue),
 		SearchFrom:     utils.FixSearchDate(filter.From, true),
 		SearchTo:       utils.FixSearchDate(filter.To, false),
+		SourceID:       filter.SourceId,
 	})
 	if err != nil {
 		return nil, 0, 0, err
@@ -81,6 +81,7 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.S
 		SearchMinValue: utils.CheckIfZero(filter.MinValue),
 		SearchFrom:     utils.FixSearchDate(filter.From, true),
 		SearchTo:       utils.FixSearchDate(filter.To, false),
+		SourceID:       filter.SourceId,
 	})
 
 	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
@@ -101,18 +102,12 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.S
 func GetInfo(queries *databaseSqlc.Queries, ctx context.Context, bankId int64) (databaseSqlc.Statement, databaseSqlc.Statement, error) {
 	var largestBalance, currentBalance databaseSqlc.Statement
 
-	largestBalance, err := queries.GetLargestBalanceQuery(ctx, sql.NullInt64{
-		Int64: bankId,
-		Valid: bankId != 0,
-	})
+	largestBalance, err := queries.GetLargestBalanceQuery(ctx, bankId)
 	if err != nil {
 		return largestBalance, currentBalance, err
 	}
 
-	currentBalance, err = queries.GetCurrentBalanceQuery(ctx, sql.NullInt64{
-		Int64: bankId,
-		Valid: bankId != 0,
-	})
+	currentBalance, err = queries.GetCurrentBalanceQuery(ctx, bankId)
 	if err != nil {
 		return largestBalance, currentBalance, err
 	}

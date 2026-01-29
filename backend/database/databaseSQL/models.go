@@ -41,14 +41,14 @@ type Source struct {
 }
 
 type Statement struct {
-	ID            int64         `json:"id"`
-	SourceID      sql.NullInt64 `json:"source_id"`
-	StartDate     interface{}   `json:"start_date"`
-	EndDate       interface{}   `json:"end_date"`
-	LedgerBalance float64       `json:"ledger_balance"`
-	BalanceDate   interface{}   `json:"balance_date"`
-	ServerDate    interface{}   `json:"server_date"`
-	Language      interface{}   `json:"language"`
+	ID            int64       `json:"id"`
+	SourceID      int64       `json:"source_id"`
+	StartDate     interface{} `json:"start_date"`
+	EndDate       interface{} `json:"end_date"`
+	LedgerBalance float64     `json:"ledger_balance"`
+	BalanceDate   interface{} `json:"balance_date"`
+	ServerDate    interface{} `json:"server_date"`
+	Language      interface{} `json:"language"`
 }
 
 type Transaction struct {

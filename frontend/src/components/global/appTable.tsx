@@ -68,7 +68,8 @@ export const AppTable = <
 										key={item.id}
 										style={item.style || { width: '10ch' }}
 									>
-										{React.isValidElement(tableData[0]?.[item.id]) ? (
+										{!item.order ||
+										React.isValidElement(tableData[0]?.[item.id]) ? (
 											<span className='block w-full text-center'>
 												{item.label}
 											</span>

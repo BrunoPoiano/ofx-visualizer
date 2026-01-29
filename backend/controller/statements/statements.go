@@ -2,7 +2,6 @@ package StatementsController
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -27,11 +26,9 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 
 	search := ParseUrlValues(params)
 
-	vars := mux.Vars(r)
-
-	bankIdParam, err := strconv.ParseInt(vars["source_id"], 10, 64)
-	if bankIdParam > 0 {
-		search.SourceId = fmt.Sprintf("%v", bankIdParam)
+	if search.SourceId == 0 {
+		http.Error(w, "source_id is required", http.StatusBadRequest)
+		return
 	}
 
 	items, totalItems, lastpage, err := StatementService.GetItems(queries, r.Context(), search)
@@ -114,6 +111,10 @@ func ParseUrlValues(params url.Values) types.StatementSearch {
 	if err != nil {
 		maxValue = 0
 	}
+	sourceId, err := strconv.ParseInt(params.Get("source_id"), 10, 64)
+	if err != nil {
+		sourceId = 0
+	}
 
 	return types.StatementSearch{
 		DefaultSearch: types.DefaultSearch{
@@ -123,7 +124,7 @@ func ParseUrlValues(params url.Values) types.StatementSearch {
 			Direction:   direction,
 			Search:      params.Get("search"),
 		},
-		SourceId: params.Get("source_id"),
+		SourceId: sourceId,
 		MinValue: minValue,
 		MaxValue: maxValue,
 		From:     params.Get("from"),

@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS source (
 
 CREATE TABLE IF NOT EXISTS statements (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
-    source_id      INTEGER,
+    source_id      INTEGER NOT NULL,
     start_date     STRING NOT NULL,
     end_date       STRING NOT NULL,
     ledger_balance REAL NOT NULL,

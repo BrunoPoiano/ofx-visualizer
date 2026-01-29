@@ -40,8 +40,8 @@ func ParseOfx(file multipart.File) ([]databaseSqlc.CreateTransactionParams, data
 		return Transactions, Statement, Bank, Card, fmt.Errorf("error parsing statements: %w", err)
 	}
 
-	Card, card_err := parseCardInfo(fileString)
 	Bank, bank_err := parseBankInfo(fileString)
+	Card, card_err := parseCardInfo(fileString)
 
 	if bank_err != nil && card_err != nil {
 		return Transactions, Statement, Bank, Card, fmt.Errorf("error parsing bank or card: %w", err)
@@ -268,6 +268,7 @@ func parseBankInfo(file string) (databaseSqlc.CreateBankParams, error) {
 	Bank.BankID = bankId
 	Bank.BranchID = branchId
 	Bank.AccountType = types.AccountType(accountType)
+
 	return Bank, nil
 }
 

@@ -55,29 +55,25 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 
 		transactions, statement, Bank, Card, err := ofxService.ParseOfx(file)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "Error parsing file", http.StatusBadRequest)
 			return
 		}
 
 		SourceId, err := sourceService.InsertItem(queries, r.Context(), Bank, Card)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "Error saving items", http.StatusBadRequest)
 			return
 		}
 
-		for _, item := range transactions {
-			item.SourceID = int64(SourceId)
-		}
-
-		err = transactionService.InsertTransaction(queries, r.Context(), transactions)
+		err = transactionService.InsertTransaction(queries, r.Context(), transactions, SourceId)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "Error saving transaction", http.StatusBadRequest)
 			return
 		}
 
 		StatementId, err := StatementService.InsertItems(queries, r.Context(), statement, SourceId)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "Error saving statement", http.StatusBadRequest)
 			return
 		}
 
@@ -90,7 +86,7 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 				Value:       item.Value,
 			}, StatementId)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				http.Error(w, "Error saving yields", http.StatusBadRequest)
 				return
 			}
 		}
@@ -112,6 +108,11 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
 	filter := ParseUrlValues(params)
+
+	if filter.SourceId == 0 {
+		http.Error(w, "source_id is required", http.StatusBadRequest)
+		return
+	}
 
 	positive, negative, value, err := transactionService.GetTransactionInfos(queries, r.Context(), filter)
 	if err != nil {
@@ -165,6 +166,11 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
 	filter := ParseUrlValues(params)
+
+	if filter.SourceId == 0 {
+		http.Error(w, "source_id is required", http.StatusBadRequest)
+		return
+	}
 
 	items, totalItems, lastpage, err := transactionService.GetTransactions(queries, r.Context(), filter)
 	if err != nil {

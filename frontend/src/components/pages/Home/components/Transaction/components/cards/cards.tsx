@@ -3,7 +3,7 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type { DateRange } from 'react-day-picker'
 
 import { useHomeContext } from '@/components/pages/Home/provider'
-import { generateKey } from '@/lib/utils'
+import { generateKey, returnCardTextColor } from '@/lib/utils'
 import { useTransactionContext } from '../../provider'
 
 type FilteredTransactionType = {
@@ -56,10 +56,7 @@ export const Cards = () => {
 		},
 		{
 			label: 'Total Revenue',
-			color:
-				transactionsInfo && transactionsInfo?.value > 0
-					? 'var(--chart-2)'
-					: 'var(--destructive)',
+			color: returnCardTextColor(transactionsInfo?.value),
 			value: transactionsInfo?.value || 0
 		},
 		{
@@ -74,10 +71,7 @@ export const Cards = () => {
 		},
 		{
 			label: 'Filtered Revenue',
-			color:
-				filteredTransaction?.value > 0
-					? 'var(--chart-2)'
-					: 'var(--destructive)',
+			color: returnCardTextColor(filteredTransaction?.value),
 			value: filteredTransaction?.value
 		}
 	]
