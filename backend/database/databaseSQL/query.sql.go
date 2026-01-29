@@ -27,7 +27,7 @@ SELECT count(id) FROM transactions
 WHERE id = ?1 LIMIT 1
 `
 
-func (q *Queries) CheckTransaction(ctx context.Context, id interface{}) (int64, error) {
+func (q *Queries) CheckTransaction(ctx context.Context, id string) (int64, error) {
 	row := q.db.QueryRowContext(ctx, checkTransaction, id)
 	var count int64
 	err := row.Scan(&count)
@@ -68,12 +68,12 @@ SELECT count(id)
 FROM banks
 WHERE (
     ?1 IS NULL
-    OR name      LIKE '%' || ?1 || '%'
-    OR account_id  LIKE '%' || ?1 || '%'
-    OR account_type  LIKE '%' || ?1 || '%'
-    OR f_id  LIKE '%' || ?1 || '%'
-    OR bank_id  LIKE '%' || ?1 || '%'
-    OR branch_id  LIKE '%' || ?1 || '%'
+    OR name LIKE '%' || ?1 || '%'
+    OR account_id LIKE '%' || ?1 || '%'
+    OR account_type LIKE '%' || ?1 || '%'
+    OR f_id LIKE '%' || ?1 || '%'
+    OR bank_id LIKE '%' || ?1 || '%'
+    OR branch_id LIKE '%' || ?1 || '%'
 )
 `
 
@@ -89,30 +89,26 @@ SELECT count(id) FROM statements
 WHERE source_id = ?1
 AND (
     ?2 IS NULL
-    OR balance_date      LIKE '%' || ?2 || '%'
-    OR server_date      LIKE '%' || ?2 || '%'
-    OR language      LIKE '%' || ?2 || '%'
+    OR balance_date LIKE '%' || ?2 || '%'
+    OR server_date LIKE '%' || ?2 || '%'
+    OR language LIKE '%' || ?2 || '%'
 )
-AND
-(
+AND (
     ?3 IS NULL
     OR ledger_balance <= ?3
 )
-AND
-(
+AND (
     ?4 IS NULL
     OR ledger_balance >= ?4
 )
-AND
-(
+AND (
     ?5 IS NULL
     OR start_date >= ?5
 )
-AND
-    (
-        ?6 IS NULL
-        OR start_date <= ?6
-    )
+AND (
+    ?6 IS NULL
+    OR start_date <= ?6
+)
 `
 
 type CountStatementsParams struct {
@@ -142,37 +138,31 @@ const countTransactions = `-- name: CountTransactions :one
 SELECT count(id)
 FROM transactions
 WHERE source_id = ?1
-AND
-(
+AND (
     ?2 IS NULL
-    OR date      LIKE '%' || ?2 || '%'
-    OR "desc"    LIKE '%' || ?2 || '%'
+    OR date LIKE '%' || ?2 || '%'
+    OR "desc" LIKE '%' || ?2 || '%'
 )
-AND
-(
+AND (
     ?3 IS NULL
     OR type LIKE '%' || ?3 || '%'
 )
-AND
-(
+AND (
     ?4 IS NULL
     OR value <= ?4
 )
-AND
-(
+AND (
     ?5 IS NULL
     OR value >= ?5
 )
-AND
-(
+AND (
     ?6 IS NULL
     OR date >= ?6
 )
-AND
-    (
-        ?7 IS NULL
-        OR date <= ?7
-    )
+AND (
+    ?7 IS NULL
+    OR date <= ?7
+)
 `
 
 type CountTransactionsParams struct {
@@ -202,9 +192,9 @@ func (q *Queries) CountTransactions(ctx context.Context, arg CountTransactionsPa
 
 const createBalance = `-- name: CreateBalance :one
 INSERT INTO balances (
-statement_id,name,description,balance_type,value
+    statement_id, name, description, balance_type, value
 ) VALUES (
-  ?, ?,?,?,?
+    ?, ?, ?, ?, ?
 )
 RETURNING id, statement_id, name, description, balance_type, value
 `
@@ -239,9 +229,9 @@ func (q *Queries) CreateBalance(ctx context.Context, arg CreateBalanceParams) (B
 
 const createBank = `-- name: CreateBank :one
 INSERT INTO banks (
-name,account_id,account_type,f_id,bank_id,branch_id
+    name, account_id, account_type, f_id, bank_id, branch_id
 ) VALUES (
-  ?, ?,?,?,?,?
+    ?, ?, ?, ?, ?, ?
 )
 RETURNING id, name, account_id, account_type, f_id, bank_id, branch_id
 `
@@ -279,9 +269,9 @@ func (q *Queries) CreateBank(ctx context.Context, arg CreateBankParams) (Bank, e
 
 const createCard = `-- name: CreateCard :one
 INSERT INTO cards (
-name,account_id,f_id
+    name, account_id, f_id
 ) VALUES (
-  ?, ?,?
+    ?, ?, ?
 )
 RETURNING id, account_id, name, f_id
 `
@@ -306,9 +296,9 @@ func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (Card, e
 
 const createSource = `-- name: CreateSource :one
 INSERT INTO source (
-card_id,bank_id
+    card_id, bank_id
 ) VALUES (
-  ?, ?
+    ?, ?
 )
 RETURNING id, card_id, bank_id
 `
@@ -327,9 +317,9 @@ func (q *Queries) CreateSource(ctx context.Context, arg CreateSourceParams) (Sou
 
 const createStatement = `-- name: CreateStatement :one
 INSERT INTO statements (
-source_id,start_date,end_date,ledger_balance,balance_date,server_date,language
+    source_id, start_date, end_date, ledger_balance, balance_date, server_date, language
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING id, source_id, start_date, end_date, ledger_balance, balance_date, server_date, language
 `
@@ -370,20 +360,20 @@ func (q *Queries) CreateStatement(ctx context.Context, arg CreateStatementParams
 
 const createTransaction = `-- name: CreateTransaction :one
 INSERT INTO transactions (
-id,source_id,date,value,type,desc
+    id, source_id, date, value, type, desc
 ) VALUES (
-  ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?
 )
 RETURNING id, source_id, date, value, type, "desc"
 `
 
 type CreateTransactionParams struct {
-	ID       interface{} `json:"id"`
-	SourceID int64       `json:"source_id"`
-	Date     string      `json:"date"`
-	Value    float64     `json:"value"`
-	Type     string      `json:"type"`
-	Desc     string      `json:"desc"`
+	ID       string  `json:"id"`
+	SourceID int64   `json:"source_id"`
+	Date     string  `json:"date"`
+	Value    float64 `json:"value"`
+	Type     string  `json:"type"`
+	Desc     string  `json:"desc"`
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
@@ -462,7 +452,7 @@ DELETE FROM transactions
 WHERE id = ?
 `
 
-func (q *Queries) DeleteTransaction(ctx context.Context, id interface{}) error {
+func (q *Queries) DeleteTransaction(ctx context.Context, id string) error {
 	_, err := q.db.ExecContext(ctx, deleteTransaction, id)
 	return err
 }
@@ -479,6 +469,7 @@ type FindBalanceParams struct {
 	Value       float64 `json:"value"`
 }
 
+// Balances
 func (q *Queries) FindBalance(ctx context.Context, arg FindBalanceParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, findBalance, arg.StatementID, arg.Name, arg.Value)
 	var id int64
@@ -489,8 +480,8 @@ func (q *Queries) FindBalance(ctx context.Context, arg FindBalanceParams) (int64
 const findSource = `-- name: FindSource :one
 SELECT id
 FROM source
-WHERE (bank_id = ?1 AND card_id is null)
-   OR (bank_id is null AND card_id = ?2)
+WHERE (bank_id = ?1 AND card_id IS NULL)
+   OR (bank_id IS NULL AND card_id = ?2)
 LIMIT 1
 `
 
@@ -511,7 +502,7 @@ SELECT id, name, account_id, account_type, f_id, bank_id, branch_id FROM banks
 WHERE id = ? LIMIT 1
 `
 
-// -------------------- BANKS
+// Banks
 func (q *Queries) GetBank(ctx context.Context, id int64) (Bank, error) {
 	row := q.db.QueryRowContext(ctx, getBank, id)
 	var i Bank
@@ -540,12 +531,11 @@ func (q *Queries) GetBankIdByAccountId(ctx context.Context, accountID string) (i
 }
 
 const getCard = `-- name: GetCard :one
-
 SELECT id, account_id, name, f_id FROM cards
 WHERE id = ? LIMIT 1
 `
 
-// -------------------- Cards
+// Cards
 func (q *Queries) GetCard(ctx context.Context, id int64) (Card, error) {
 	row := q.db.QueryRowContext(ctx, getCard, id)
 	var i Card
@@ -619,7 +609,6 @@ func (q *Queries) GetLargestBalanceQuery(ctx context.Context, sourceID int64) (S
 }
 
 const getSources = `-- name: GetSources :many
-
 SELECT source.id, cards.name
 FROM source
 JOIN cards ON cards.id = source.card_id
@@ -634,7 +623,7 @@ type GetSourcesRow struct {
 	Name string `json:"name"`
 }
 
-// -------------------- Source
+// Source
 func (q *Queries) GetSources(ctx context.Context) ([]GetSourcesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getSources)
 	if err != nil {
@@ -659,7 +648,6 @@ func (q *Queries) GetSources(ctx context.Context) ([]GetSourcesRow, error) {
 }
 
 const getStatement = `-- name: GetStatement :one
-
 SELECT id FROM statements
 WHERE start_date = ? AND end_date = ? AND ledger_balance = ?
 LIMIT 1
@@ -671,7 +659,7 @@ type GetStatementParams struct {
 	LedgerBalance float64 `json:"ledger_balance"`
 }
 
-// -------------------- Statements
+// Statements
 func (q *Queries) GetStatement(ctx context.Context, arg GetStatementParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getStatement, arg.StartDate, arg.EndDate, arg.LedgerBalance)
 	var id int64
@@ -680,13 +668,12 @@ func (q *Queries) GetStatement(ctx context.Context, arg GetStatementParams) (int
 }
 
 const getTransaction = `-- name: GetTransaction :one
-
 SELECT id, source_id, date, value, type, "desc" FROM transactions
 WHERE id = ?1 LIMIT 1
 `
 
-// -------------------- Transactions
-func (q *Queries) GetTransaction(ctx context.Context, id interface{}) (Transaction, error) {
+// Transactions
+func (q *Queries) GetTransaction(ctx context.Context, id string) (Transaction, error) {
 	row := q.db.QueryRowContext(ctx, getTransaction, id)
 	var i Transaction
 	err := row.Scan(
@@ -765,12 +752,12 @@ SELECT id, name, account_id, account_type, f_id, bank_id, branch_id
 FROM banks
 WHERE (
     ?1 IS NULL
-    OR name         LIKE '%' || ?1 || '%'
-    OR account_id   LIKE '%' || ?1 || '%'
+    OR name LIKE '%' || ?1 || '%'
+    OR account_id LIKE '%' || ?1 || '%'
     OR account_type LIKE '%' || ?1 || '%'
-    OR f_id         LIKE '%' || ?1 || '%'
-    OR bank_id      LIKE '%' || ?1 || '%'
-    OR branch_id    LIKE '%' || ?1 || '%'
+    OR f_id LIKE '%' || ?1 || '%'
+    OR bank_id LIKE '%' || ?1 || '%'
+    OR branch_id LIKE '%' || ?1 || '%'
 )
 ORDER BY id DESC
 LIMIT ?3 OFFSET ?2
@@ -818,30 +805,26 @@ SELECT id, source_id, start_date, end_date, ledger_balance, balance_date, server
 WHERE source_id = ?1
 AND (
     ?2 IS NULL
-    OR balance_date      LIKE '%' || ?2 || '%'
-    OR server_date      LIKE '%' || ?2 || '%'
-    OR language      LIKE '%' || ?2 || '%'
+    OR balance_date LIKE '%' || ?2 || '%'
+    OR server_date LIKE '%' || ?2 || '%'
+    OR language LIKE '%' || ?2 || '%'
 )
-AND
-(
+AND (
     ?3 IS NULL
     OR ledger_balance <= ?3
 )
-AND
-(
+AND (
     ?4 IS NULL
     OR ledger_balance >= ?4
 )
-AND
-(
+AND (
     ?5 IS NULL
     OR start_date >= ?5
 )
-AND
-    (
-        ?6 IS NULL
-        OR start_date <= ?6
-    )
+AND (
+    ?6 IS NULL
+    OR start_date <= ?6
+)
 ORDER BY start_date DESC
 LIMIT ?8 OFFSET ?7
 `
@@ -902,38 +885,31 @@ const listTransactions = `-- name: ListTransactions :many
 SELECT id, source_id, date, value, type, "desc"
 FROM transactions
 WHERE source_id = ?1
-AND
-    (
-        ?2 IS NULL
-        OR source_id LIKE '%' || ?2 || '%'
-        OR date      LIKE '%' || ?2 || '%'
-        OR "desc"    LIKE '%' || ?2 || '%'
-    )
-AND
-    (
-        ?3 IS NULL
-        OR type LIKE '%' || ?3 || '%'
-    )
-AND
-    (
-        ?4 IS NULL
-        OR value <= ?4
-    )
-AND
-    (
-        ?5 IS NULL
-        OR value >= ?5
-    )
-AND
-    (
-        ?6 IS NULL
-        OR date >= ?6
-    )
-    AND
-        (
-            ?7 IS NULL
-            OR date <= ?7
-        )
+AND (
+    ?2 IS NULL
+    OR date LIKE '%' || ?2 || '%'
+    OR "desc" LIKE '%' || ?2 || '%'
+)
+AND (
+    ?3 IS NULL
+    OR type LIKE '%' || ?3 || '%'
+)
+AND (
+    ?4 IS NULL
+    OR value <= ?4
+)
+AND (
+    ?5 IS NULL
+    OR value >= ?5
+)
+AND (
+    ?6 IS NULL
+    OR date >= ?6
+)
+AND (
+    ?7 IS NULL
+    OR date <= ?7
+)
 ORDER BY date DESC
 LIMIT ?9 OFFSET ?8
 `
@@ -992,9 +968,9 @@ func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsPara
 
 const transactionsInfo = `-- name: TransactionsInfo :one
 SELECT
-  COALESCE(SUM(CASE WHEN value > ? THEN value ELSE 0 END), 0) AS positive,
-  COALESCE(SUM(CASE WHEN value < ? THEN value ELSE 0 END), 0) AS negative,
-  COALESCE(SUM(value), 0)                                    AS value
+    COALESCE(SUM(CASE WHEN value > ? THEN value ELSE 0 END), 0) AS positive,
+    COALESCE(SUM(CASE WHEN value < ? THEN value ELSE 0 END), 0) AS negative,
+    COALESCE(SUM(value), 0) AS value
 FROM transactions
 WHERE source_id = ?
 LIMIT 1
@@ -1021,7 +997,7 @@ func (q *Queries) TransactionsInfo(ctx context.Context, arg TransactionsInfoPara
 
 const updateBalance = `-- name: UpdateBalance :exec
 UPDATE balances
-set statement_id = ?,name = ?,description = ?,balance_type = ?,value = ?
+SET statement_id = ?, name = ?, description = ?, balance_type = ?, value = ?
 WHERE id = ?
 `
 
@@ -1048,7 +1024,7 @@ func (q *Queries) UpdateBalance(ctx context.Context, arg UpdateBalanceParams) er
 
 const updateBank = `-- name: UpdateBank :exec
 UPDATE banks
-set name = ?,account_id = ?,account_type = ?,f_id = ?,bank_id = ?,branch_id =?
+SET name = ?, account_id = ?, account_type = ?, f_id = ?, bank_id = ?, branch_id = ?
 WHERE id = ?
 `
 
@@ -1077,7 +1053,7 @@ func (q *Queries) UpdateBank(ctx context.Context, arg UpdateBankParams) error {
 
 const updateCard = `-- name: UpdateCard :exec
 UPDATE cards
-set name =?,account_id =?,f_id =?
+SET name = ?, account_id = ?, f_id = ?
 WHERE id = ?
 `
 
@@ -1100,7 +1076,7 @@ func (q *Queries) UpdateCard(ctx context.Context, arg UpdateCardParams) error {
 
 const updateSource = `-- name: UpdateSource :exec
 UPDATE source
-SET bank_id = ?,card_id = ?
+SET bank_id = ?, card_id = ?
 WHERE id = ?
 `
 
@@ -1117,7 +1093,7 @@ func (q *Queries) UpdateSource(ctx context.Context, arg UpdateSourceParams) erro
 
 const updateStatement = `-- name: UpdateStatement :exec
 UPDATE statements
-SET source_id = ?,start_date = ?,end_date = ?,ledger_balance = ?,balance_date = ?,server_date = ?,language = ?
+SET source_id = ?, start_date = ?, end_date = ?, ledger_balance = ?, balance_date = ?, server_date = ?, language = ?
 WHERE id = ?
 `
 
@@ -1148,17 +1124,17 @@ func (q *Queries) UpdateStatement(ctx context.Context, arg UpdateStatementParams
 
 const updateTransaction = `-- name: UpdateTransaction :exec
 UPDATE transactions
-SET source_id = ?,date = ?,value = ?,type = ?,desc = ?
+SET source_id = ?, date = ?, value = ?, type = ?, desc = ?
 WHERE id = ?
 `
 
 type UpdateTransactionParams struct {
-	SourceID int64       `json:"source_id"`
-	Date     string      `json:"date"`
-	Value    float64     `json:"value"`
-	Type     string      `json:"type"`
-	Desc     string      `json:"desc"`
-	ID       interface{} `json:"id"`
+	SourceID int64   `json:"source_id"`
+	Date     string  `json:"date"`
+	Value    float64 `json:"value"`
+	Type     string  `json:"type"`
+	Desc     string  `json:"desc"`
+	ID       string  `json:"id"`
 }
 
 func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) error {

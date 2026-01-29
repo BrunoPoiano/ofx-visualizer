@@ -3,7 +3,6 @@ package TransactionController
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"main/database/databaseSQL"
 	ofxService "main/services/ofx"
@@ -83,13 +82,13 @@ func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
 	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	vars := mux.Vars(r)
 
-	bankId, err := strconv.ParseInt(vars["bank_id"], 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	bankId := vars["bank_id"]
+	if bankId == "" {
+		http.Error(w, "id required", http.StatusBadRequest)
 		return
 	}
 
-	err = transactionService.DeleteTransaction(queries, r.Context(), bankId)
+	err := transactionService.DeleteTransaction(queries, r.Context(), bankId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

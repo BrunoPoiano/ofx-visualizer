@@ -23,7 +23,7 @@ func ConnectDatabase(ctx context.Context) (*sql.DB, *databaseSqlc.Queries, error
 		return nil, nil, err
 	}
 
-	if _, err := database.Exec(`PRAGMA foreign_keys = ON`); err != nil {
+	if _, err := database.Exec(`PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;`); err != nil {
 		log.Fatalf("failed to enable foreign keys: %v", err)
 	}
 

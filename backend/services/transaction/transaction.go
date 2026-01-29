@@ -132,6 +132,6 @@ func GetTransactionInfos(queries *databaseSqlc.Queries, ctx context.Context, fil
 //
 // Returns:
 //   - error: An error if the deletion fails, nil otherwise.
-func DeleteTransaction(queries *databaseSqlc.Queries, ctx context.Context, bankId int64) error {
+func DeleteTransaction(queries *databaseSqlc.Queries, ctx context.Context, bankId string) error {
 	return queries.DeleteTransaction(ctx, bankId)
 }

@@ -52,10 +52,10 @@ type Statement struct {
 }
 
 type Transaction struct {
-	ID       interface{} `json:"id"`
-	SourceID int64       `json:"source_id"`
-	Date     string      `json:"date"`
-	Value    float64     `json:"value"`
-	Type     string      `json:"type"`
-	Desc     string      `json:"desc"`
+	ID       string  `json:"id"`
+	SourceID int64   `json:"source_id"`
+	Date     string  `json:"date"`
+	Value    float64 `json:"value"`
+	Type     string  `json:"type"`
+	Desc     string  `json:"desc"`
 }
