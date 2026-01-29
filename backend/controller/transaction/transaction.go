@@ -3,15 +3,10 @@ package TransactionController
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
 	"strconv"
-	"strings"
 
 	"main/database/databaseSQL"
-	BalanceService "main/services/balance"
 	ofxService "main/services/ofx"
-	sourceService "main/services/source"
-	StatementService "main/services/statement"
 	transactionService "main/services/transaction"
 	"main/types"
 
@@ -40,57 +35,10 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, fileHeader := range files {
-		file, err := fileHeader.Open()
-		if err != nil {
-			http.Error(w, "Error opening file", http.StatusInternalServerError)
-			return
-		}
-		defer file.Close()
-
-		if !strings.Contains(fileHeader.Filename, ".ofx") {
-			http.Error(w, "File should be .ofx", http.StatusBadRequest)
-			return
-		}
-
-		transactions, statement, Bank, Card, err := ofxService.ParseOfx(file)
-		if err != nil {
-			http.Error(w, "Error parsing file", http.StatusBadRequest)
-			return
-		}
-
-		SourceId, err := sourceService.InsertItem(queries, r.Context(), Bank, Card)
-		if err != nil {
-			http.Error(w, "Error saving items", http.StatusBadRequest)
-			return
-		}
-
-		err = transactionService.InsertTransaction(queries, r.Context(), transactions, SourceId)
-		if err != nil {
-			http.Error(w, "Error saving transaction", http.StatusBadRequest)
-			return
-		}
-
-		StatementId, err := StatementService.InsertItems(queries, r.Context(), statement, SourceId)
-		if err != nil {
-			http.Error(w, "Error saving statement", http.StatusBadRequest)
-			return
-		}
-
-		for _, item := range statement.Yields {
-			err = BalanceService.InsertItems(queries, r.Context(), databaseSQL.CreateBalanceParams{
-				StatementID: item.StatementID,
-				Name:        item.Name,
-				Description: item.Description,
-				BalanceType: item.BalanceType,
-				Value:       item.Value,
-			}, StatementId)
-			if err != nil {
-				http.Error(w, "Error saving yields", http.StatusBadRequest)
-				return
-			}
-		}
-
+	err = ofxService.FileReader(files, queries, r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	json.NewEncoder(w)
@@ -120,13 +68,11 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	returnInfo := types.ReturnTransactionInfo{
+	json.NewEncoder(w).Encode(types.ReturnTransactionInfo{
 		Positive: positive,
 		Negative: negative,
 		Value:    value,
-	}
-
-	json.NewEncoder(w).Encode(returnInfo)
+	})
 }
 
 // DeleteTransactions handles the deletion of transactions from the database based on bank ID.
@@ -178,66 +124,11 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := types.ReturnPagination{
+	json.NewEncoder(w).Encode(types.ReturnPagination{
 		Data:        items,
 		Total:       totalItems,
 		LastPage:    lastpage,
 		CurrentPage: int(filter.CurrentPage),
 		PerPage:     int(filter.PerPage),
-	}
-
-	json.NewEncoder(w).Encode(response)
-}
-
-func ParseUrlValues(params url.Values) types.TransactionSearch {
-	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
-	if err != nil {
-		currentPage = 1
-	}
-
-	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
-	if err != nil {
-		perPage = 5
-	}
-
-	minValue, err := strconv.ParseInt(params.Get("min_value"), 10, 64)
-	if err != nil {
-		minValue = 0
-	}
-
-	maxValue, err := strconv.ParseInt(params.Get("max_value"), 10, 64)
-	if err != nil {
-		maxValue = 0
-	}
-
-	sourceId, err := strconv.ParseInt(params.Get("source_id"), 10, 64)
-	if err != nil {
-		sourceId = 0
-	}
-
-	order := params.Get("order")
-	if order == "" {
-		order = "date"
-	}
-
-	direction := params.Get("direction")
-	if direction == "" {
-		direction = "DESC"
-	}
-
-	return types.TransactionSearch{
-		DefaultSearch: types.DefaultSearch{
-			CurrentPage: currentPage,
-			PerPage:     perPage,
-			Order:       order,
-			Direction:   direction,
-			Search:      params.Get("search"),
-		},
-		MinValue: minValue,
-		MaxValue: maxValue,
-		From:     params.Get("from"),
-		To:       params.Get("to"),
-		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
-		SourceId: sourceId,
-	}
+	})
 }

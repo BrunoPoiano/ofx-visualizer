@@ -33,15 +33,13 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := types.ReturnPagination{
+	json.NewEncoder(w).Encode(types.ReturnPagination{
 		Data:        items,
 		Total:       totalItems,
 		CurrentPage: int(values.Offset),
 		PerPage:     int(values.Limit),
 		LastPage:    lastPage,
-	}
-
-	json.NewEncoder(w).Encode(response)
+	})
 }
 
 // UpdateItems updates the details of a specific bank record.
@@ -51,7 +49,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The http.Request containing the bank_id and update payload.
 // @Return void
 func UpdateItems(w http.ResponseWriter, r *http.Request) {
-	query := r.Context().Value("query").(*databaseSQL.Queries)
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	var bankBody databaseSqlc.UpdateBankParams
 
 	vars := mux.Vars(r)
@@ -77,7 +75,7 @@ func UpdateItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = BankService.UpdateItems(query, r.Context(), bankBody)
+	err = BankService.UpdateItems(queries, r.Context(), bankBody)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

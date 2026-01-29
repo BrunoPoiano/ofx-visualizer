@@ -23,33 +23,7 @@ func GetBalances(w http.ResponseWriter, r *http.Request) {
 	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 
 	params := r.URL.Query()
-	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
-	if err != nil {
-		currentPage = 1
-	}
-
-	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
-	if err != nil {
-		perPage = 5
-	}
-
-	order := params.Get("order")
-	if order == "" {
-		order = "id"
-	}
-
-	direction := params.Get("direction")
-	if direction == "" {
-		direction = "ASC"
-	}
-
-	DefaultSearch := types.DefaultSearch{
-		CurrentPage: currentPage,
-		PerPage:     perPage,
-		Order:       order,
-		Direction:   direction,
-		Search:      params.Get("search"),
-	}
+	DefaultSearch := ParseUrlValues(params)
 
 	vars := mux.Vars(r)
 
@@ -64,13 +38,11 @@ func GetBalances(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := types.ReturnPagination{
+	json.NewEncoder(w).Encode(types.ReturnPagination{
 		Data:        items,
 		Total:       totalItems,
 		LastPage:    lastpage,
-		CurrentPage: int(currentPage),
-		PerPage:     int(perPage),
-	}
-
-	json.NewEncoder(w).Encode(response)
+		CurrentPage: int(DefaultSearch.CurrentPage),
+		PerPage:     int(DefaultSearch.PerPage),
+	})
 }
