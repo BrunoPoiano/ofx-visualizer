@@ -1,14 +1,16 @@
 import { AppToggle } from '@/components/global/appToggle'
 import useLocalStorage from '@/lib/localstorage'
 import { Cards } from './components/cards/cards'
-import { AreaChart } from './components/charts/AreaChart'
-import { PieChartCredit } from './components/charts/PieChartCredit'
-import { PieChartDebit } from './components/charts/PieChartDebit'
 import { Filter } from './components/filter'
-import { Table } from './components/table'
 import { TransactionProvider } from './provider'
+import { lazy } from 'react'
 
-export const TransactionSection = () => {
+const Table = lazy(() => import('./components/table'))
+const AreaChart = lazy(() => import('./components/charts/AreaChart'))
+const PieChartCredit = lazy(() => import('./components/charts/PieChartCredit'))
+const PieChartDebit = lazy(() => import('./components/charts/PieChartDebit'))
+
+export default function TransactionSection() {
 	return (
 		<TransactionProvider>
 			<section className='@container grid w-full gap-2.5'>

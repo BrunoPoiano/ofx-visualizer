@@ -2,7 +2,6 @@ package ofxService
 
 import (
 	"context"
-	"fmt"
 	"mime/multipart"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	sourceService "main/services/source"
 	StatementService "main/services/statement"
 	transactionService "main/services/transaction"
+	"main/types"
 )
 
 func FileReader(files []*multipart.FileHeader, queries *databaseSQL.Queries, ctx context.Context) error {
@@ -22,27 +22,27 @@ func FileReader(files []*multipart.FileHeader, queries *databaseSQL.Queries, ctx
 		defer file.Close()
 
 		if !strings.Contains(fileHeader.Filename, ".ofx") {
-			return fmt.Errorf("File should be .ofx")
+			return types.InvalidOfx
 		}
 
 		transactions, statement, Bank, Card, err := ParseOfx(file)
 		if err != nil {
-			return fmt.Errorf("Error parsing file")
+			return types.ErrorParsingFile
 		}
 
 		SourceId, err := sourceService.InsertItem(queries, ctx, Bank, Card)
 		if err != nil {
-			return fmt.Errorf("Error saving items")
+			return types.ErrorSavingFileSource
 		}
 
 		err = transactionService.InsertTransaction(queries, ctx, transactions, SourceId)
 		if err != nil {
-			return fmt.Errorf("Error saving transaction")
+			return types.ErrorSavingTransaction
 		}
 
 		StatementId, err := StatementService.InsertItems(queries, ctx, statement, SourceId)
 		if err != nil {
-			return fmt.Errorf("Error saving statement")
+			return types.ErrorSavingStatement
 		}
 
 		for _, item := range statement.Yields {
@@ -54,7 +54,7 @@ func FileReader(files []*multipart.FileHeader, queries *databaseSQL.Queries, ctx
 				Value:       item.Value,
 			}, StatementId)
 			if err != nil {
-				return fmt.Errorf("Error saving yields")
+				return types.ErrorSavingYields
 			}
 		}
 	}

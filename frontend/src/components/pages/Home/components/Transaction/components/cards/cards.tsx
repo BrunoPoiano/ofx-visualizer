@@ -3,7 +3,7 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type { DateRange } from 'react-day-picker'
 
 import { useHomeContext } from '@/components/pages/Home/provider'
-import { generateKey, returnCardTextColor } from '@/lib/utils'
+import { formatMoney, generateKey, returnCardTextColor } from '@/lib/utils'
 import { useTransactionContext } from '../../provider'
 
 type FilteredTransactionType = {
@@ -115,12 +115,7 @@ const CardWrapper = ({ label, value, color }: CardWrapperType) => {
 						color: color
 					}}
 				>
-					{showValue
-						? `${value.toLocaleString('pt-BR', {
-								style: 'currency',
-								currency: 'BRL'
-							})}`
-						: '****'}
+					{showValue ? `${formatMoney(value)}` : '****'}
 				</span>
 			</CardContent>
 		</Card>

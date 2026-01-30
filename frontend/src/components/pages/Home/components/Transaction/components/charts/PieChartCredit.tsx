@@ -3,14 +3,10 @@ import { PieChartComponent } from '@/components/global/chart/piechart'
 import { CardHeader, CardTitle } from '@/components/ui/card'
 import type { ChartConfig } from '@/components/ui/chart'
 import { useTransactionContext } from '../../provider'
+import type { ChartType } from './types'
+import { ChartFooter } from './ChartFooter'
 
-type ChartType = {
-	to: string
-	value: number
-	fill: string
-}
-
-export const PieChartCredit = () => {
+export default function PieChartCredit() {
 	const {
 		transactions: [transactions]
 	} = useTransactionContext()
@@ -24,7 +20,6 @@ export const PieChartCredit = () => {
 		for (const item of transactions) {
 			if (item.type !== 'CREDIT') continue
 			const desc = item.desc.replace(/ /g, '-').toLowerCase()
-
 			const data = cData.find((el) => el.to === desc)
 
 			if (data) {
@@ -47,9 +42,10 @@ export const PieChartCredit = () => {
 		let i = 1
 		for (const cd of cData) {
 			cConfig[cd.to] = {
-				label: cd.to,
+				label: `${cd.to.slice(0, 20)} `,
 				color: `var(--chart-${i})`
 			}
+			cd.fill = `var(--chart-${i})`
 			i++
 		}
 
@@ -64,6 +60,7 @@ export const PieChartCredit = () => {
 					<CardTitle>Credit Transactions</CardTitle>
 				</CardHeader>
 			}
+			footer={<ChartFooter chartData={chartData} />}
 			chartData={chartData}
 			chartConfig={chartConfig}
 			dataKey='value'

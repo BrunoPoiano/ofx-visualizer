@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { lazy, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useLocalStorage from '@/lib/localstorage'
-import { BanksSection } from './components/Banks'
 import { AppHeader } from './components/header'
-import { StatementsSection } from './components/Statement'
-import { TransactionSection } from './components/Transaction'
 import { HomeProvider } from './provider'
 import type { HomeTabs } from './types'
+
+const TransactionSection = lazy(() => import('./components/Transaction'))
+const StatementsSection = lazy(() => import('./components/Statement'))
+const BanksSection = lazy(() => import('./components/Banks'))
 
 const homePageTabs: (HomeTabs & { label: string })[] = [
 	{

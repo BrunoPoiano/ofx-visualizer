@@ -50,7 +50,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 // @Return void
 func UpdateItems(w http.ResponseWriter, r *http.Request) {
 	queries := r.Context().Value("queries").(*databaseSQL.Queries)
-	var bankBody databaseSqlc.UpdateBankParams
+	var bankBody databaseSqlc.Bank
 
 	vars := mux.Vars(r)
 
@@ -59,8 +59,6 @@ func UpdateItems(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bank_id is required", http.StatusBadRequest)
 		return
 	}
-
-	bankBody.ID = int64(bankId)
 
 	reqBody, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -74,8 +72,15 @@ func UpdateItems(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to read body", http.StatusInternalServerError)
 		return
 	}
+	if bankBody.Name == "" {
+		http.Error(w, "Name field is required", http.StatusInternalServerError)
+		return
+	}
 
-	err = BankService.UpdateItems(queries, r.Context(), bankBody)
+	err = BankService.UpdateItems(queries, r.Context(), databaseSqlc.UpdateBankNameParams{
+		Name: bankBody.Name,
+		ID:   bankId,
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

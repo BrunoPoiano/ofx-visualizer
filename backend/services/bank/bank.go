@@ -2,11 +2,11 @@ package BankService
 
 import (
 	"context"
-	"fmt"
 	"math"
 
 	databaseSqlc "main/database/databaseSQL"
 	"main/services/utils"
+	"main/types"
 )
 
 // InsertItems checks if a Bank record exists for the given account and creates one if it doesn't.
@@ -39,7 +39,7 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, bank databa
 		return account_id, nil
 	}
 
-	return 0, fmt.Errorf("Error saving Bank")
+	return 0, types.ErrorSavingBank
 }
 
 // GetItems retrieves a paginated list of Bank items along with pagination metadata.
@@ -78,6 +78,6 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, params databas
 //
 // Returns:
 //   - An error if the update operation fails, nil otherwise.
-func UpdateItems(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.UpdateBankParams) error {
-	return queries.UpdateBank(ctx, bank)
+func UpdateItems(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.UpdateBankNameParams) error {
+	return queries.UpdateBankName(ctx, bank)
 }

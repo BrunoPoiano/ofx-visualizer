@@ -2,7 +2,6 @@ package sourceService
 
 import (
 	"context"
-	"fmt"
 
 	databaseSqlc "main/database/databaseSQL"
 	BankService "main/services/bank"
@@ -12,9 +11,9 @@ import (
 )
 
 func InsertItem(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.CreateBankParams, card databaseSqlc.CreateCardParams) (int, error) {
-	err := fmt.Errorf("")
-	bankId := int(0)
-	cardId := int(0)
+	var bankId int
+	var cardId int
+	var err error
 
 	if utils.InterfaceToString(bank.FID) != "" {
 		bankId, err = BankService.InsertItems(queries, ctx, bank)

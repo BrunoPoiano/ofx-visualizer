@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import { generateKey } from '@/lib/utils'
+import { formatMoney, generateKey } from '@/lib/utils'
 
 export const DialogInfo = ({ item }: { item: StatementType }) => {
 	const {
@@ -35,12 +35,7 @@ export const DialogInfo = ({ item }: { item: StatementType }) => {
 								<CardTitle className='px-6'>{yieldItem.name}</CardTitle>
 								<CardContent>
 									<p>{yieldItem.desc}</p>
-									<p>
-										{yieldItem.value.toLocaleString('pt-BR', {
-											style: 'currency',
-											currency: 'BRL'
-										})}
-									</p>
+									<p>{formatMoney(yieldItem.value)}</p>
 								</CardContent>
 							</Card>
 						))}

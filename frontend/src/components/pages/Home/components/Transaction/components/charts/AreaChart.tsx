@@ -14,7 +14,7 @@ type ChartType = {
 	total: number
 }
 
-export const AreaChart = () => {
+export default function AreaChart() {
 	const {
 		transactions: [transactions]
 	} = useTransactionContext()

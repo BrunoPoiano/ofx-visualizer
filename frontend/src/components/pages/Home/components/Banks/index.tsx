@@ -1,8 +1,10 @@
+import { lazy } from 'react'
 import { Filter } from './components/filter'
-import { Table } from './components/table'
 import { BanksProvider } from './provider'
 
-export const BanksSection = () => {
+const Table = lazy(() => import('./components/table'))
+
+export default function BanksSection() {
 	return (
 		<BanksProvider>
 			<section className='@container grid w-full gap-2.5'>

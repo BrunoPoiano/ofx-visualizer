@@ -99,9 +99,9 @@ INSERT INTO banks (
 )
 RETURNING *;
 
--- name: UpdateBank :exec
+-- name: UpdateBankName :exec
 UPDATE banks
-SET name = ?, account_id = ?, account_type = ?, f_id = ?, bank_id = ?, branch_id = ?
+SET name = ?
 WHERE id = ?;
 
 -- name: DeleteBank :exec

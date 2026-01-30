@@ -58,3 +58,10 @@ export function ensureOneOf<T extends readonly (string | number)[]>(
 	}
 	return value as T[number]
 }
+
+export function formatMoney(value: number): string {
+	return value.toLocaleString('pt-BR', {
+		style: 'currency',
+		currency: 'BRL'
+	})
+}

@@ -3,14 +3,10 @@ import { PieChartComponent } from '@/components/global/chart/piechart'
 import { CardHeader, CardTitle } from '@/components/ui/card'
 import type { ChartConfig } from '@/components/ui/chart'
 import { useTransactionContext } from '../../provider'
+import { ChartFooter } from './ChartFooter'
+import type { ChartType } from './types'
 
-type ChartType = {
-	to: string
-	value: number
-	fill: string
-}
-
-export const PieChartDebit = () => {
+export default function PieChartDebit() {
 	const {
 		transactions: [transactions]
 	} = useTransactionContext()
@@ -28,11 +24,11 @@ export const PieChartDebit = () => {
 
 			const data = cData.find((el) => el.to === desc)
 			if (data) {
-				data.value += item.value * -1
+				data.value += item.value
 			} else {
 				cData.push({
 					to: desc,
-					value: item.value * -1,
+					value: item.value,
 					fill: `var(--color-${desc})`
 				})
 			}
@@ -50,6 +46,8 @@ export const PieChartDebit = () => {
 				label: cd.to,
 				color: `var(--chart-${i})`
 			}
+			cd.value = cd.value * -1
+			cd.fill = `var(--chart-${i})`
 			i++
 		}
 
@@ -63,6 +61,11 @@ export const PieChartDebit = () => {
 				<CardHeader className='items-center pb-0'>
 					<CardTitle>Debit Breakdown</CardTitle>
 				</CardHeader>
+			}
+			footer={
+				<ChartFooter
+					chartData={chartData.map((el) => ({ ...el, value: el.value * -1 }))}
+				/>
 			}
 			chartData={chartData}
 			chartConfig={chartConfig}

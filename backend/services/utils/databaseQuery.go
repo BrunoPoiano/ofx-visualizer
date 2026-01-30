@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	databaseSqlc "main/database/databaseSQL"
+	"main/types"
 )
 
 // MakeQueryCall executes a SQL query and scans the result into a specified type.
@@ -90,7 +91,7 @@ func InterfaceToInt(value interface{}) (int, error) {
 	case float64:
 		v = int(t)
 	default:
-		return 0, fmt.Errorf("Invalid value")
+		return 0, types.InvalidValue
 	}
 
 	return v, nil
@@ -131,7 +132,7 @@ func InterfaceToFloat(value interface{}) (float64, error) {
 	case float64:
 		v = t
 	default:
-		return 0, fmt.Errorf("Invalid value")
+		return 0, types.InvalidValue
 	}
 
 	return v, nil

@@ -176,7 +176,7 @@ func parseSTMTTRNIntoTransaction(stmttrn string) (databaseSqlc.CreateTransaction
 		return transaction, err
 	}
 	if types.TransactionType(tType).IsValid() == false {
-		return transaction, fmt.Errorf("Invalid Type")
+		return transaction, types.InvalidType
 	}
 
 	id, err := getItensFromTag("FITID", stmttrn)
@@ -259,7 +259,7 @@ func parseBankInfo(file string) (databaseSqlc.CreateBankParams, error) {
 	}
 
 	if types.AccountType(accountType).IsValid() == false {
-		return Bank, fmt.Errorf("Invalid AccountType")
+		return Bank, types.InvalidAccountType
 	}
 
 	Bank.Name = fmt.Sprintf("Bank %s", name)

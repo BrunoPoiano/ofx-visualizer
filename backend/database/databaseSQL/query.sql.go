@@ -1022,32 +1022,19 @@ func (q *Queries) UpdateBalance(ctx context.Context, arg UpdateBalanceParams) er
 	return err
 }
 
-const updateBank = `-- name: UpdateBank :exec
+const updateBankName = `-- name: UpdateBankName :exec
 UPDATE banks
-SET name = ?, account_id = ?, account_type = ?, f_id = ?, bank_id = ?, branch_id = ?
+SET name = ?
 WHERE id = ?
 `
 
-type UpdateBankParams struct {
-	Name        string `json:"name"`
-	AccountID   string `json:"account_id"`
-	AccountType string `json:"account_type"`
-	FID         string `json:"f_id"`
-	BankID      string `json:"bank_id"`
-	BranchID    string `json:"branch_id"`
-	ID          int64  `json:"id"`
+type UpdateBankNameParams struct {
+	Name string `json:"name"`
+	ID   int64  `json:"id"`
 }
 
-func (q *Queries) UpdateBank(ctx context.Context, arg UpdateBankParams) error {
-	_, err := q.db.ExecContext(ctx, updateBank,
-		arg.Name,
-		arg.AccountID,
-		arg.AccountType,
-		arg.FID,
-		arg.BankID,
-		arg.BranchID,
-		arg.ID,
-	)
+func (q *Queries) UpdateBankName(ctx context.Context, arg UpdateBankNameParams) error {
+	_, err := q.db.ExecContext(ctx, updateBankName, arg.Name, arg.ID)
 	return err
 }
 

@@ -2,7 +2,6 @@ package StatementService
 
 import (
 	"context"
-	"fmt"
 	"math"
 
 	"main/services/utils"
@@ -43,7 +42,7 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databa
 		return int(accountId), nil
 	}
 
-	return 0, fmt.Errorf("Error saving statement")
+	return 0, types.ErrorSavingStatement
 }
 
 // GetItems retrieves a paginated list of Statement items based on search filters.

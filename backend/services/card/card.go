@@ -94,7 +94,7 @@ func GetItems(database *sql.DB, filter types.DefaultSearch) ([]databaseSqlc.Card
 
 func UpdateItems(database *sql.DB, item databaseSqlc.Card) error {
 	if item.Name == "" || item.ID == 0 {
-		return fmt.Errorf("Invalid object")
+		return types.InvalidObject
 	}
 
 	query := fmt.Sprintf("UPDATE cards SET name='%s' WHERE id=%d", item.Name, item.ID)

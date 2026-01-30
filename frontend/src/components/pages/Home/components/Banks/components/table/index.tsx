@@ -4,7 +4,7 @@ import { useBankContext } from '../../provider'
 import { DialogEdit } from './components/DialogEdit'
 import { TableInfo } from './table'
 
-export const Table = ({ small = false }: { small?: boolean }) => {
+export default function Table({ small = false }: { small?: boolean }) {
 	const {
 		orderBy: [orderBy, setOrderBy],
 		pagination: [pagination, setPagination],

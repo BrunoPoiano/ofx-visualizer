@@ -1,6 +1,6 @@
 'use client'
 
-import { Pie, PieChart } from 'recharts'
+import { Pie, PieChart, type PieLabelRenderProps } from 'recharts'
 
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -16,7 +16,9 @@ type PieChartComponentType = {
 	dataKey: string
 	nameKey: string
 	header?: ReactNode
+	footer?: ReactNode
 	chartConfig: ChartConfig
+	tooltip?: true
 }
 
 export const PieChartComponent: React.FC<PieChartComponentType> = ({
@@ -24,7 +26,9 @@ export const PieChartComponent: React.FC<PieChartComponentType> = ({
 	dataKey,
 	nameKey,
 	chartConfig,
-	header
+	header,
+	footer,
+	tooltip
 }) => {
 	return (
 		<Card className='flex flex-col'>
@@ -35,33 +39,53 @@ export const PieChartComponent: React.FC<PieChartComponentType> = ({
 					className='mx-auto aspect-square max-h-[250px] px-0'
 				>
 					<PieChart>
-						<ChartTooltip
-							content={<ChartTooltipContent nameKey={nameKey} hideLabel />}
-						/>
+						{tooltip && (
+							<ChartTooltip
+								content={<ChartTooltipContent nameKey={nameKey} hideLabel />}
+							/>
+						)}
 						<Pie
 							data={chartData}
 							nameKey={nameKey}
 							dataKey={dataKey}
 							labelLine={false}
-							label={({ payload, ...props }) => {
-								return (
-									<text
-										cx={props.cx}
-										cy={props.cy}
-										x={props.x}
-										y={props.y}
-										textAnchor={props.textAnchor}
-										dominantBaseline={props.dominantBaseline}
-										fill='hsla(var(--foreground))'
-									>
-										{payload[dataKey]}
-									</text>
-								)
-							}}
+							label={renderCustomizedLabel}
 						/>
 					</PieChart>
 				</ChartContainer>
 			</CardContent>
+			{footer}
 		</Card>
+	)
+}
+const RADIAN = Math.PI / 180
+const renderCustomizedLabel = ({
+	cx,
+	cy,
+	midAngle,
+	innerRadius,
+	outerRadius,
+	percent
+}: PieLabelRenderProps) => {
+	if (cx == null || cy == null || innerRadius == null || outerRadius == null) {
+		return null
+	}
+	const radius =
+		Number(innerRadius) + (Number(outerRadius) - Number(innerRadius)) * 0.5
+	const ncx = Number(cx)
+	const x = ncx + radius * Math.cos(-(midAngle ?? 0) * RADIAN)
+	const ncy = Number(cy)
+	const y = ncy + radius * Math.sin(-(midAngle ?? 0) * RADIAN)
+
+	return (
+		<text
+			x={x}
+			y={y}
+			fill='white'
+			textAnchor={x > ncx ? 'start' : 'end'}
+			dominantBaseline='central'
+		>
+			{`${((percent ?? 1) * 100).toFixed(0)}%`}
+		</text>
 	)
 }
