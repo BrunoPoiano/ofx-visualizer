@@ -1,4 +1,4 @@
-import { formatMoney } from '@/lib/utils'
+import { formatMoney, generateKey } from '@/lib/utils'
 import type { ChartType } from './types'
 import { CardFooter } from '@/components/ui/card'
 
@@ -7,6 +7,7 @@ export const ChartFooter = ({ chartData }: { chartData: ChartType[] }) => (
 		<ul className='w-full'>
 			{chartData.map((item, index) => (
 				<li
+					key={generateKey()}
 					title={item.to.replace(/-/g, ' ')}
 					className='flex gap-1.5 items-center cursor-default'
 				>

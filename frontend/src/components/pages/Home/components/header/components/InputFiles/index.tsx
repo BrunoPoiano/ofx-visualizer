@@ -6,7 +6,7 @@ export const InputFiles = ({
 	loading
 }: {
 	filesState: [Array<File>, Dispatch<SetStateAction<Array<File>>>]
-	loading: boolean
+	loading?: boolean
 }) => {
 	const [files, setFiles] = filesState
 	const inputId = useId()
