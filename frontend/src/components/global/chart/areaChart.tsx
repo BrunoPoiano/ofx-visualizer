@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { CartesianGrid, Line, LineChart, XAxis } from 'recharts'
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 import { Card, CardContent } from '@/components/ui/card'
 import type { ChartConfig } from '@/components/ui/chart'
 import {
@@ -42,6 +42,7 @@ export const AreaChartComponent = ({
 							tickMargin={10}
 							tickFormatter={(value) => value.slice(0, 7)}
 						/>
+						<YAxis axisLine={true} />
 						<ChartTooltip
 							cursor={false}
 							content={<ChartTooltipContent hideLabel />}

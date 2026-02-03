@@ -4,10 +4,10 @@ type Props = {
 	width?: string | number
 }
 
-export const CloseSvg = ({ ...props }: Props) => {
+export const CloseSvg = ({ width }: Props) => {
 	return (
 		<svg
-			width={props.width || '20px'}
+			width={width || '20px'}
 			viewBox='0 0 24 24'
 			fill='none'
 			xmlns='http://www.w3.org/2000/svg'

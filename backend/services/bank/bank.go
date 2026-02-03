@@ -1,125 +1,83 @@
 package BankService
 
 import (
-	"database/sql"
-	"fmt"
+	"context"
+	"math"
+
+	databaseSqlc "main/database/databaseSQL"
 	"main/services/utils"
 	"main/types"
-	"math"
 )
 
-// InsertItems inserts a Bank item into the database.
+// InsertItems checks if a Bank record exists for the given account and creates one if it doesn't.
 //
 // Parameters:
-//   - database: A pointer to the database connection.
-//   - item: The Bank item to insert.
+//   - queries: A pointer to the sqlc Queries instance.
+//   - ctx: The context for the database operations.
+//   - bank: The parameters required to create a new bank record.
 //
 // Returns:
-//   - An error if the insertion fails, nil otherwise.
-func InsertItems(database *sql.DB, item types.Bank) (int, error) {
+//   - The ID of the bank (either existing or newly created).
+//   - An error if any database operation or conversion fails.
+func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.CreateBankParams) (int, error) {
+	bankAccId, err := queries.GetBankIdByAccountId(ctx, bank.AccountID)
+	if err != nil {
+		newBank, err := queries.CreateBank(ctx, bank)
+		if err != nil {
+			return 0, err
+		}
 
-	var account_id int
-	total, err := database.Query("SELECT id FROM banks WHERE account_id = ?", item.AccountId)
+		return int(newBank.ID), nil
+	}
+
+	account_id, err := utils.InterfaceToInt(bankAccId)
 	if err != nil {
 		return 0, err
 	}
-	defer total.Close()
 
-	if err := total.Err(); err != nil {
-		return 0, err
-	}
-	for total.Next() {
-		total.Scan(&account_id)
-	}
-
-	if account_id != 0 {
+	if account_id > 0 {
 		return account_id, nil
 	}
 
-	stmt, err := database.Prepare("INSERT INTO banks(name,account_id,account_type,f_id,bank_id,branch_id) values(?,?,?,?,?,?)")
-	if err != nil {
-		return 0, err
-	}
-
-	result, err := stmt.Exec(item.Name, item.AccountId, item.AccountType, item.FId, item.BankId, item.BranchId)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(id), nil
+	return 0, types.ErrorSavingBank
 }
 
-// GetItems retrieves a paginated list of Bank items from the database.
+// GetItems retrieves a paginated list of Bank items along with pagination metadata.
 //
 // Parameters:
-//   - database: A pointer to the database connection.
-//   - perPage: The number of items to retrieve per page.
-//   - currentPage: The current page number.
+//   - queries: A pointer to the sqlc Queries instance.
+//   - ctx: The context for the database operations.
+//   - params: The list parameters including limit and offset for pagination.
 //
 // Returns:
-//   - A slice of Bank items.
-//   - The total number of items in the database.
-//   - An error if the retrieval fails, nil otherwise.
-func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Bank, int, int, error) {
-
-	var items []types.Bank
-
-	offset := filter.PerPage * (filter.CurrentPage - 1)
-	query := fmt.Sprintf("SELECT * FROM banks")
-
-	if filter.Search != "" {
-		query = fmt.Sprintf("%s WHERE name LIKE '%%%s%%'", query, filter.Search)
+//   - A slice of Bank database models.
+//   - The total count of Bank items matching the criteria.
+//   - The calculated last page number.
+//   - An error if the retrieval or counting fails.
+func GetItems(queries *databaseSqlc.Queries, ctx context.Context, params databaseSqlc.ListBanksParams) ([]databaseSqlc.Bank, int, int, error) {
+	banks, err := queries.ListBanks(ctx, params)
+	if err != nil {
+		return banks, 0, 0, err
 	}
 
-	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
-	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
-
-	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.Bank, error) {
-		var s []types.Bank
-		for rows.Next() {
-			var item types.Bank
-			err := rows.Scan(&item.Id, &item.Name, &item.AccountId, &item.AccountType, &item.FId, &item.BankId, &item.BranchId)
-			if err != nil {
-				return nil, err
-			}
-			s = append(s, item)
-		}
-		return s, rows.Err()
-	})
+	totalItems, err := queries.CountBanks(ctx, params.Search)
 	if err != nil {
 		return nil, 0, 1, err
 	}
 
-	totalQuery := "SELECT count(id) as totalItems FROM banks"
-	totalItems, err := utils.MakeQueryCall(database, totalQuery, func(rows *sql.Rows) (int, error) {
-		var s int
-		for rows.Next() {
-			rows.Scan(&s)
-		}
-		return s, nil
-	})
-	if err != nil {
-		return nil, 0, 1, err
-	}
-
-	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
-	return items, totalItems, int(last_page), nil
-
+	last_page := math.Ceil(float64(totalItems) / float64(params.Limit))
+	return banks, int(totalItems), int(last_page), nil
 }
 
-func UpdateItems(database *sql.DB, item types.Bank) error {
-
-	if item.Name == "" || item.Id == 0 {
-		return fmt.Errorf("Invalid object")
-	}
-
-	query := fmt.Sprintf("UPDATE banks SET name='%s' WHERE id=%d", item.Name, item.Id)
-	_, err := database.Exec(query)
-
-	return err
+// UpdateItems updates an existing Bank record in the database.
+//
+// Parameters:
+//   - queries: A pointer to the sqlc Queries instance.
+//   - ctx: The context for the database operation.
+//   - bank: The parameters containing the updated values and the record ID.
+//
+// Returns:
+//   - An error if the update operation fails, nil otherwise.
+func UpdateItems(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.UpdateBankNameParams) error {
+	return queries.UpdateBankName(ctx, bank)
 }

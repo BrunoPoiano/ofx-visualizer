@@ -1,2 +1,4 @@
 backend/database/analytics.db
+backend/database/analytics.db-shm
+backend/database/analytics.db-wal
 .zed

@@ -1,7 +1,6 @@
 package router
 
 import (
-	"database/sql"
 	BalanceController "main/controller/balance"
 	BankController "main/controller/bank"
 	SourceController "main/controller/source"
@@ -9,46 +8,46 @@ import (
 	TransactionController "main/controller/transaction"
 	"main/middleware"
 
+	databaseSqlc "main/database/databaseSQL"
+
 	"github.com/gorilla/mux"
 )
 
-func AppRoutes(db *sql.DB) *mux.Router {
-
+func AppRoutes(queries *databaseSqlc.Queries) *mux.Router {
 	router := mux.NewRouter()
 
-	transactions(db, router)
-	statements(db, router)
-	balances(db, router)
-	banks(db, router)
-	source(db, router)
+	transactions(queries, router)
+	statements(queries, router)
+	balances(queries, router)
+	banks(queries, router)
+	source(queries, router)
 
 	return router
 }
 
-func transactions(db *sql.DB, router *mux.Router) {
-
-	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, TransactionController.GetItems)).Methods("GET")
-	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(db, TransactionController.InsertItems)).Methods("POST")
-	router.HandleFunc("/transactions/info", middleware.DatabaseMiddleware(db, TransactionController.GetTransactionInfos)).Methods("GET")
-	router.HandleFunc("/transaction/{bank_id}", middleware.DatabaseMiddleware(db, TransactionController.DeleteTransactions)).Methods("DELETE")
+func transactions(queries *databaseSqlc.Queries, router *mux.Router) {
+	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(queries, TransactionController.GetItems)).Methods("GET")
+	router.HandleFunc("/transactions", middleware.DatabaseMiddleware(queries, TransactionController.InsertItems)).Methods("POST")
+	router.HandleFunc("/transactions/info", middleware.DatabaseMiddleware(queries, TransactionController.GetTransactionInfos)).Methods("GET")
+	router.HandleFunc("/transaction/{bank_id}", middleware.DatabaseMiddleware(queries, TransactionController.DeleteTransactions)).Methods("DELETE")
 }
 
-func banks(db *sql.DB, router *mux.Router) {
-	router.HandleFunc("/banks", middleware.DatabaseMiddleware(db, BankController.GetItems)).Methods("GET")
-	router.HandleFunc("/banks/{bank_id}", middleware.DatabaseMiddleware(db, BankController.UpdateItems)).Methods("PUT")
+func banks(queries *databaseSqlc.Queries, router *mux.Router) {
+	router.HandleFunc("/banks", middleware.DatabaseMiddleware(queries, BankController.GetItems)).Methods("GET")
+	router.HandleFunc("/banks/{bank_id}", middleware.DatabaseMiddleware(queries, BankController.UpdateItems)).Methods("PUT")
 }
 
-func source(db *sql.DB, router *mux.Router) {
-	router.HandleFunc("/source", middleware.DatabaseMiddleware(db, SourceController.GetItems)).Methods("GET")
+func source(queries *databaseSqlc.Queries, router *mux.Router) {
+	router.HandleFunc("/source", middleware.DatabaseMiddleware(queries, SourceController.GetItems)).Methods("GET")
 }
 
-func statements(db *sql.DB, router *mux.Router) {
-	router.HandleFunc("/statements", middleware.DatabaseMiddleware(db, StatementsController.GetStatements)).Methods("GET")
-	router.HandleFunc("/statements/{bank_id}", middleware.DatabaseMiddleware(db, StatementsController.GetStatements)).Methods("GET")
-	router.HandleFunc("/statements/{bank_id}/info", middleware.DatabaseMiddleware(db, StatementsController.GetStatementsInfo)).Methods("GET")
+func statements(queries *databaseSqlc.Queries, router *mux.Router) {
+	router.HandleFunc("/statements", middleware.DatabaseMiddleware(queries, StatementsController.GetStatements)).Methods("GET")
+	router.HandleFunc("/statements/{bank_id}", middleware.DatabaseMiddleware(queries, StatementsController.GetStatements)).Methods("GET")
+	router.HandleFunc("/statements/{bank_id}/info", middleware.DatabaseMiddleware(queries, StatementsController.GetStatementsInfo)).Methods("GET")
 }
 
-func balances(db *sql.DB, router *mux.Router) {
-	router.HandleFunc("/balances", middleware.DatabaseMiddleware(db, BalanceController.GetBalances)).Methods("GET")
-	router.HandleFunc("/balances/{statement_id}", middleware.DatabaseMiddleware(db, BalanceController.GetBalances)).Methods("GET")
+func balances(queries *databaseSqlc.Queries, router *mux.Router) {
+	router.HandleFunc("/balances", middleware.DatabaseMiddleware(queries, BalanceController.GetBalances)).Methods("GET")
+	router.HandleFunc("/balances/{statement_id}", middleware.DatabaseMiddleware(queries, BalanceController.GetBalances)).Methods("GET")
 }

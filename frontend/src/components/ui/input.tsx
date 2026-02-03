@@ -5,11 +5,12 @@ import { cn } from '@/lib/utils'
 function Input({
 	className,
 	type,
+	loading,
 	...props
 }: React.ComponentProps<'input'> & { loading?: boolean }) {
 	return (
 		<input
-			disabled={props.disabled || props.loading}
+			disabled={props.disabled || loading}
 			type={type}
 			data-slot='input'
 			className={cn(

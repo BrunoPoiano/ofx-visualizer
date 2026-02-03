@@ -1,17 +1,13 @@
 package TransactionController
 
 import (
-	"database/sql"
 	"encoding/json"
-	BalanceService "main/services/balance"
+	"net/http"
+
+	"main/database/databaseSQL"
 	ofxService "main/services/ofx"
-	sourceService "main/services/source"
-	StatementService "main/services/statement"
 	transactionService "main/services/transaction"
 	"main/types"
-	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -24,8 +20,7 @@ import (
 // @Param r *http.Request - The request object, containing the OFX file
 // @Return void
 func InsertItems(w http.ResponseWriter, r *http.Request) {
-
-	database := r.Context().Value("db").(*sql.DB)
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	err := r.ParseMultipartForm(10 << 20) // limit memory usage to 10 MB
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
@@ -39,55 +34,11 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, fileHeader := range files {
-		file, err := fileHeader.Open()
-		if err != nil {
-			http.Error(w, "Error opening file", http.StatusInternalServerError)
-			return
-		}
-		defer file.Close()
-
-		if !strings.Contains(fileHeader.Filename, ".ofx") {
-			http.Error(w, "File should be .ofx", http.StatusBadRequest)
-			return
-		}
-
-		transactions, statement, Bank, Card, err := ofxService.ParseOfx(file)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		SourceId, err := sourceService.InsertItem(database, Bank, Card)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		err = transactionService.InsertTransaction(database, transactions, SourceId)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		StatementId, err := StatementService.InsertItems(database, statement, SourceId)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		for _, item := range statement.Yields {
-			err = BalanceService.InsertItems(database, item, StatementId)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-		}
-
+	err = ofxService.FileReader(files, queries, r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-
-	json.NewEncoder(w)
-
 }
 
 // GetTransactionInfos retrieves aggregate transaction information (positive, negative, total value) from the database based on provided filters.
@@ -98,59 +49,27 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The request object, containing filter parameters
 // @Return void
 func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
-
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
-	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
-	if err != nil {
-		currentPage = 1
+	filter := ParseUrlValues(params)
+
+	if filter.SourceId == 0 {
+		http.Error(w, "source_id is required", http.StatusBadRequest)
+		return
 	}
 
-	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
-	if err != nil {
-		perPage = 5
-	}
-
-	order := params.Get("order")
-	if order == "" {
-		order = "date"
-	}
-
-	direction := params.Get("direction")
-	if direction == "" {
-		direction = "DESC"
-	}
-
-	filter := types.TransactionSearch{
-		DefaultSearch: types.DefaultSearch{
-			CurrentPage: currentPage,
-			PerPage:     perPage,
-			Order:       order,
-			Direction:   direction,
-			Search:      params.Get("search"),
-		},
-		MinValue: params.Get("min_value"),
-		MaxValue: params.Get("max_value"),
-		From:     params.Get("from"),
-		To:       params.Get("to"),
-		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
-		SourceId: params.Get("source_id"),
-	}
-
-	positive, negative, value, err := transactionService.GetTransactionInfos(database, filter)
+	positive, negative, value, err := transactionService.GetTransactionInfos(queries, r.Context(), filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	returnInfo := types.ReturnTransactionInfo{
+	json.NewEncoder(w).Encode(types.ReturnTransactionInfo{
 		Positive: positive,
 		Negative: negative,
 		Value:    value,
-	}
-
-	json.NewEncoder(w).Encode(returnInfo)
+	})
 }
 
 // DeleteTransactions handles the deletion of transactions from the database based on bank ID.
@@ -160,22 +79,20 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The request object, containing the bank ID
 // @Return void
 func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	vars := mux.Vars(r)
 
-	bankId, err := strconv.ParseInt(vars["bank_id"], 10, 64)
+	bankId := vars["bank_id"]
+	if bankId == "" {
+		http.Error(w, "id required", http.StatusBadRequest)
+		return
+	}
+
+	err := transactionService.DeleteTransaction(queries, r.Context(), bankId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	err = transactionService.DeleteTransaction(database, bankId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	json.NewEncoder(w)
 }
 
 // GetItems retrieves transactions from the database with pagination.
@@ -186,58 +103,27 @@ func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The request object, containing pagination parameters
 // @Return void
 func GetItems(w http.ResponseWriter, r *http.Request) {
-	database := r.Context().Value("db").(*sql.DB)
+	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
-	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
-	if err != nil {
-		currentPage = 1
+	filter := ParseUrlValues(params)
+
+	if filter.SourceId == 0 {
+		http.Error(w, "source_id is required", http.StatusBadRequest)
+		return
 	}
 
-	perPage, err := strconv.ParseInt(params.Get("per_page"), 10, 64)
-	if err != nil {
-		perPage = 5
-	}
-
-	order := params.Get("order")
-	if order == "" {
-		order = "date"
-	}
-
-	direction := params.Get("direction")
-	if direction == "" {
-		direction = "ASC"
-	}
-
-	filter := types.TransactionSearch{
-		DefaultSearch: types.DefaultSearch{
-			CurrentPage: currentPage,
-			PerPage:     perPage,
-			Order:       order,
-			Direction:   direction,
-			Search:      params.Get("search"),
-		},
-		MinValue: params.Get("min_value"),
-		MaxValue: params.Get("max_value"),
-		From:     params.Get("from"),
-		To:       params.Get("to"),
-		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
-		SourceId: params.Get("source_id"),
-	}
-
-	items, totalItems, lastpage, err := transactionService.GetTransactions(database, filter)
+	items, totalItems, lastpage, err := transactionService.GetTransactions(queries, r.Context(), filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	response := types.ReturnPagination{
+	json.NewEncoder(w).Encode(types.ReturnPagination{
 		Data:        items,
 		Total:       totalItems,
 		LastPage:    lastpage,
-		CurrentPage: int(currentPage),
-		PerPage:     int(perPage),
-	}
-
-	json.NewEncoder(w).Encode(response)
+		CurrentPage: int(filter.CurrentPage),
+		PerPage:     int(filter.PerPage),
+	})
 }

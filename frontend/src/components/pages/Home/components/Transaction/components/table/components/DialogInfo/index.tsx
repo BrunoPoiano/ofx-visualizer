@@ -11,7 +11,7 @@ import {
 	AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { parseDate } from '@/lib/utils'
+import { formatMoney, parseDate } from '@/lib/utils'
 
 export const DialogInfo = ({ item }: { item: TransactionType }) => {
 	const {
@@ -36,12 +36,7 @@ export const DialogInfo = ({ item }: { item: TransactionType }) => {
 					<b>{source_name}</b>
 					<div className='flex gap-[0.5ch]'>
 						<span>{item.type}</span>
-						<span>
-							{item.value.toLocaleString('pt-BR', {
-								style: 'currency',
-								currency: 'BRL'
-							})}
-						</span>
+						<span>{formatMoney(item.value)}</span>
 						<span className='ml-auto'>{parseDate(item.date)}</span>
 					</div>
 					<AlertDialogDescription>{item.desc}</AlertDialogDescription>

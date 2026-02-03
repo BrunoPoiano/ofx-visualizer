@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AppToggle } from '@/components/global/appToggle'
 import { AreaChartComponent } from '@/components/global/chart/areaChart'
 import { CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +14,7 @@ type ChartType = {
 	total: number
 }
 
-export const AreaChart = () => {
+export default function AreaChart() {
 	const {
 		transactions: [transactions]
 	} = useTransactionContext()
@@ -23,61 +23,67 @@ export const AreaChart = () => {
 
 	const chartConfig = {
 		positive: {
-			label: 'Positive',
+			label: 'Credit',
 			color: 'var(--chart-2)'
 		},
 		negative: {
-			label: 'Negative',
+			label: 'Debit',
 			color: 'var(--destructive)'
 		},
 		total: {
 			label: 'Total',
-			color: 'var(--chart-1)'
+			color: 'var(--chart-3)'
 		}
 	} satisfies ChartConfig
 
-	useEffect(() => {
-		const cData: ChartType[] = []
+	const updateChartData = useCallback(() => {
+		setChartData(() => {
+			const cData: ChartType[] = []
+			const format = toggle ? 'MM/YYYY' : 'DD/MM'
 
-		const format = toggle ? 'MM/YYYY' : 'DD/MM'
+			for (const item of transactions) {
+				const date = moment(item.date).format(format)
+				const key = cData.find((el) => el.key === date)
 
-		for (const item of transactions) {
-			const date = moment(item.date).format(format)
-			const key = cData.find((el) => el.key === date)
-			if (key) {
-				if (item.value > 0) {
-					key.positive += item.value
+				if (key) {
+					if (item.value > 0) {
+						key.positive += item.value
+					} else {
+						key.negative += Math.abs(item.value)
+					}
+					key.total += item.value
 				} else {
-					key.negative += Math.abs(item.value)
-				}
-				key.total += item.value
-			} else {
-				if (item.value > 0) {
-					cData.push({
-						key: date,
-						positive: item.value,
-						negative: 0,
-						total: item.value
-					})
-				} else {
-					cData.push({
-						key: date,
-						positive: 0,
-						negative: Math.abs(item.value),
-						total: item.value
-					})
+					if (item.value > 0) {
+						cData.push({
+							key: date,
+							positive: item.value,
+							negative: 0,
+							total: item.value
+						})
+					} else {
+						cData.push({
+							key: date,
+							positive: 0,
+							negative: Math.abs(item.value),
+							total: item.value
+						})
+					}
 				}
 			}
-		}
 
-		cData.sort((a, b) => {
-			const monthA = moment(a.key, format)
-			const monthB = moment(b.key, format)
-			return monthA.isBefore(monthB) ? -1 : 1
+			cData.sort((a, b) => {
+				const monthA = moment(a.key, format)
+				const monthB = moment(b.key, format)
+				return monthA.isBefore(monthB) ? -1 : 1
+			})
+
+			return cData.map((item) => ({ ...item, negative: item.negative * -1 }))
 		})
-
-		setChartData(cData)
 	}, [transactions, toggle])
+
+	useEffect(() => {
+		updateChartData()
+	}, [updateChartData])
 
 	return (
 		<AreaChartComponent

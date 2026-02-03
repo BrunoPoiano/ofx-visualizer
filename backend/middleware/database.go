@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
+
+	databaseSqlc "main/database/databaseSQL"
 )
 
 // DatabaseMiddleware adds the database connection to the request context.
@@ -14,9 +15,9 @@ import (
 //
 // Returns:
 //   - An http.HandlerFunc that adds the database connection to the request context and calls the next handler.
-func DatabaseMiddleware(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
+func DatabaseMiddleware(queries *databaseSqlc.Queries, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), "db", db)
+		ctx := context.WithValue(r.Context(), "queries", queries)
 		next(w, r.WithContext(ctx))
 	}
 }

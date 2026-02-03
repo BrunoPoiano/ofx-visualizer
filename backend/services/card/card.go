@@ -1,10 +1,14 @@
 package CardService
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+
 	"main/services/utils"
 	"main/types"
+
+	databaseSqlc "main/database/databaseSQL"
 )
 
 // InsertItems inserts a Card item into the database.
@@ -15,42 +19,22 @@ import (
 //
 // Returns:
 //   - An error if the insertion fails, nil otherwise.
-func InsertItems(database *sql.DB, item types.Card) (int, error) {
-
-	var id int
-	total, err := database.Query("SELECT id FROM cards WHERE account_id = ?", item.AccountId)
+func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databaseSqlc.CreateCardParams) (int, error) {
+	card_id, err := queries.GetCardIdByAccountId(ctx, item.AccountID)
 	if err != nil {
-		return 0, err
-	}
-	defer total.Close()
+		card, err := queries.CreateCard(ctx, item)
+		if err != nil {
+			return 0, err
+		}
 
-	if err := total.Err(); err != nil {
-		return 0, err
-	}
-	for total.Next() {
-		total.Scan(&id)
+		return int(card.ID), nil
 	}
 
-	if id != 0 {
-		return id, nil
+	if card_id > 0 {
+		return int(card_id), nil
 	}
 
-	stmt, err := database.Prepare("INSERT INTO cards(name,account_id,f_id) values(?,?,?)")
-	if err != nil {
-		return 0, err
-	}
-
-	result, err := stmt.Exec(item.Name, item.AccountId, item.FId)
-	if err != nil {
-		return 0, err
-	}
-
-	lastId, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(lastId), nil
+	return 0, err
 }
 
 // GetItems retrieves a paginated list of Card items from the database.
@@ -64,9 +48,8 @@ func InsertItems(database *sql.DB, item types.Card) (int, error) {
 //   - A slice of Card items.
 //   - The total number of items in the database.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Card, int, error) {
-
-	var items []types.Card
+func GetItems(database *sql.DB, filter types.DefaultSearch) ([]databaseSqlc.Card, int, error) {
+	var items []databaseSqlc.Card
 
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 	query := fmt.Sprintf("SELECT * FROM cards")
@@ -78,11 +61,11 @@ func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Card, int, 
 	query = fmt.Sprintf("%s ORDER BY %s %s", query, filter.Order, filter.Direction)
 	query = fmt.Sprintf("%s LIMIT %v OFFSET %v", query, filter.PerPage, offset)
 
-	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]types.Card, error) {
-		var s []types.Card
+	items, err := utils.MakeQueryCall(database, query, func(rows *sql.Rows) ([]databaseSqlc.Card, error) {
+		var s []databaseSqlc.Card
 		for rows.Next() {
-			var item types.Card
-			err := rows.Scan(&item.Id, &item.Name, &item.AccountId, &item.FId)
+			var item databaseSqlc.Card
+			err := rows.Scan(&item.ID, &item.Name, &item.AccountID, &item.FID)
 			if err != nil {
 				return nil, err
 			}
@@ -109,13 +92,12 @@ func GetItems(database *sql.DB, filter types.DefaultSearch) ([]types.Card, int, 
 	return items, totalItems, nil
 }
 
-func UpdateItems(database *sql.DB, item types.Card) error {
-
-	if item.Name == "" || item.Id == 0 {
-		return fmt.Errorf("Invalid object")
+func UpdateItems(database *sql.DB, item databaseSqlc.Card) error {
+	if item.Name == "" || item.ID == 0 {
+		return types.InvalidObject
 	}
 
-	query := fmt.Sprintf("UPDATE cards SET name='%s' WHERE id=%d", item.Name, item.Id)
+	query := fmt.Sprintf("UPDATE cards SET name='%s' WHERE id=%d", item.Name, item.ID)
 	_, err := database.Exec(query)
 
 	return err

@@ -2,11 +2,19 @@ import { type ClassValue, clsx } from 'clsx'
 import moment from 'moment'
 import { twMerge } from 'tailwind-merge'
 
+export function returnCardTextColor(value?: number): string {
+	if (!value || value === 0) {
+		return 'var(--chart-1)'
+	}
+
+	return value > 0 ? 'var(--chart-2)' : 'var(--destructive)'
+}
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs))
 }
 
-export const parseDate = (date: string, date2?: string): string => {
+export function parseDate(date: string, date2?: string): string {
 	if (date2) {
 		return `${moment.utc(date).format('DD/MM/yyyy')} to ${moment
 			.utc(date2)
@@ -16,7 +24,7 @@ export const parseDate = (date: string, date2?: string): string => {
 	return moment.utc(date).format('DD/MM/yyyy')
 }
 
-export const generateKey = (length = 5) => {
+export function generateKey(length = 5) {
 	let len = length
 
 	if (len < 5) {
@@ -33,10 +41,10 @@ export const generateKey = (length = 5) => {
 	return result
 }
 
-export const isOneOf = <T extends string>(
+export function isOneOf<T extends string>(
 	value: T,
 	array: T[] | readonly T[]
-): value is T => {
+): value is T {
 	return array.includes(value as T)
 }
 
@@ -49,4 +57,11 @@ export function ensureOneOf<T extends readonly (string | number)[]>(
 		return def
 	}
 	return value as T[number]
+}
+
+export function formatMoney(value: number): string {
+	return value.toLocaleString('pt-BR', {
+		style: 'currency',
+		currency: 'BRL'
+	})
 }

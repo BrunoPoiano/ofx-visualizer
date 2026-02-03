@@ -52,6 +52,7 @@ export type TableInfoType<T extends OrderBy['order']> = {
 	class?: string
 	style?: React.CSSProperties
 	showValue?: true
+	order?: true
 }
 
 export type TransactionType = {

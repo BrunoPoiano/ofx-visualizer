@@ -1,11 +1,11 @@
 import { AppTable } from '@/components/global/appTable'
 import { useHomeContext } from '@/components/pages/Home/provider'
-import { parseDate } from '@/lib/utils'
+import { formatMoney, parseDate } from '@/lib/utils'
 import { useTransactionContext } from '../../provider'
 import { DialogInfo } from './components/DialogInfo'
 import { TableInfo, TableInfoSmall } from './table'
 
-export const Table = ({ small = false }: { small?: boolean }) => {
+export default function Table({ small = false }: { small?: boolean }) {
 	const {
 		transactions: [transactions],
 		orderBy: [orderBy, setOrderBy],
@@ -20,10 +20,7 @@ export const Table = ({ small = false }: { small?: boolean }) => {
 			id: item.id,
 			date: parseDate(item.date),
 			type: item.type,
-			value: item.value.toLocaleString('pt-BR', {
-				style: 'currency',
-				currency: 'BRL'
-			}),
+			value: formatMoney(item.value),
 			desc: item.desc,
 			options: <DialogInfo item={item} />
 		}
