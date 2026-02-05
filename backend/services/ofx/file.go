@@ -13,7 +13,7 @@ import (
 	"main/types"
 )
 
-func FileReader(files []*multipart.FileHeader, queries *databaseSQL.Queries, ctx context.Context) error {
+func FileReader(files []*multipart.FileHeader, ctx context.Context) error {
 	for _, fileHeader := range files {
 		file, err := fileHeader.Open()
 		if err != nil {
@@ -30,23 +30,23 @@ func FileReader(files []*multipart.FileHeader, queries *databaseSQL.Queries, ctx
 			return types.ErrorParsingFile
 		}
 
-		SourceId, err := sourceService.InsertItem(queries, ctx, Bank, Card)
+		SourceId, err := sourceService.InsertItem(ctx, Bank, Card)
 		if err != nil {
 			return types.ErrorSavingFileSource
 		}
 
-		err = transactionService.InsertTransaction(queries, ctx, transactions, SourceId)
+		err = transactionService.InsertTransaction(ctx, transactions, SourceId)
 		if err != nil {
 			return types.ErrorSavingTransaction
 		}
 
-		StatementId, err := StatementService.InsertItems(queries, ctx, statement, SourceId)
+		StatementId, err := StatementService.InsertItems(ctx, statement, SourceId)
 		if err != nil {
 			return types.ErrorSavingStatement
 		}
 
 		for _, item := range statement.Yields {
-			err = BalanceService.InsertItems(queries, ctx, databaseSQL.CreateBalanceParams{
+			err = BalanceService.InsertItems(ctx, databaseSQL.CreateBalanceParams{
 				StatementID: item.StatementID,
 				Name:        item.Name,
 				Description: item.Description,

@@ -7,6 +7,7 @@ import (
 	"main/services/utils"
 	"main/types"
 
+	"main/database/databaseSQL"
 	databaseSqlc "main/database/databaseSQL"
 )
 
@@ -18,7 +19,9 @@ import (
 //
 // Returns:
 //   - error: An error if the insertion fails, nil otherwise.
-func InsertTransaction(queries *databaseSqlc.Queries, ctx context.Context, items []databaseSqlc.CreateTransactionParams, sourceId int) error {
+func InsertTransaction(ctx context.Context, items []databaseSqlc.CreateTransactionParams, sourceId int) error {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	for _, item := range items {
 		countTransaction, err := queries.CheckTransaction(ctx, item.ID)
 		if err != nil {
@@ -49,7 +52,8 @@ func InsertTransaction(queries *databaseSqlc.Queries, ctx context.Context, items
 //   - []databaseSqlc.Transaction: A slice of Transaction structs representing the transactions on the current page.
 //   - int: The total number of transactions in the database.
 //   - error: An error if the retrieval fails, nil otherwise.
-func GetTransactions(queries *databaseSqlc.Queries, ctx context.Context, filter types.TransactionSearch) ([]databaseSqlc.Transaction, int, int, error) {
+func GetTransactions(ctx context.Context, filter types.TransactionSearch) ([]databaseSqlc.Transaction, int, int, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 
 	items, err := queries.ListTransactions(ctx, databaseSqlc.ListTransactionsParams{
@@ -96,7 +100,9 @@ func GetTransactions(queries *databaseSqlc.Queries, ctx context.Context, filter 
 //   - float64: The sum of negative transaction values.
 //   - float64: The sum of all transaction values.
 //   - error: An error if the retrieval fails, nil otherwise.
-func GetTransactionInfos(queries *databaseSqlc.Queries, ctx context.Context, filter types.TransactionSearch) (float64, float64, float64, error) {
+func GetTransactionInfos(ctx context.Context, filter types.TransactionSearch) (float64, float64, float64, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	values, err := queries.TransactionsInfo(ctx, databaseSqlc.TransactionsInfoParams{
 		Value:    float64(filter.MaxValue),
 		Value_2:  float64(filter.MaxValue),
@@ -132,6 +138,8 @@ func GetTransactionInfos(queries *databaseSqlc.Queries, ctx context.Context, fil
 //
 // Returns:
 //   - error: An error if the deletion fails, nil otherwise.
-func DeleteTransaction(queries *databaseSqlc.Queries, ctx context.Context, bankId string) error {
+func DeleteTransaction(ctx context.Context, bankId string) error {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	return queries.DeleteTransaction(ctx, bankId)
 }

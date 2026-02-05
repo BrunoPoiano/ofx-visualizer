@@ -13,7 +13,7 @@ import {
 } from './parsers'
 import type { BankType, SourceType } from './types'
 
-export const getTransactions = async (params?: Record<string, string>) => {
+export async function getTransactions(params?: Record<string, string>) {
 	const { data } = await axiosInstance.get('/transactions', {
 		params: params
 	})
@@ -24,7 +24,7 @@ export const getTransactions = async (params?: Record<string, string>) => {
 	}
 }
 
-export const getTransactionsInfo = async (params?: Record<string, string>) => {
+export async function getTransactionsInfo(params?: Record<string, string>) {
 	const { data } = await axiosInstance.get('/transactions/info', {
 		params: params
 	})
@@ -32,7 +32,7 @@ export const getTransactionsInfo = async (params?: Record<string, string>) => {
 	return parseTransactionInfo(data)
 }
 
-export const getStatesments = async (params?: Record<string, string>) => {
+export async function getStatesments(params?: Record<string, string>) {
 	const { data } = await axiosInstance.get('/statements', {
 		params: params
 	})
@@ -43,10 +43,10 @@ export const getStatesments = async (params?: Record<string, string>) => {
 	}
 }
 
-export const getStatesmentsInfo = async (
+export async function getStatesmentsInfo(
 	bankId: string,
 	params?: Record<string, string>
-) => {
+) {
 	const { data } = await axiosInstance.get(`/statements/${bankId}/info`, {
 		params: params
 	})
@@ -61,7 +61,7 @@ export const getStatesmentsInfo = async (
 	}
 }
 
-export const getBanks = async (params?: Record<string, string>) => {
+export async function getBanks(params?: Record<string, string>) {
 	const { data } = await axiosInstance.get('/banks', {
 		params: params
 	})
@@ -72,7 +72,7 @@ export const getBanks = async (params?: Record<string, string>) => {
 	}
 }
 
-export const getSources = async () => {
+export async function getSources() {
 	const { data } = await axiosInstance.get('/source')
 
 	if (!Array.isArray(data)) return []
@@ -92,13 +92,17 @@ export const getSources = async () => {
 	return sources
 }
 
-export const putBanks = async (
+export async function putBanks(
 	bankId: number,
 	values: Partial<Omit<BankType, 'id'>>
-) => {
+) {
 	await axiosInstance.put(`/banks/${bankId}`, values)
 }
 
-export const postOfxFile = async (formData: FormData) => {
+export async function deleteBanks(bankId: number) {
+	await axiosInstance.delete(`/banks/${bankId}`)
+}
+
+export async function postOfxFile(formData: FormData) {
 	await axiosInstance.post('/transactions', formData)
 }

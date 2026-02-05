@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"math"
 
+	"main/database/databaseSQL"
 	databaseSqlc "main/database/databaseSQL"
 	"main/types"
 )
@@ -17,7 +18,8 @@ import (
 //
 // Returns:
 //   - An error if the insertion fails, nil otherwise.
-func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databaseSqlc.CreateBalanceParams, StatementId int) error {
+func InsertItems(ctx context.Context, item databaseSqlc.CreateBalanceParams, StatementId int) error {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
 	item.StatementID = int64(StatementId)
 
 	account_id, err := queries.FindBalance(ctx, databaseSqlc.FindBalanceParams{
@@ -46,7 +48,9 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databa
 //   - A slice of Bank items.
 //   - The total number of items in the database.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.DefaultSearch, statementId int64) ([]databaseSqlc.Balance, int, int, error) {
+func GetItems(ctx context.Context, filter types.DefaultSearch, statementId int64) ([]databaseSqlc.Balance, int, int, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 
 	balances, err := queries.ListBalances(ctx, databaseSqlc.ListBalancesParams{

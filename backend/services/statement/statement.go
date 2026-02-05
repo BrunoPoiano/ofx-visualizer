@@ -7,6 +7,7 @@ import (
 	"main/services/utils"
 	"main/types"
 
+	"main/database/databaseSQL"
 	databaseSqlc "main/database/databaseSQL"
 )
 
@@ -21,7 +22,9 @@ import (
 // Returns:
 //   - The ID of the statement.
 //   - An error if the operation fails, nil otherwise.
-func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databaseSqlc.StatementYields, SourceId int) (int, error) {
+func InsertItems(ctx context.Context, item databaseSqlc.StatementYields, SourceId int) (int, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	accountId, err := queries.GetStatement(ctx, databaseSqlc.GetStatementParams{
 		StartDate:     item.Statement.StartDate,
 		EndDate:       item.Statement.EndDate,
@@ -57,7 +60,9 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, item databa
 //   - The total number of items found.
 //   - The total number of pages based on the per-page limit.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.StatementSearch) ([]databaseSqlc.Statement, int, int, error) {
+func GetItems(ctx context.Context, filter types.StatementSearch) ([]databaseSqlc.Statement, int, int, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 
 	statements, err := queries.ListStatements(ctx, databaseSqlc.ListStatementsParams{
@@ -98,7 +103,9 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, filter types.S
 //   - The Statement item with the largest balance.
 //   - The Statement item with the most recent balance.
 //   - An error if the retrieval fails, nil otherwise.
-func GetInfo(queries *databaseSqlc.Queries, ctx context.Context, bankId int64) (databaseSqlc.Statement, databaseSqlc.Statement, error) {
+func GetInfo(ctx context.Context, bankId int64) (databaseSqlc.Statement, databaseSqlc.Statement, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	var largestBalance, currentBalance databaseSqlc.Statement
 
 	largestBalance, err := queries.GetLargestBalanceQuery(ctx, bankId)

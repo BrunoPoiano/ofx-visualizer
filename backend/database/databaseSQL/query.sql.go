@@ -608,6 +608,20 @@ func (q *Queries) GetLargestBalanceQuery(ctx context.Context, sourceID int64) (S
 	return i, err
 }
 
+const getSource = `-- name: GetSource :one
+SELECT id, card_id, bank_id
+FROM source
+WHERE id = ?1
+LIMIT 1
+`
+
+func (q *Queries) GetSource(ctx context.Context, id int64) (Source, error) {
+	row := q.db.QueryRowContext(ctx, getSource, id)
+	var i Source
+	err := row.Scan(&i.ID, &i.CardID, &i.BankID)
+	return i, err
+}
+
 const getSources = `-- name: GetSources :many
 SELECT source.id, cards.name
 FROM source

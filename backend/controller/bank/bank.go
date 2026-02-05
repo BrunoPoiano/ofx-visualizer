@@ -2,18 +2,13 @@ package BankController
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
-	"strconv"
 
-	"main/database/databaseSQL"
 	BankService "main/services/bank"
 	"main/services/utils"
 	"main/types"
 
 	databaseSqlc "main/database/databaseSQL"
-
-	"github.com/gorilla/mux"
 )
 
 // GetItems retrieves a paginated list of bank records.
@@ -23,11 +18,10 @@ import (
 // @Param r *http.Request - The http.Request containing the URL query parameters.
 // @Return void
 func GetItems(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
 	values := utils.CheckRequestParams[databaseSqlc.ListBanksParams](params)
-	items, totalItems, lastPage, err := BankService.GetItems(queries, r.Context(), values)
+	items, totalItems, lastPage, err := BankService.GetItems(r.Context(), values)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -49,38 +43,28 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The http.Request containing the bank_id and update payload.
 // @Return void
 func UpdateItems(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
-	var bankBody databaseSqlc.Bank
+	bankId := r.Context().Value("bankId").(int64)
 
-	vars := mux.Vars(r)
-
-	bankId, err := strconv.ParseInt(vars["bank_id"], 10, 64)
+	bankBody, err := ParseUpdateBody(r.Body)
 	if err != nil {
-		http.Error(w, "bank_id is required", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	reqBody, err := io.ReadAll(r.Body)
-	defer r.Body.Close()
-	if err != nil {
-		http.Error(w, "Failed to read body", http.StatusInternalServerError)
-		return
-	}
-
-	err = json.Unmarshal(reqBody, &bankBody)
-	if err != nil {
-		http.Error(w, "Failed to read body", http.StatusInternalServerError)
-		return
-	}
-	if bankBody.Name == "" {
-		http.Error(w, "Name field is required", http.StatusInternalServerError)
-		return
-	}
-
-	err = BankService.UpdateItems(queries, r.Context(), databaseSqlc.UpdateBankNameParams{
+	err = BankService.UpdateItems(r.Context(), databaseSqlc.UpdateBankNameParams{
 		Name: bankBody.Name,
 		ID:   bankId,
 	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func DeleteItem(w http.ResponseWriter, r *http.Request) {
+	bankId := r.Context().Value("bankId").(int64)
+
+	err := BankService.DeleteItem(r.Context(), bankId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -1,24 +1,52 @@
 import { AppTable } from '@/components/global/appTable'
 import { useHomeContext } from '@/components/pages/Home/provider'
 import { useBankContext } from '../../provider'
-import { DialogEdit } from './components/DialogEdit'
 import { TableInfo } from './table'
+import { lazy, useState } from 'react'
+import { deleteBanks } from '@/components/pages/Home/functions'
+import { tryCatch } from '@/lib/tryCatch'
+import { toast } from 'sonner'
+
+const DeleteModal = lazy(() => import('@/components/global/deleteModal'))
+const DialogEdit = lazy(() => import('./components/DialogEdit'))
 
 export default function Table({ small = false }: { small?: boolean }) {
 	const {
-		orderBy: [orderBy, setOrderBy],
-		pagination: [pagination, setPagination],
-		banks: [banks]
-	} = useBankContext()
+		showValue: [showValue],
+		getSourcesFunc
+	} = useHomeContext()
 
 	const {
-		showValue: [showValue]
-	} = useHomeContext()
+		orderBy: [orderBy, setOrderBy],
+		pagination: [pagination, setPagination],
+		banks: [banks],
+		getBanksFunc
+	} = useBankContext()
+
+	const deletefunc = async (id: number) => {
+		const [, error] = await tryCatch(deleteBanks(id))
+		if (error) {
+			toast.error('Error deleting Bank.', {
+				style: { background: 'var(--destructive)' }
+			})
+		} else {
+			getSourcesFunc()
+			getBanksFunc()
+			toast.success('Bank deleted sucessifully.', {
+				style: { background: 'var(--chart-2)' }
+			})
+		}
+	}
 
 	const tableData = banks.map((item) => {
 		return {
 			...item,
-			options: <DialogEdit item={item} />
+			options: (
+				<div className='flex gap-1 justify-center-safe'>
+					<DialogEdit item={item} />
+					<DeleteModal onClick={() => deletefunc(item.id)} />
+				</div>
+			)
 		}
 	})
 

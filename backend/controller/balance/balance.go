@@ -3,13 +3,9 @@ package BalanceController
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"main/database/databaseSQL"
 	BalanceService "main/services/balance"
 	"main/types"
-
-	"github.com/gorilla/mux"
 )
 
 // GetBalances handles the retrieval of balances from the database with pagination and sorting.
@@ -20,19 +16,12 @@ import (
 // @Param statement_id path int true "Statement ID"
 // @Return 200 {object} types.ReturnPagination
 func GetBalances(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
+	statementId := r.Context().Value("statementId").(int64)
 
 	params := r.URL.Query()
 	DefaultSearch := ParseUrlValues(params)
 
-	vars := mux.Vars(r)
-
-	statementId, err := strconv.ParseInt(vars["statement_id"], 10, 64)
-	if err != nil {
-		statementId = 0
-	}
-
-	items, totalItems, lastpage, err := BalanceService.GetItems(queries, r.Context(), DefaultSearch, statementId)
+	items, totalItems, lastpage, err := BalanceService.GetItems(r.Context(), DefaultSearch, statementId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

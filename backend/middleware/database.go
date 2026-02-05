@@ -15,9 +15,11 @@ import (
 //
 // Returns:
 //   - An http.HandlerFunc that adds the database connection to the request context and calls the next handler.
-func DatabaseMiddleware(queries *databaseSqlc.Queries, next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), "queries", queries)
-		next(w, r.WithContext(ctx))
+func DatabaseMiddleware(queries *databaseSqlc.Queries) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := context.WithValue(r.Context(), "queries", queries)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
 	}
 }

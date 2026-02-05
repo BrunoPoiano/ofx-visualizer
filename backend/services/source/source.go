@@ -3,6 +3,7 @@ package sourceService
 import (
 	"context"
 
+	"main/database/databaseSQL"
 	databaseSqlc "main/database/databaseSQL"
 	BankService "main/services/bank"
 	"main/services/utils"
@@ -10,18 +11,20 @@ import (
 	CardService "main/services/card"
 )
 
-func InsertItem(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.CreateBankParams, card databaseSqlc.CreateCardParams) (int, error) {
+func InsertItem(ctx context.Context, bank databaseSqlc.CreateBankParams, card databaseSqlc.CreateCardParams) (int, error) {
 	var bankId int
 	var cardId int
 	var err error
 
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	if utils.InterfaceToString(bank.FID) != "" {
-		bankId, err = BankService.InsertItems(queries, ctx, bank)
+		bankId, err = BankService.InsertItems(ctx, bank)
 		if err != nil {
 			return 0, err
 		}
 	} else if utils.InterfaceToString(card.FID) != "" {
-		cardId, err = CardService.InsertItems(queries, ctx, card)
+		cardId, err = CardService.InsertItems(ctx, card)
 		if err != nil {
 			return 0, err
 		}
@@ -45,7 +48,9 @@ func InsertItem(queries *databaseSqlc.Queries, ctx context.Context, bank databas
 	return int(newSource.ID), nil
 }
 
-func GetItems(queries *databaseSqlc.Queries, ctx context.Context) ([]databaseSqlc.GetSourcesRow, error) {
+func GetItems(ctx context.Context) ([]databaseSqlc.GetSourcesRow, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	return queries.GetSources(ctx)
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 
+	"main/database/databaseSQL"
 	databaseSqlc "main/database/databaseSQL"
 	"main/services/utils"
 	"main/types"
@@ -19,7 +20,9 @@ import (
 // Returns:
 //   - The ID of the bank (either existing or newly created).
 //   - An error if any database operation or conversion fails.
-func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.CreateBankParams) (int, error) {
+func InsertItems(ctx context.Context, bank databaseSqlc.CreateBankParams) (int, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	bankAccId, err := queries.GetBankIdByAccountId(ctx, bank.AccountID)
 	if err != nil {
 		newBank, err := queries.CreateBank(ctx, bank)
@@ -54,7 +57,9 @@ func InsertItems(queries *databaseSqlc.Queries, ctx context.Context, bank databa
 //   - The total count of Bank items matching the criteria.
 //   - The calculated last page number.
 //   - An error if the retrieval or counting fails.
-func GetItems(queries *databaseSqlc.Queries, ctx context.Context, params databaseSqlc.ListBanksParams) ([]databaseSqlc.Bank, int, int, error) {
+func GetItems(ctx context.Context, params databaseSqlc.ListBanksParams) ([]databaseSqlc.Bank, int, int, error) {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	banks, err := queries.ListBanks(ctx, params)
 	if err != nil {
 		return banks, 0, 0, err
@@ -78,6 +83,14 @@ func GetItems(queries *databaseSqlc.Queries, ctx context.Context, params databas
 //
 // Returns:
 //   - An error if the update operation fails, nil otherwise.
-func UpdateItems(queries *databaseSqlc.Queries, ctx context.Context, bank databaseSqlc.UpdateBankNameParams) error {
+func UpdateItems(ctx context.Context, bank databaseSqlc.UpdateBankNameParams) error {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
 	return queries.UpdateBankName(ctx, bank)
+}
+
+func DeleteItem(ctx context.Context, ID int64) error {
+	queries := ctx.Value("queries").(*databaseSQL.Queries)
+
+	return queries.DeleteBank(ctx, ID)
 }

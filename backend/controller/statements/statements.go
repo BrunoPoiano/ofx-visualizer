@@ -3,14 +3,10 @@ package StatementsController
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"main/database/databaseSQL"
 	databaseSqlc "main/database/databaseSQL"
 	StatementService "main/services/statement"
 	"main/types"
-
-	"github.com/gorilla/mux"
 )
 
 // GetStatements retrieves a paginated list of statements based on provided search criteria and bank ID.
@@ -20,17 +16,9 @@ import (
 // @Param r *http.Request - The request object, containing the bank ID and query parameters
 // @Return void
 func GetStatements(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
-	params := r.URL.Query()
+	search := ParseUrlValues(r.URL.Query())
 
-	search := ParseUrlValues(params)
-
-	if search.SourceId == 0 {
-		http.Error(w, "source_id is required", http.StatusBadRequest)
-		return
-	}
-
-	items, totalItems, lastpage, err := StatementService.GetItems(queries, r.Context(), search)
+	items, totalItems, lastpage, err := StatementService.GetItems(r.Context(), search)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -57,16 +45,9 @@ type ReturnType struct {
 // @Param r *http.Request - The request object, containing the bank ID
 // @Return void
 func GetStatementsInfo(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
-	vars := mux.Vars(r)
+	sourceId := r.Context().Value("sourceId").(int64)
 
-	bankId, err := strconv.ParseInt(vars["bank_id"], 10, 64)
-	if err != nil {
-		http.Error(w, "bank_id is required", http.StatusBadRequest)
-		return
-	}
-
-	largestBalance, currentBalance, err := StatementService.GetInfo(queries, r.Context(), bankId)
+	largestBalance, currentBalance, err := StatementService.GetInfo(r.Context(), sourceId)
 	if err != nil {
 		http.Error(w, "Error getting balance", http.StatusInternalServerError)
 		return

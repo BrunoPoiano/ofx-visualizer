@@ -4,12 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"main/database/databaseSQL"
 	ofxService "main/services/ofx"
 	transactionService "main/services/transaction"
 	"main/types"
-
-	"github.com/gorilla/mux"
 )
 
 // InsertItems handles the insertion of transaction and bank data from an OFX file.
@@ -20,7 +17,6 @@ import (
 // @Param r *http.Request - The request object, containing the OFX file
 // @Return void
 func InsertItems(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	err := r.ParseMultipartForm(10 << 20) // limit memory usage to 10 MB
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
@@ -34,7 +30,7 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ofxService.FileReader(files, queries, r.Context())
+	err = ofxService.FileReader(files, r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -49,7 +45,6 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The request object, containing filter parameters
 // @Return void
 func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
 	filter := ParseUrlValues(params)
@@ -59,7 +54,7 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	positive, negative, value, err := transactionService.GetTransactionInfos(queries, r.Context(), filter)
+	positive, negative, value, err := transactionService.GetTransactionInfos(r.Context(), filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -72,29 +67,6 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// DeleteTransactions handles the deletion of transactions from the database based on bank ID.
-// @Summary Delete transactions by bank ID
-// @Description Delete transactions associated with a specific bank from the database.
-// @Param w http.ResponseWriter - The response writer
-// @Param r *http.Request - The request object, containing the bank ID
-// @Return void
-func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
-	vars := mux.Vars(r)
-
-	bankId := vars["bank_id"]
-	if bankId == "" {
-		http.Error(w, "id required", http.StatusBadRequest)
-		return
-	}
-
-	err := transactionService.DeleteTransaction(queries, r.Context(), bankId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-}
-
 // GetItems retrieves transactions from the database with pagination.
 // It fetches transactions based on the provided page number and items per page.
 // @Summary Get transaction items with pagination
@@ -103,7 +75,6 @@ func DeleteTransactions(w http.ResponseWriter, r *http.Request) {
 // @Param r *http.Request - The request object, containing pagination parameters
 // @Return void
 func GetItems(w http.ResponseWriter, r *http.Request) {
-	queries := r.Context().Value("queries").(*databaseSQL.Queries)
 	params := r.URL.Query()
 
 	filter := ParseUrlValues(params)
@@ -113,7 +84,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items, totalItems, lastpage, err := transactionService.GetTransactions(queries, r.Context(), filter)
+	items, totalItems, lastpage, err := transactionService.GetTransactions(r.Context(), filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

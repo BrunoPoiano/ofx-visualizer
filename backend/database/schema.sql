@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS source (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     card_id        INTEGER,
     bank_id        INTEGER,
-    FOREIGN KEY (bank_id) REFERENCES Banks(id),
-    FOREIGN KEY (card_id) REFERENCES Cards(id)
+    FOREIGN KEY (bank_id) REFERENCES Banks(id) ON DELETE CASCADE,
+    FOREIGN KEY (card_id) REFERENCES Cards(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS statements (
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS statements (
     balance_date   TEXT NOT NULL,
     server_date    TEXT NOT NULL,
     language       TEXT NOT NULL,
-    FOREIGN KEY (source_id) REFERENCES Source(id)
+    FOREIGN KEY (source_id) REFERENCES Source(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS balances (
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS balances (
     description    TEXT,
     balance_type   TEXT NOT NULL,
     value          REAL NOT NULL,
-    FOREIGN KEY (statement_id) REFERENCES Statements(id)
+    FOREIGN KEY (statement_id) REFERENCES Statements(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     value          REAL NOT NULL,
     type           TEXT NOT NULL,
     desc           TEXT NOT NULL,
-    FOREIGN KEY (source_id) REFERENCES Source(id)
+    FOREIGN KEY (source_id) REFERENCES Source(id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_statements_source_date_range ON statements (source_id, start_date, end_date);

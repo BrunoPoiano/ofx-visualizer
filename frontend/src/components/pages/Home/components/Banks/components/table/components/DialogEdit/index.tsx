@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useBankContext } from '../../../../provider'
 
-export const DialogEdit = ({ item }: { item: BankType }) => {
+export default function DialogEdit({ item }: { item: BankType }) {
 	const {
 		getSourcesFunc,
 		showValue: [value]
@@ -75,7 +75,7 @@ export const DialogEdit = ({ item }: { item: BankType }) => {
 						Cancel
 					</AlertDialogCancel>
 					<AlertDialogAction
-						style={{ background: 'var(--chart-2)' }}
+						className='bg-[var(--chart-2)]'
 						onClick={() => saveName()}
 					>
 						Save

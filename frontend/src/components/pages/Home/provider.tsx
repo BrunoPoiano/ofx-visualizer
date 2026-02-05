@@ -9,6 +9,8 @@ import { useDebounce } from '@/lib/debounce'
 import useLocalStorage from '@/lib/localstorage'
 import { getSources } from './functions'
 import type { BankType, DefaultFilterType, SourceType } from './types'
+import { tryCatch } from '@/lib/tryCatch'
+import { toast } from 'sonner'
 
 export type HomeProviderState = {
 	showValue: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -43,18 +45,24 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
 	const getSourcesFunc = useDebounce(
 		// biome-ignore lint/correctness/useExhaustiveDependencies: <prevent loop>
 		useCallback(async () => {
-			const data = await getSources()
+			const [data, error] = await tryCatch(getSources())
 
-			setSources(() => {
-				if (defaultFilter.source_id === '' && data.length > 0) {
-					setDefaultFilter((prev_filter) => ({
-						...prev_filter,
-						source_id: data[0].id.toString()
-					}))
-				}
+			if (error) {
+				toast.error('Error getting Bank list.', {
+					style: { background: 'var(--destructive)' }
+				})
+			} else {
+				setSources(() => {
+					if (defaultFilter.source_id === '' && data.length > 0) {
+						setDefaultFilter((prev_filter) => ({
+							...prev_filter,
+							source_id: data[0].id.toString()
+						}))
+					}
 
-				return data
-			})
+					return data
+				})
+			}
 		}, []),
 		500
 	)

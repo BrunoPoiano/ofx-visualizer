@@ -248,6 +248,12 @@ WHERE (bank_id = :bank_id AND card_id IS NULL)
    OR (bank_id IS NULL AND card_id = :card_id)
 LIMIT 1;
 
+-- name: GetSource :one
+SELECT *
+FROM source
+WHERE id = :id
+LIMIT 1;
+
 -- name: CreateSource :one
 INSERT INTO source (
     card_id, bank_id
