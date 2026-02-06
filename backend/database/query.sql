@@ -4,22 +4,9 @@ SELECT id FROM balances
 WHERE statement_id = ? AND name = ? AND value = ?
 LIMIT 1;
 
--- name: ListBalances :many
+-- name: ListBalancesByStatementId :many
 SELECT * FROM balances
-WHERE
-    (
-        :statement_id IS NOT NULL
-        AND statement_id = :statement_id
-    )
-    OR
-    (
-        :statement_id IS NULL
-        AND (
-            :search IS NULL
-            OR name LIKE '%' || :search || '%'
-        )
-    )
-LIMIT :limit OFFSET :offset;
+WHERE statement_id = :statement_id;
 
 -- name: CountBalances :one
 SELECT count(id) FROM balances

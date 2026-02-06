@@ -63,10 +63,8 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 					current_page: pagination.current_page.toString(),
 					per_page: pagination.per_page.toString(),
 					search: filter.search,
+					source_id: defaultFilter.source_id,
 					...(defaultFilter.date ? parseFilterDate(defaultFilter.date) : {}),
-					...(defaultFilter.source_id
-						? { source_id: defaultFilter.source_id }
-						: {}),
 					...(filter.minValue ? { min_value: filter.minValue.toString() } : {}),
 					...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
 					...(orderBy.order ? { order: orderBy.order } : {}),

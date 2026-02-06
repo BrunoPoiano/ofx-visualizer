@@ -16,7 +16,11 @@ import (
 // @Param r *http.Request - The request object, containing the bank ID and query parameters
 // @Return void
 func GetStatements(w http.ResponseWriter, r *http.Request) {
-	search := ParseUrlValues(r.URL.Query())
+	search, err := ParseUrlValues(r.URL.Query())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	items, totalItems, lastpage, err := StatementService.GetItems(r.Context(), search)
 	if err != nil {
@@ -45,9 +49,7 @@ type ReturnType struct {
 // @Param r *http.Request - The request object, containing the bank ID
 // @Return void
 func GetStatementsInfo(w http.ResponseWriter, r *http.Request) {
-	sourceId := r.Context().Value("sourceId").(int64)
-
-	largestBalance, currentBalance, err := StatementService.GetInfo(r.Context(), sourceId)
+	largestBalance, currentBalance, err := StatementService.GetInfo(r.Context())
 	if err != nil {
 		http.Error(w, "Error getting balance", http.StatusInternalServerError)
 		return

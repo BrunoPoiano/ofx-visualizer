@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { formatMoney, parseDate } from '@/lib/utils'
 
-export const DialogInfo = ({ item }: { item: TransactionType }) => {
+export default function DialogInfo({ item }: { item: TransactionType }) {
 	const {
 		sources,
 		showValue: [value]

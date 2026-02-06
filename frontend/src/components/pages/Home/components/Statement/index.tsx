@@ -1,8 +1,8 @@
 import { lazy } from 'react'
 import { Cards } from './components/cards/cards'
-import { Filter } from './components/filter'
 import { StatementProvider } from './provider'
 
+const Filter = lazy(() => import('./components/filter'))
 const Table = lazy(() => import('./components/table'))
 
 export default function StatementsSection() {

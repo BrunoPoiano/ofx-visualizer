@@ -1,28 +1,26 @@
+import type { GenericObject } from '@/components/pages/Home/types'
 import type { PaginationType } from '@/types'
 
-export const isString = (value: unknown): value is string => {
+export function isString(value: unknown): value is string {
 	return typeof value === 'string'
 }
 
-export const isNumber = (value: unknown): value is number => {
+export function isNumber(value: unknown): value is number {
 	return typeof value === 'number'
 }
 
-export const notEmptyString = (value: unknown): value is string => {
+export function notEmptyString(value: unknown): value is string {
 	return isString(value) && value.trim() !== ''
 }
 
-export const isStringOrDefault = (
-	value: unknown,
-	defaultValue = ''
-): string => {
+export function isStringOrDefault(value: unknown, defaultValue = ''): string {
 	if (notEmptyString(value)) return value.trim()
 	if (isNumber(value)) return value.toString()
 
 	return defaultValue
 }
 
-export const isNumberOrDefault = (value: unknown, defaultValue = 0): number => {
+export function isNumberOrDefault(value: unknown, defaultValue = 0): number {
 	if (isNumber(value)) return value
 
 	if (isString(value)) {
@@ -34,10 +32,10 @@ export const isNumberOrDefault = (value: unknown, defaultValue = 0): number => {
 	return defaultValue
 }
 
-export const isBooleanOrDefault = (
+export function isBooleanOrDefault(
 	value: unknown,
 	defaultValue = false
-): boolean => {
+): boolean {
 	if (typeof value === 'boolean') return value
 	if (value === 1 || value === '1' || value === 'true') return true
 	if (value === 0 || value === '0' || value === 'false') return false
@@ -45,7 +43,7 @@ export const isBooleanOrDefault = (
 	return defaultValue
 }
 
-export const parsePagination = (data: unknown): PaginationType => {
+export function parsePagination(data: unknown): PaginationType {
 	if (typeof data !== 'object' || data === null) {
 		return {
 			current_page: 1,
@@ -63,4 +61,8 @@ export const parsePagination = (data: unknown): PaginationType => {
 		total_items: isNumberOrDefault(typedItem.total_items, 0),
 		last_page: isNumberOrDefault(typedItem.last_page, 0)
 	}
+}
+
+export function isObject(data: unknown): data is GenericObject {
+	return data !== null && typeof data === 'object'
 }

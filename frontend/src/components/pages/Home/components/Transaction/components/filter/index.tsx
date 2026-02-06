@@ -11,7 +11,7 @@ import {
 import { SourceSelect } from '../../../SourceSelect'
 import { useTransactionContext } from '../../provider'
 
-export const Filter = () => {
+export default function Filter() {
 	const {
 		filter: [filter, setFilter],
 		clearFilter

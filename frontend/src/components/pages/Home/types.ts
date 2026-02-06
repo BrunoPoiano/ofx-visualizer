@@ -2,6 +2,8 @@ import type { JSX } from 'react'
 import type { DateRange } from 'react-day-picker'
 import type { PaginationType } from '@/types'
 
+export type GenericObject = Record<string, unknown>
+
 export const TransactionTypeValues = [
 	'CREDIT',
 	'DEBIT',

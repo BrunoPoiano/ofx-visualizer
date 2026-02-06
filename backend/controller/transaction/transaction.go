@@ -47,10 +47,9 @@ func InsertItems(w http.ResponseWriter, r *http.Request) {
 func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
-	filter := ParseUrlValues(params)
-
-	if filter.SourceId == 0 {
-		http.Error(w, "source_id is required", http.StatusBadRequest)
+	filter, err := ParseUrlValues(params)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -77,10 +76,9 @@ func GetTransactionInfos(w http.ResponseWriter, r *http.Request) {
 func GetItems(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
-	filter := ParseUrlValues(params)
-
-	if filter.SourceId == 0 {
-		http.Error(w, "source_id is required", http.StatusBadRequest)
+	filter, err := ParseUrlValues(params)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

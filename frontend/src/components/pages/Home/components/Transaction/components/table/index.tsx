@@ -2,8 +2,10 @@ import { AppTable } from '@/components/global/appTable'
 import { useHomeContext } from '@/components/pages/Home/provider'
 import { formatMoney, parseDate } from '@/lib/utils'
 import { useTransactionContext } from '../../provider'
-import { DialogInfo } from './components/DialogInfo'
 import { TableInfo, TableInfoSmall } from './table'
+import { lazy } from 'react'
+
+const DialogInfo = lazy(() => import('./components/DialogInfo'))
 
 export default function Table({ small = false }: { small?: boolean }) {
 	const {

@@ -62,9 +62,7 @@ func UpdateItems(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteItem(w http.ResponseWriter, r *http.Request) {
-	bankId := r.Context().Value("bankId").(int64)
-
-	err := BankService.DeleteItem(r.Context(), bankId)
+	err := BankService.DeleteItem(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

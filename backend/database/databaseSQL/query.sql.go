@@ -701,38 +701,13 @@ func (q *Queries) GetTransaction(ctx context.Context, id string) (Transaction, e
 	return i, err
 }
 
-const listBalances = `-- name: ListBalances :many
+const listBalancesByStatementId = `-- name: ListBalancesByStatementId :many
 SELECT id, statement_id, name, description, balance_type, value FROM balances
-WHERE
-    (
-        ?1 IS NOT NULL
-        AND statement_id = ?1
-    )
-    OR
-    (
-        ?1 IS NULL
-        AND (
-            ?2 IS NULL
-            OR name LIKE '%' || ?2 || '%'
-        )
-    )
-LIMIT ?4 OFFSET ?3
+WHERE statement_id = ?1
 `
 
-type ListBalancesParams struct {
-	StatementID interface{} `json:"statement_id"`
-	Search      interface{} `json:"search"`
-	Offset      int64       `json:"offset"`
-	Limit       int64       `json:"limit"`
-}
-
-func (q *Queries) ListBalances(ctx context.Context, arg ListBalancesParams) ([]Balance, error) {
-	rows, err := q.db.QueryContext(ctx, listBalances,
-		arg.StatementID,
-		arg.Search,
-		arg.Offset,
-		arg.Limit,
-	)
+func (q *Queries) ListBalancesByStatementId(ctx context.Context, statementID int64) ([]Balance, error) {
+	rows, err := q.db.QueryContext(ctx, listBalancesByStatementId, statementID)
 	if err != nil {
 		return nil, err
 	}

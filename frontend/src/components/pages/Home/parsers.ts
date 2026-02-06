@@ -1,6 +1,10 @@
 import moment from 'moment'
 import type { DateRange } from 'react-day-picker'
-import { isNumberOrDefault, isStringOrDefault } from '@/lib/typeValidation'
+import {
+	isNumberOrDefault,
+	isObject,
+	isStringOrDefault
+} from '@/lib/typeValidation'
 import { ensureOneOf } from '@/lib/utils'
 import {
 	AccountTypeValues,
@@ -8,23 +12,21 @@ import {
 	type balanceType,
 	type StatementType,
 	type TransactionType,
-	TransactionTypeValues
+	TransactionTypeValues,
+	type GenericObject
 } from './types'
 
-export const parseBanks = (data: unknown) => {
-	if (typeof data !== 'object' || data === null) return []
+export function parseBanks(data: unknown): BankType[] {
+	if (!isObject(data) || !('data' in data) || !Array.isArray(data.data)) {
+		return []
+	}
 
-	if (!('data' in (data as Record<string, unknown>))) return []
-
-	const bankData = (data as Record<string, unknown[]>).data
-	if (!Array.isArray(bankData)) return []
-
-	return bankData.reduce<BankType[]>((prev, item) => {
+	return data.data.reduce<BankType[]>((prev, item) => {
 		if (typeof item !== 'object' || item === null) {
 			return prev
 		}
 
-		const typedItem = item as Record<string, unknown>
+		const typedItem = item as GenericObject
 
 		const newItem: BankType = {
 			id: isNumberOrDefault(typedItem.id),
@@ -45,20 +47,17 @@ export const parseBanks = (data: unknown) => {
 	}, [])
 }
 
-export const parseTransaction = (data: unknown) => {
-	if (typeof data !== 'object' || data === null) return []
+export function parseTransaction(data: unknown): TransactionType[] {
+	if (!isObject(data) || !('data' in data) || !Array.isArray(data.data)) {
+		return []
+	}
 
-	if (!('data' in (data as Record<string, unknown>))) return []
-
-	const transactionData = (data as Record<string, unknown[]>).data
-	if (!Array.isArray(transactionData)) return []
-
-	return transactionData.reduce<TransactionType[]>((prev, item) => {
+	return data.data.reduce<TransactionType[]>((prev, item) => {
 		if (typeof item !== 'object' || item === null) {
 			return prev
 		}
 
-		const typedItem = item as Record<string, unknown>
+		const typedItem = item as GenericObject
 
 		const newItem: TransactionType = {
 			id: isStringOrDefault(typedItem.id),
@@ -74,8 +73,12 @@ export const parseTransaction = (data: unknown) => {
 	}, [])
 }
 
-export const parseTransactionInfo = (data: unknown) => {
-	if (typeof data !== 'object' || data === null) {
+export function parseTransactionInfo(data: unknown): {
+	positive: number
+	negative: number
+	value: number
+} {
+	if (!isObject(data)) {
 		return {
 			positive: 0,
 			negative: 0,
@@ -83,29 +86,26 @@ export const parseTransactionInfo = (data: unknown) => {
 		}
 	}
 
-	const typedItem = data as Record<string, unknown>
-
 	return {
-		positive: isNumberOrDefault(typedItem.positive),
-		negative: isNumberOrDefault(typedItem.negative),
-		value: isNumberOrDefault(typedItem.value)
+		positive: isNumberOrDefault(data.positive),
+		negative: isNumberOrDefault(data.negative),
+		value: isNumberOrDefault(data.value)
 	}
 }
 
-export const parseFilterDate = (date: DateRange | undefined) => {
+export function parseFilterDate(date: DateRange | undefined):
+	| {
+			from: string
+			to: string | undefined
+	  }
+	| undefined {
 	if (!date) return
 	const from = moment(date.from).format('yyyy-MM-DD')
 	const to = date.to ? moment(date.to).format('yyyy-MM-DD') : undefined
 	return { from, to }
 }
 
-export const parseStatementObj = (item: Record<string, unknown>) => {
-	let yields: balanceType[] = []
-
-	if (item.yields) {
-		yields = parseBalance(item.yields as unknown[])
-	}
-
+export function parseStatementObj(item: GenericObject) {
 	return {
 		id: isNumberOrDefault(item.id),
 		source_id: isNumberOrDefault(item.source_id),
@@ -115,33 +115,36 @@ export const parseStatementObj = (item: Record<string, unknown>) => {
 		balance_date: isStringOrDefault(item.balance_date),
 		server_date: isStringOrDefault(item.server_date),
 		language: isStringOrDefault(item.language),
-		yields: yields
+		yields: []
 	}
 }
 
-export const parseStatement = (data: unknown[]) => {
-	if (data === null || !Array(data)) return []
+export function parseStatement(data: unknown): StatementType[] {
+	if (!Array.isArray(data)) return []
 
 	return data.reduce<StatementType[]>((prev, item) => {
-		if (typeof item !== 'object' || item === null) {
+		if (!isObject(item) || !isObject(item.statement)) {
 			return prev
 		}
 
-		const typedItem = item as Record<string, unknown>
-		prev.push(parseStatementObj(typedItem))
+		prev.push({
+			...parseStatementObj(item.statement),
+			yields: Array.isArray(item.yields) ? parseBalance(item.yields) : []
+		})
+
 		return prev
 	}, [])
 }
 
-export const parseBalance = (data: unknown[]) => {
-	if (!data || data === null || !Array(data)) return []
+export function parseBalance(data: unknown): balanceType[] {
+	if (!Array.isArray(data)) return []
 
 	return data.reduce<balanceType[]>((prev, item) => {
 		if (typeof item !== 'object' || item === null) {
 			return prev
 		}
 
-		const typedItem = item as Record<string, unknown>
+		const typedItem = item as GenericObject
 
 		const newItem: balanceType = {
 			id: isNumberOrDefault(typedItem.id),

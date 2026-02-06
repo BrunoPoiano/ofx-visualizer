@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"main/database/databaseSQL"
+	"main/types"
 
 	"github.com/gorilla/mux"
 )
@@ -16,7 +17,7 @@ func CheckStatementExists(next http.HandlerFunc) func(http.ResponseWriter, *http
 
 		statementId, err := strconv.ParseInt(vars["statement_id"], 10, 64)
 		if err != nil {
-			http.Error(w, "statement_id is invalid", http.StatusBadRequest)
+			http.Error(w, types.InvalidValue.Error(), http.StatusBadRequest)
 			return
 		}
 

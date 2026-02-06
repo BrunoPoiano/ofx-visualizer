@@ -1,6 +1,6 @@
 package databaseSQL
 
 type StatementYields struct {
-	Statement CreateStatementParams
-	Yields    []Balance
+	Statement Statement `json:"statement"`
+	Yields    []Balance `json:"yields"`
 }

@@ -1,13 +1,19 @@
 package TransactionController
 
 import (
+	"errors"
 	"net/url"
 	"strconv"
 
 	"main/types"
 )
 
-func ParseUrlValues(params url.Values) types.TransactionSearch {
+func ParseUrlValues(params url.Values) (types.TransactionSearch, error) {
+	sourceId, err := strconv.ParseInt(params.Get("source_id"), 10, 64)
+	if err != nil || sourceId == 0 {
+		return types.TransactionSearch{}, errors.New("source_id is required")
+	}
+
 	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
 	if err != nil {
 		currentPage = 1
@@ -26,11 +32,6 @@ func ParseUrlValues(params url.Values) types.TransactionSearch {
 	maxValue, err := strconv.ParseInt(params.Get("max_value"), 10, 64)
 	if err != nil {
 		maxValue = 0
-	}
-
-	sourceId, err := strconv.ParseInt(params.Get("source_id"), 10, 64)
-	if err != nil {
-		sourceId = 0
 	}
 
 	order := params.Get("order")
@@ -57,5 +58,5 @@ func ParseUrlValues(params url.Values) types.TransactionSearch {
 		To:       params.Get("to"),
 		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
 		SourceId: sourceId,
-	}
+	}, nil
 }

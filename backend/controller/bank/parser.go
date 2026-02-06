@@ -14,12 +14,12 @@ func ParseUpdateBody(body io.ReadCloser) (databaseSqlc.Bank, error) {
 	reqBody, err := io.ReadAll(body)
 	defer body.Close()
 	if err != nil {
-		return bankBody, errors.New("Failed to read body")
+		return bankBody, err
 	}
 
 	err = json.Unmarshal(reqBody, &bankBody)
 	if err != nil {
-		return bankBody, errors.New("Failed to read body")
+		return bankBody, err
 	}
 	if bankBody.Name == "" {
 		return bankBody, errors.New("Name field is required")

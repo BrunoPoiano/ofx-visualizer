@@ -4,17 +4,15 @@ import {
 	AlertDialog,
 	AlertDialogAction,
 	AlertDialogContent,
-	AlertDialogDescription,
 	AlertDialogFooter,
-	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import { formatMoney, generateKey } from '@/lib/utils'
+import { formatMoney } from '@/lib/utils'
 
-export const DialogInfo = ({ item }: { item: StatementType }) => {
+export default function DialogInfo({ item }: { item: StatementType }) {
 	const {
 		showValue: [value]
 	} = useHomeContext()
@@ -27,20 +25,16 @@ export const DialogInfo = ({ item }: { item: StatementType }) => {
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Balances</AlertDialogTitle>
-					<AlertDialogDescription className='grid gap-2.5'>
-						{item.yields.map((yieldItem) => (
-							<Card key={generateKey()}>
-								<CardTitle className='px-6'>{yieldItem.name}</CardTitle>
-								<CardContent>
-									<p>{yieldItem.desc}</p>
-									<p>{formatMoney(yieldItem.value)}</p>
-								</CardContent>
-							</Card>
-						))}
-					</AlertDialogDescription>
-				</AlertDialogHeader>
+				<AlertDialogTitle>Balances</AlertDialogTitle>
+				{item.yields.map((yieldItem) => (
+					<Card key={`${yieldItem.statement_id}:${yieldItem.id}`}>
+						<CardTitle className='px-6'>{yieldItem.name}</CardTitle>
+						<CardContent>
+							<p>{yieldItem.desc}</p>
+							<p>{formatMoney(yieldItem.value)}</p>
+						</CardContent>
+					</Card>
+				))}
 				<AlertDialogFooter>
 					<AlertDialogAction>OK</AlertDialogAction>
 				</AlertDialogFooter>

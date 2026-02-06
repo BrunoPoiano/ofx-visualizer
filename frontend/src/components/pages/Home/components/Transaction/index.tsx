@@ -1,10 +1,10 @@
 import { AppToggle } from '@/components/global/appToggle'
 import useLocalStorage from '@/lib/localstorage'
 import { Cards } from './components/cards/cards'
-import { Filter } from './components/filter'
 import { TransactionProvider } from './provider'
 import { lazy } from 'react'
 
+const Filter = lazy(() => import('./components/filter'))
 const Table = lazy(() => import('./components/table'))
 const AreaChart = lazy(() => import('./components/charts/AreaChart'))
 const PieChartCredit = lazy(() => import('./components/charts/PieChartCredit'))

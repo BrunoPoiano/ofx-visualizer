@@ -1,13 +1,19 @@
 package StatementsController
 
 import (
+	"errors"
 	"net/url"
 	"strconv"
 
 	"main/types"
 )
 
-func ParseUrlValues(params url.Values) types.StatementSearch {
+func ParseUrlValues(params url.Values) (types.StatementSearch, error) {
+	sourceId, err := strconv.ParseInt(params.Get("source_id"), 10, 64)
+	if err != nil || sourceId == 0 {
+		return types.StatementSearch{}, errors.New("source_id is required")
+	}
+
 	currentPage, err := strconv.ParseInt(params.Get("current_page"), 10, 64)
 	if err != nil {
 		currentPage = 1
@@ -37,10 +43,6 @@ func ParseUrlValues(params url.Values) types.StatementSearch {
 	if err != nil {
 		maxValue = 0
 	}
-	sourceId, err := strconv.ParseInt(params.Get("source_id"), 10, 64)
-	if err != nil {
-		sourceId = 0
-	}
 
 	return types.StatementSearch{
 		DefaultSearch: types.DefaultSearch{
@@ -55,5 +57,5 @@ func ParseUrlValues(params url.Values) types.StatementSearch {
 		MaxValue: maxValue,
 		From:     params.Get("from"),
 		To:       params.Get("to"),
-	}
+	}, nil
 }

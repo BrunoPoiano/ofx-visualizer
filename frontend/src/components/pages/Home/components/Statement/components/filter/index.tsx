@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input'
 import { SourceSelect } from '../../../SourceSelect'
 import { useStatementContext } from '../../provider'
 
-export const Filter = () => {
+export default function Filter() {
 	const {
 		filter: [filter, setFilter],
 		clearFilter

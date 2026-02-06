@@ -89,8 +89,9 @@ func UpdateItems(ctx context.Context, bank databaseSqlc.UpdateBankNameParams) er
 	return queries.UpdateBankName(ctx, bank)
 }
 
-func DeleteItem(ctx context.Context, ID int64) error {
+func DeleteItem(ctx context.Context) error {
 	queries := ctx.Value("queries").(*databaseSQL.Queries)
+	bankId := ctx.Value("bankId").(int64)
 
-	return queries.DeleteBank(ctx, ID)
+	return queries.DeleteBank(ctx, bankId)
 }

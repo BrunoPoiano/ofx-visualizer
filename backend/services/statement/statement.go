@@ -32,8 +32,15 @@ func InsertItems(ctx context.Context, item databaseSqlc.StatementYields, SourceI
 	})
 	if err != nil {
 
-		item.Statement.SourceID = int64(SourceId)
-		stt, err := queries.CreateStatement(ctx, item.Statement)
+		stt, err := queries.CreateStatement(ctx, databaseSqlc.CreateStatementParams{
+			SourceID:      int64(SourceId),
+			StartDate:     item.Statement.StartDate,
+			EndDate:       item.Statement.EndDate,
+			LedgerBalance: item.Statement.LedgerBalance,
+			BalanceDate:   item.Statement.BalanceDate,
+			ServerDate:    item.Statement.ServerDate,
+			Language:      item.Statement.Language,
+		})
 		if err != nil {
 			return 0, err
 		}
@@ -60,10 +67,12 @@ func InsertItems(ctx context.Context, item databaseSqlc.StatementYields, SourceI
 //   - The total number of items found.
 //   - The total number of pages based on the per-page limit.
 //   - An error if the retrieval fails, nil otherwise.
-func GetItems(ctx context.Context, filter types.StatementSearch) ([]databaseSqlc.Statement, int, int, error) {
+func GetItems(ctx context.Context, filter types.StatementSearch) ([]databaseSQL.StatementYields, int, int, error) {
 	queries := ctx.Value("queries").(*databaseSQL.Queries)
 
 	offset := filter.PerPage * (filter.CurrentPage - 1)
+
+	var statementYields []databaseSQL.StatementYields
 
 	statements, err := queries.ListStatements(ctx, databaseSqlc.ListStatementsParams{
 		Search:         filter.Search,
@@ -79,6 +88,18 @@ func GetItems(ctx context.Context, filter types.StatementSearch) ([]databaseSqlc
 		return nil, 0, 0, err
 	}
 
+	for _, statement := range statements {
+		yields, err := queries.ListBalancesByStatementId(ctx, statement.ID)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		statementYields = append(statementYields, databaseSqlc.StatementYields{
+			Statement: statement,
+			Yields:    yields,
+		})
+	}
+
 	totalItems, err := queries.CountStatements(ctx, databaseSqlc.CountStatementsParams{
 		Search:         filter.Search,
 		SearchMaxValue: utils.CheckIfZero(filter.MaxValue),
@@ -89,7 +110,7 @@ func GetItems(ctx context.Context, filter types.StatementSearch) ([]databaseSqlc
 	})
 
 	last_page := math.Ceil(float64(totalItems) / float64(filter.PerPage))
-	return statements, int(totalItems), int(last_page), nil
+	return statementYields, int(totalItems), int(last_page), nil
 }
 
 // GetInfo retrieves the largest and latest Statement items for a given bank ID.
@@ -103,17 +124,18 @@ func GetItems(ctx context.Context, filter types.StatementSearch) ([]databaseSqlc
 //   - The Statement item with the largest balance.
 //   - The Statement item with the most recent balance.
 //   - An error if the retrieval fails, nil otherwise.
-func GetInfo(ctx context.Context, bankId int64) (databaseSqlc.Statement, databaseSqlc.Statement, error) {
+func GetInfo(ctx context.Context) (databaseSqlc.Statement, databaseSqlc.Statement, error) {
 	queries := ctx.Value("queries").(*databaseSQL.Queries)
+	sourceId := ctx.Value("sourceId").(int64)
 
 	var largestBalance, currentBalance databaseSqlc.Statement
 
-	largestBalance, err := queries.GetLargestBalanceQuery(ctx, bankId)
+	largestBalance, err := queries.GetLargestBalanceQuery(ctx, sourceId)
 	if err != nil {
 		return largestBalance, currentBalance, err
 	}
 
-	currentBalance, err = queries.GetCurrentBalanceQuery(ctx, bankId)
+	currentBalance, err = queries.GetCurrentBalanceQuery(ctx, sourceId)
 	if err != nil {
 		return largestBalance, currentBalance, err
 	}

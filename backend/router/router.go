@@ -1,7 +1,6 @@
 package router
 
 import (
-	BalanceController "main/controller/balance"
 	BankController "main/controller/bank"
 	SourceController "main/controller/source"
 	StatementsController "main/controller/statements"
@@ -20,7 +19,6 @@ func AppRoutes(queries *databaseSqlc.Queries) *mux.Router {
 
 	transactions(router)
 	source(router)
-	balances(router)
 	banks(router)
 	statements(router)
 
@@ -46,9 +44,4 @@ func source(router *mux.Router) {
 func statements(router *mux.Router) {
 	router.HandleFunc("/statements", StatementsController.GetStatements).Methods("GET")
 	router.HandleFunc("/statements/{source_id}/info", middleware.CheckSourceExists(StatementsController.GetStatementsInfo)).Methods("GET")
-}
-
-func balances(router *mux.Router) {
-	router.HandleFunc("/balances", BalanceController.GetBalances).Methods("GET")
-	router.HandleFunc("/balances/{statement_id}", middleware.CheckStatementExists(BalanceController.GetBalances)).Methods("GET")
 }
