@@ -2,10 +2,6 @@ package CardService
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
-
-	"main/types"
 
 	"main/database/databaseSQL"
 	databaseSqlc "main/database/databaseSQL"
@@ -37,15 +33,4 @@ func InsertItems(ctx context.Context, item databaseSqlc.CreateCardParams) (int, 
 	}
 
 	return 0, err
-}
-
-func UpdateItems(database *sql.DB, item databaseSqlc.Card) error {
-	if item.Name == "" || item.ID == 0 {
-		return types.InvalidObject
-	}
-
-	query := fmt.Sprintf("UPDATE cards SET name='%s' WHERE id=%d", item.Name, item.ID)
-	_, err := database.Exec(query)
-
-	return err
 }

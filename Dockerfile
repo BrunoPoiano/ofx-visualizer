@@ -18,8 +18,8 @@ FROM alpine:3.21
 
 WORKDIR /app
 COPY --from=backend /app/ofxvisualizer ./
-RUN mkdir -p /app/database && chmod 777 /app/database
-RUN mkdir -p /app/frontend/dist && chmod 777 /app/frontend/dist
+RUN mkdir -p /app/database
+RUN mkdir -p /app/frontend/dist
 COPY --from=backend /app/ofxvisualizer .
 COPY --from=backend /app/frontend/dist ./frontend/dist
 EXPOSE 8247

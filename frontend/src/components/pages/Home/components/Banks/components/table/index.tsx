@@ -42,7 +42,7 @@ export default function Table({ small = false }: { small?: boolean }) {
 		return {
 			...item,
 			options: (
-				<div className='flex gap-1 justify-center-safe'>
+				<div className='justify-center-safe flex gap-1'>
 					<DialogEdit item={item} />
 					<DeleteModal onClick={() => deletefunc(item.id)} />
 				</div>

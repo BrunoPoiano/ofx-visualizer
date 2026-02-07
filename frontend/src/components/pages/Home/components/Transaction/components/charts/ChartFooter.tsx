@@ -9,16 +9,16 @@ export const ChartFooter = ({ chartData }: { chartData: ChartType[] }) => (
 				<li
 					key={generateKey()}
 					title={item.to.replace(/-/g, ' ')}
-					className='flex gap-1.5 items-center cursor-default'
+					className='flex cursor-default items-center gap-1.5'
 				>
 					<div
-						className='w-3.5 h-3.5'
+						className='h-3.5 w-3.5'
 						style={{
 							background: `var(--chart-${index + 1})`,
 							borderRadius: '100%'
 						}}
 					/>
-					<div className='truncate w-[25ch] text-left'>
+					<div className='w-[25ch] truncate text-left'>
 						{item.to.replace(/-/g, ' ')}
 					</div>
 					<span className='ml-auto'>{formatMoney(item.value)}</span>
