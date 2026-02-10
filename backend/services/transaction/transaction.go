@@ -52,7 +52,7 @@ func InsertTransaction(ctx context.Context, items []databaseSqlc.CreateTransacti
 //   - []databaseSqlc.Transaction: A slice of Transaction structs representing the transactions on the current page.
 //   - int: The total number of transactions in the database.
 //   - error: An error if the retrieval fails, nil otherwise.
-func GetTransactions(ctx context.Context, filter types.TransactionSearch) ([]databaseSqlc.Transaction, int, int, error) {
+func GetTransactions(ctx context.Context, filter types.TransactionSearch) ([]databaseSqlc.ListTransactionsRow, int, int, error) {
 	queries := ctx.Value("queries").(*databaseSQL.Queries)
 	offset := filter.PerPage * (filter.CurrentPage - 1)
 

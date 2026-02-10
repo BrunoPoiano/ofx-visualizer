@@ -24,6 +24,7 @@ export default function Table({ small = false }: { small?: boolean }) {
 			type: item.type,
 			value: formatMoney(item.value),
 			desc: item.desc,
+			tags: item.tags.join(','),
 			options: <DialogInfo item={item} />
 		}
 	})

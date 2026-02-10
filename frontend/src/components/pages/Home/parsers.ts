@@ -3,7 +3,8 @@ import type { DateRange } from 'react-day-picker'
 import {
 	isNumberOrDefault,
 	isObject,
-	isStringOrDefault
+	isStringOrDefault,
+	notEmptyString
 } from '@/lib/typeValidation'
 import { ensureOneOf } from '@/lib/utils'
 import {
@@ -53,19 +54,18 @@ export function parseTransaction(data: unknown): TransactionType[] {
 	}
 
 	return data.data.reduce<TransactionType[]>((prev, item) => {
-		if (typeof item !== 'object' || item === null) {
+		if (!isObject(item)) {
 			return prev
 		}
 
-		const typedItem = item as GenericObject
-
 		const newItem: TransactionType = {
-			id: isStringOrDefault(typedItem.id),
-			source_id: isNumberOrDefault(typedItem.source_id),
-			date: isStringOrDefault(typedItem.date),
-			type: ensureOneOf(typedItem.type, TransactionTypeValues, 'OTHER'),
-			value: isNumberOrDefault(typedItem.value),
-			desc: isStringOrDefault(typedItem.desc)
+			id: isStringOrDefault(item.id),
+			source_id: isNumberOrDefault(item.source_id),
+			date: isStringOrDefault(item.date),
+			type: ensureOneOf(item.type, TransactionTypeValues, 'OTHER'),
+			value: isNumberOrDefault(item.value),
+			desc: isStringOrDefault(item.desc),
+			tags: notEmptyString(item.tags) ? item.tags.split(',') : []
 		}
 
 		prev.push(newItem)

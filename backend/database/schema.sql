@@ -8,6 +8,11 @@ CREATE TABLE IF NOT EXISTS banks (
     branch_id      TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS tags (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    name           TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS cards (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     account_id     TEXT NOT NULL,

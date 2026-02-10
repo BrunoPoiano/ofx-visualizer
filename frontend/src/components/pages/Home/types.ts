@@ -64,6 +64,7 @@ export type TransactionType = {
 	type: (typeof TransactionTypeValues)[number]
 	value: number
 	desc: string
+	tags: Array<string>
 }
 
 export type BankType = {

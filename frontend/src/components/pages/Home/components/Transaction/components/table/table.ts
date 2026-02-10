@@ -24,6 +24,10 @@ export const TableInfo: TableInfoType<keyof TransactionType>[] = [
 		style: { maxWidth: '30ch' }
 	},
 	{
+		label: 'Tags',
+		id: 'tags'
+	},
+	{
 		label: 'Info',
 		id: 'options'
 	}

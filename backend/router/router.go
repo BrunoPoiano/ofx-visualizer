@@ -3,11 +3,11 @@ package router
 import (
 	BankController "main/controller/bank"
 	SourceController "main/controller/source"
-	StatementsController "main/controller/statements"
+	StatementController "main/controller/statement"
+	TagController "main/controller/tag"
 	TransactionController "main/controller/transaction"
-	"main/middleware"
-
 	databaseSqlc "main/database/databaseSQL"
+	"main/middleware"
 
 	"github.com/gorilla/mux"
 )
@@ -42,6 +42,12 @@ func source(router *mux.Router) {
 }
 
 func statements(router *mux.Router) {
-	router.HandleFunc("/statements", StatementsController.GetStatements).Methods("GET")
-	router.HandleFunc("/statements/{source_id}/info", middleware.CheckSourceExists(StatementsController.GetStatementsInfo)).Methods("GET")
+	router.HandleFunc("/statements", StatementController.GetStatements).Methods("GET")
+	router.HandleFunc("/statements/{source_id}/info", middleware.CheckSourceExists(StatementController.GetStatementsInfo)).Methods("GET")
+}
+
+func tags(router *mux.Router) {
+	router.HandleFunc("/statements", TagController.GetItems).Methods("GET")
+	router.HandleFunc("/statements", TagController.InsertItems).Methods("POST")
+	router.HandleFunc("/statements/{tag_id}", middleware.CheckTagExists(TagController.DeleteItem)).Methods("DELETE")
 }
