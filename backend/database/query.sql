@@ -146,7 +146,7 @@ SELECT t.*,
   COALESCE(GROUP_CONCAT(p.name, ','), '') AS tags
 FROM transactions as t
 LEFT JOIN tags p
-    ON LOWER(t."desc" || ' ') LIKE '%' || LOWER(p.name) || ' %'
+    ON REPLACE(LOWER(t."desc" || ' '),"-", " ") LIKE '%' || LOWER(p.name) || ' %'
 WHERE t.source_id = :source_id
 AND (
     :search IS NULL
@@ -156,6 +156,10 @@ AND (
 AND (
     :searchType IS NULL
     OR t.type LIKE '%' || :searchType || '%'
+)
+AND (
+    :tag IS NULL
+    OR REPLACE(LOWER(t."desc" || ' '),"-", " ") LIKE '%' || LOWER(:tag) || ' %'
 )
 AND (
     :searchMaxValue IS NULL
@@ -185,7 +189,11 @@ WHERE source_id = :source_id
 AND (
     :search IS NULL
     OR date LIKE '%' || :search || '%'
-    OR "desc" LIKE '%' || :search || '%'
+    OR desc LIKE '%' || :search || '%'
+)
+AND (
+    :tag IS NULL
+    OR REPLACE(LOWER(desc || ' '),"-", " ") LIKE '%' || LOWER(:tag) || ' %'
 )
 AND (
     :searchType IS NULL

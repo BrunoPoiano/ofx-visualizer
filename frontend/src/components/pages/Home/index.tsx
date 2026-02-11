@@ -8,6 +8,7 @@ import type { HomeTabs } from './types'
 const TransactionSection = lazy(() => import('./components/Transaction'))
 const StatementsSection = lazy(() => import('./components/Statement'))
 const BanksSection = lazy(() => import('./components/Banks'))
+const SettingsSection = lazy(() => import('./components/Settings'))
 
 const homePageTabs: (HomeTabs & { label: string })[] = [
 	{
@@ -22,8 +23,13 @@ const homePageTabs: (HomeTabs & { label: string })[] = [
 	},
 	{
 		label: 'Banks',
-		tab: 'banks',
+		tab: 'bank',
 		content: <BanksSection />
+	},
+	{
+		label: 'Settings',
+		tab: 'settings',
+		content: <SettingsSection />
 	}
 ]
 

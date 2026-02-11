@@ -3,7 +3,6 @@ import { toast } from 'sonner'
 import { EyeClosedSvg } from '@/components/icons/eyeClosedSvg'
 import { EyeSvg } from '@/components/icons/eyeSvg'
 import { Button } from '@/components/ui/button'
-import { ModeToggle } from '@/components/ui/mode-toggle'
 import { tryCatch } from '@/lib/tryCatch'
 import { postOfxFile } from '../../functions'
 import { useHomeContext } from '../../provider'
@@ -98,7 +97,6 @@ export const AppHeader = ({
 				<Button variant='outline' onClick={() => setShowValue(!showValue)}>
 					{showValue ? <EyeSvg /> : <EyeClosedSvg />}
 				</Button>
-				<ModeToggle />
 			</div>
 			<FilesList filesState={[files, setFiles]} />
 		</section>

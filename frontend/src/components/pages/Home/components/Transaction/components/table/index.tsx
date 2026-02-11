@@ -4,6 +4,7 @@ import { formatMoney, parseDate } from '@/lib/utils'
 import { useTransactionContext } from '../../provider'
 import { TableInfo, TableInfoSmall } from './table'
 import { lazy } from 'react'
+import TableBadge from '@/components/global/tableBadge'
 
 const DialogInfo = lazy(() => import('./components/DialogInfo'))
 
@@ -11,8 +12,11 @@ export default function Table({ small = false }: { small?: boolean }) {
 	const {
 		transactions: [transactions],
 		orderBy: [orderBy, setOrderBy],
-		pagination: [pagination, setPagination]
+		pagination: [pagination, setPagination],
+		filter: [filter],
+		setTag
 	} = useTransactionContext()
+
 	const {
 		showValue: [showValue]
 	} = useHomeContext()
@@ -24,7 +28,9 @@ export default function Table({ small = false }: { small?: boolean }) {
 			type: item.type,
 			value: formatMoney(item.value),
 			desc: item.desc,
-			tags: item.tags.join(','),
+			tags: (
+				<TableBadge items={item.tags} selected={filter.tag} setTag={setTag} />
+			),
 			options: <DialogInfo item={item} />
 		}
 	})

@@ -20,18 +20,19 @@ const StatementProviderContext = createContext<StatementProviderState>(
 	{} as StatementProviderState
 )
 
+export const filterBase: FilterType = {
+	search: '',
+	maxValue: undefined,
+	minValue: undefined
+}
+
 export function StatementProvider({ children }: { children: React.ReactNode }) {
 	const {
 		defaultFilter: [defaultFilter, setDefaultFilter],
-		banks: [banks],
-		sources
+		banks: [banks]
 	} = useHomeContext()
 
-	const [filter, setFilter] = useLocalStorage<FilterType>('FILTER_STATEMENT', {
-		search: '',
-		maxValue: undefined,
-		minValue: undefined
-	})
+	const [filter, setFilter] = useLocalStorage('FILTER_STATEMENT', filterBase)
 
 	const [orderBy, setOrderBy] = useLocalStorage<OrderBy>('ORDERBY_STATEMENT', {
 		direction: 'DESC',
@@ -93,21 +94,12 @@ export function StatementProvider({ children }: { children: React.ReactNode }) {
 	)
 
 	const clearFilter = () => {
-		setFilter({
-			search: '',
-			maxValue: undefined,
-			minValue: undefined
-		})
+		setFilter(filterBase)
 
-		setOrderBy({
-			order: 'start_date',
-			direction: 'DESC'
-		})
-
-		setDefaultFilter({
-			date: undefined,
-			source_id: sources[0].id.toString() || ''
-		})
+		setDefaultFilter((prev) => ({
+			...prev,
+			date: undefined
+		}))
 	}
 
 	const getStatesmentsInfoFunc = useCallback(async () => {

@@ -64,6 +64,7 @@ func GetTransactions(ctx context.Context, filter types.TransactionSearch) ([]dat
 		SearchFrom:     utils.FixSearchDate(filter.From, true),
 		SearchTo:       utils.FixSearchDate(filter.To, false),
 		Offset:         offset,
+		Tag:            filter.Tag,
 		Limit:          filter.PerPage,
 		SourceID:       filter.SourceId,
 	})
@@ -79,6 +80,7 @@ func GetTransactions(ctx context.Context, filter types.TransactionSearch) ([]dat
 		SearchFrom:     utils.FixSearchDate(filter.From, true),
 		SearchTo:       utils.FixSearchDate(filter.To, false),
 		SourceID:       filter.SourceId,
+		Tag:            filter.Tag,
 	})
 	if err != nil {
 		return nil, 0, 0, err

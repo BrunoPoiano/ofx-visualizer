@@ -56,6 +56,7 @@ func ParseUrlValues(params url.Values) (types.TransactionSearch, error) {
 		MaxValue: maxValue,
 		From:     params.Get("from"),
 		To:       params.Get("to"),
+		Tag:      params.Get("tag"),
 		Type:     types.TransactionType(params.Get("type")).OrEmpty(),
 		SourceId: sourceId,
 	}, nil

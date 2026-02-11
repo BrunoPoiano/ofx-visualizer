@@ -44,4 +44,5 @@ type TransactionSearch struct {
 	To       string
 	Type     TransactionType
 	SourceId int64
+	Tag      string
 }

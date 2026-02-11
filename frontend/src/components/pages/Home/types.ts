@@ -24,7 +24,7 @@ export const TransactionTypeValues = [
 	'OTHER'
 ] as const
 
-type Tabs = 'transaction' | 'statement' | 'banks'
+type Tabs = 'transaction' | 'statement' | 'bank' | 'settings'
 
 export const AccountTypeValues = [
 	'CHECKING',

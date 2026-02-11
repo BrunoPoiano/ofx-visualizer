@@ -17,6 +17,7 @@ export type TransactionProviderState = {
 		TransactionInfoType | undefined,
 		React.Dispatch<React.SetStateAction<TransactionInfoType | undefined>>
 	]
+	setTag: (tag: string) => void
 	clearFilter: () => void
 	getTransactionsFunc: () => void
 	getTransactionInfoFunc: () => void
@@ -31,4 +32,5 @@ export type FilterType = {
 	minValue?: number
 	maxValue?: number
 	type: string
+	tag: string
 }

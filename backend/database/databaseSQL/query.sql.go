@@ -157,33 +157,38 @@ WHERE source_id = ?1
 AND (
     ?2 IS NULL
     OR date LIKE '%' || ?2 || '%'
-    OR "desc" LIKE '%' || ?2 || '%'
+    OR desc LIKE '%' || ?2 || '%'
 )
 AND (
     ?3 IS NULL
-    OR type LIKE '%' || ?3 || '%'
+    OR REPLACE(LOWER(desc || ' '),"-", " ") LIKE '%' || LOWER(?3) || ' %'
 )
 AND (
     ?4 IS NULL
-    OR value <= ?4
+    OR type LIKE '%' || ?4 || '%'
 )
 AND (
     ?5 IS NULL
-    OR value >= ?5
+    OR value <= ?5
 )
 AND (
     ?6 IS NULL
-    OR date >= ?6
+    OR value >= ?6
 )
 AND (
     ?7 IS NULL
-    OR date <= ?7
+    OR date >= ?7
+)
+AND (
+    ?8 IS NULL
+    OR date <= ?8
 )
 `
 
 type CountTransactionsParams struct {
 	SourceID       int64       `json:"source_id"`
 	Search         interface{} `json:"search"`
+	Tag            interface{} `json:"tag"`
 	SearchType     interface{} `json:"searchType"`
 	SearchMaxValue interface{} `json:"searchMaxValue"`
 	SearchMinValue interface{} `json:"searchMinValue"`
@@ -195,6 +200,7 @@ func (q *Queries) CountTransactions(ctx context.Context, arg CountTransactionsPa
 	row := q.db.QueryRowContext(ctx, countTransactions,
 		arg.SourceID,
 		arg.Search,
+		arg.Tag,
 		arg.SearchType,
 		arg.SearchMaxValue,
 		arg.SearchMinValue,
@@ -973,7 +979,7 @@ SELECT t.id, t.source_id, t.date, t.value, t.type, t."desc",
   COALESCE(GROUP_CONCAT(p.name, ','), '') AS tags
 FROM transactions as t
 LEFT JOIN tags p
-    ON LOWER(t."desc" || ' ') LIKE '%' || LOWER(p.name) || ' %'
+    ON REPLACE(LOWER(t."desc" || ' '),"-", " ") LIKE '%' || LOWER(p.name) || ' %'
 WHERE t.source_id = ?1
 AND (
     ?2 IS NULL
@@ -986,30 +992,35 @@ AND (
 )
 AND (
     ?4 IS NULL
-    OR t.value <= ?4
+    OR REPLACE(LOWER(t."desc" || ' '),"-", " ") LIKE '%' || LOWER(?4) || ' %'
 )
 AND (
     ?5 IS NULL
-    OR t.value >= ?5
+    OR t.value <= ?5
 )
 AND (
     ?6 IS NULL
-    OR t.date >= ?6
+    OR t.value >= ?6
 )
 AND (
     ?7 IS NULL
-    OR t.date <= ?7
+    OR t.date >= ?7
+)
+AND (
+    ?8 IS NULL
+    OR t.date <= ?8
 )
 GROUP BY
   t.id
 ORDER BY t.date DESC
-LIMIT ?9 OFFSET ?8
+LIMIT ?10 OFFSET ?9
 `
 
 type ListTransactionsParams struct {
 	SourceID       int64       `json:"source_id"`
 	Search         interface{} `json:"search"`
 	SearchType     interface{} `json:"searchType"`
+	Tag            interface{} `json:"tag"`
 	SearchMaxValue interface{} `json:"searchMaxValue"`
 	SearchMinValue interface{} `json:"searchMinValue"`
 	SearchFrom     interface{} `json:"searchFrom"`
@@ -1033,6 +1044,7 @@ func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsPara
 		arg.SourceID,
 		arg.Search,
 		arg.SearchType,
+		arg.Tag,
 		arg.SearchMaxValue,
 		arg.SearchMinValue,
 		arg.SearchFrom,
