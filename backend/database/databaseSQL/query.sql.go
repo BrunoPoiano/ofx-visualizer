@@ -161,7 +161,7 @@ AND (
 )
 AND (
     ?3 IS NULL
-    OR REPLACE(LOWER(desc || ' '),"-", " ") LIKE '%' || LOWER(?3) || ' %'
+    OR REPLACE(REPLACE(LOWER(desc || ' '),"-", " "), "*", " ") LIKE '%' || LOWER(?3) || ' %'
 )
 AND (
     ?4 IS NULL
@@ -979,7 +979,8 @@ SELECT t.id, t.source_id, t.date, t.value, t.type, t."desc",
   COALESCE(GROUP_CONCAT(p.name, ','), '') AS tags
 FROM transactions as t
 LEFT JOIN tags p
-    ON REPLACE(LOWER(t."desc" || ' '),"-", " ") LIKE '%' || LOWER(p.name) || ' %'
+    ON REPLACE(REPLACE(LOWER(t."desc" || ' '),"-", " "), "*", " ")
+    LIKE '%' || LOWER(p.name) || ' %'
 WHERE t.source_id = ?1
 AND (
     ?2 IS NULL
@@ -992,7 +993,8 @@ AND (
 )
 AND (
     ?4 IS NULL
-    OR REPLACE(LOWER(t."desc" || ' '),"-", " ") LIKE '%' || LOWER(?4) || ' %'
+    OR REPLACE(REPLACE(LOWER(t."desc" || ' '),"-", " "), "*", " ")
+    LIKE '%' || LOWER(?4) || ' %'
 )
 AND (
     ?5 IS NULL
