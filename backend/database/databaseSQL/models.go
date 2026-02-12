@@ -51,6 +51,11 @@ type Statement struct {
 	Language      string  `json:"language"`
 }
 
+type Tag struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
 type Transaction struct {
 	ID       string  `json:"id"`
 	SourceID int64   `json:"source_id"`

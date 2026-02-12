@@ -2,7 +2,11 @@ import React from 'react'
 import { generateKey } from '@/lib/utils'
 import type { PaginationType } from '@/types'
 import { ArrowSVG } from '../icons/arrowUp'
-import type { OrderBy, TableInfoType } from '../pages/Home/types'
+import type {
+	OrderBy,
+	TableInfoType,
+	TypeAndSetState
+} from '../pages/Home/types'
 import { Button } from '../ui/button'
 import { ScrollArea } from '../ui/scroll-area'
 import {
@@ -20,12 +24,9 @@ type AppTableProps<T extends { [key: string]: string | React.ReactNode }> = {
 	small?: boolean | undefined
 	tableContentSmall?: TableInfoType<OrderBy['order']>[]
 	tableContent: TableInfoType<OrderBy['order']>[]
-	orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>]
+	orderBy?: TypeAndSetState<OrderBy>
 	showValue: boolean
-	pagination: [
-		PaginationType,
-		React.Dispatch<React.SetStateAction<PaginationType>>
-	]
+	pagination?: TypeAndSetState<PaginationType>
 	tableData: T[]
 }
 
@@ -35,8 +36,8 @@ export const AppTable = <
 	small = false,
 	tableContentSmall,
 	tableContent,
-	orderBy: [orderBy, setOrderBy],
-	pagination: [pagination, setPagination],
+	orderBy,
+	pagination,
 	showValue,
 	tableData
 }: AppTableProps<T>) => {
@@ -44,10 +45,13 @@ export const AppTable = <
 		small && tableContentSmall ? tableContentSmall : tableContent
 
 	const changeOrderBy = (order: OrderBy['order'] | 'options') => {
-		if (order === 'options') return
-		let direction = orderBy.direction
+		if (orderBy === undefined || order === 'options') return
 
-		if (orderBy.order === order) {
+		const [orderby, setOrderBy] = orderBy
+
+		let direction = orderby.direction
+
+		if (orderby.order === order) {
 			direction = direction === 'ASC' ? 'DESC' : 'ASC'
 		} else {
 			direction = 'ASC'
@@ -82,8 +86,9 @@ export const AppTable = <
 												{item.label}{' '}
 												<ArrowSVG
 													direction={
-														orderBy.order === item.id &&
-														orderBy.direction === 'ASC'
+														orderBy &&
+														orderBy[0].order === item.id &&
+														orderBy[0].direction === 'ASC'
 															? 'up'
 															: 'down'
 													}
@@ -129,7 +134,7 @@ export const AppTable = <
 					</Table>
 				</ScrollArea>
 			</div>
-			<AppPagination pagination={pagination} setPagination={setPagination} />
+			{pagination && <AppPagination paginationState={pagination} />}
 		</div>
 	)
 }

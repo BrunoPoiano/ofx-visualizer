@@ -8,20 +8,19 @@ import {
 import { useDebounce } from '@/lib/debounce'
 import useLocalStorage from '@/lib/localstorage'
 import { getSources } from './functions'
-import type { BankType, DefaultFilterType, SourceType } from './types'
+import type {
+	BankType,
+	DefaultFilterType,
+	SourceType,
+	TypeAndSetState
+} from './types'
 import { tryCatch } from '@/lib/tryCatch'
 import { toast } from 'sonner'
 
 export type HomeProviderState = {
-	showValue: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-	defaultFilter: [
-		DefaultFilterType,
-		React.Dispatch<React.SetStateAction<DefaultFilterType>>
-	]
-	banks: [
-		Array<BankType>,
-		React.Dispatch<React.SetStateAction<Array<BankType>>>
-	]
+	showValue: TypeAndSetState<boolean>
+	defaultFilter: TypeAndSetState<DefaultFilterType>
+	banks: TypeAndSetState<BankType[]>
 	getSourcesFunc: () => void
 	sources: Array<SourceType>
 }

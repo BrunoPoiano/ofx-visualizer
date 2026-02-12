@@ -3,6 +3,8 @@ import type { DateRange } from 'react-day-picker'
 import type { PaginationType } from '@/types'
 
 export type GenericObject = Record<string, unknown>
+export type TypeAndSetState<T> = [T, React.Dispatch<React.SetStateAction<T>>]
+export type Params = Record<string, string>
 
 export const TransactionTypeValues = [
 	'CREDIT',
@@ -24,7 +26,7 @@ export const TransactionTypeValues = [
 	'OTHER'
 ] as const
 
-type Tabs = 'transaction' | 'statement' | 'banks'
+type Tabs = 'transaction' | 'statement' | 'bank' | 'settings'
 
 export const AccountTypeValues = [
 	'CHECKING',
@@ -64,6 +66,7 @@ export type TransactionType = {
 	type: (typeof TransactionTypeValues)[number]
 	value: number
 	desc: string
+	tags: Array<string>
 }
 
 export type BankType = {
@@ -101,6 +104,11 @@ export type balanceType = {
 	desc: string
 	bal_type: string
 	value: number
+}
+
+export type TagType = {
+	id: number
+	name: string
 }
 
 export type HomeTabs = {

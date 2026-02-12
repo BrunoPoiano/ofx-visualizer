@@ -8,6 +8,11 @@ CREATE TABLE IF NOT EXISTS banks (
     branch_id      TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS tags (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    name           TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS cards (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     account_id     TEXT NOT NULL,
@@ -58,18 +63,18 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE INDEX IF NOT EXISTS idx_statements_source_date_range ON statements (source_id, start_date, end_date);
 CREATE INDEX IF NOT EXISTS idx_statements_source_id ON statements (source_id);
 
-CREATE INDEX IF NOT EXISTS idx_transactions_id_source_id ON transactions (source_id, id);
 CREATE INDEX IF NOT EXISTS idx_transactions_source_id ON transactions (source_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_source_date ON transactions (source_id, date);
-CREATE INDEX IF NOT EXISTS idx_transactions_desc_prefix ON transactions (desc);
+CREATE INDEX IF NOT EXISTS idx_transactions_desc_prefix ON transactions (source_id, desc);
 
 CREATE INDEX IF NOT EXISTS idx_balances_statement_id ON balances (statement_id);
-CREATE INDEX IF NOT EXISTS idx_balances_name_prefix ON balances (name);
+CREATE INDEX IF NOT EXISTS idx_balances_name_prefix ON balances (statement_id, name);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_balances_identity ON balances (statement_id, name, balance_type);
 
 CREATE INDEX IF NOT EXISTS idx_source_bank_id ON source (bank_id);
 CREATE INDEX IF NOT EXISTS idx_source_card_id ON source (card_id);
 
+CREATE INDEX IF NOT EXISTS idx_tags_name ON tags(name);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_banks_identity ON banks (f_id, bank_id, branch_id, account_id);
 

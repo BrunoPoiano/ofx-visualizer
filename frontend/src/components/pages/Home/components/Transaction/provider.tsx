@@ -10,7 +10,7 @@ import { useDebounce } from '@/lib/debounce'
 import useLocalStorage from '@/lib/localstorage'
 import { tryCatch } from '@/lib/tryCatch'
 import type { PaginationType } from '@/types'
-import { getTransactions, getTransactionsInfo } from '../../functions'
+import { getTransactions, getTransactionsInfo } from './functions'
 import { parseFilterDate } from '../../parsers'
 import { useHomeContext } from '../../provider'
 import type { OrderBy, TransactionInfoType, TransactionType } from '../../types'
@@ -24,20 +24,19 @@ const TransactionProviderContext = createContext<TransactionProviderState>(
 	{} as TransactionProviderState
 )
 
+export const filterBase: FilterType = {
+	search: '',
+	minValue: undefined,
+	maxValue: undefined,
+	type: '',
+	tag: ''
+}
+
 export function TransactionProvider({ children }: TransactionProviderProps) {
-	const { sources } = useHomeContext()
 	const [transactionsInfo, setTransactionsInfo] =
 		useState<TransactionInfoType>()
 
-	const [filter, setFilter] = useLocalStorage<FilterType>(
-		'FILTER_TRANSACTION',
-		{
-			search: '',
-			minValue: undefined,
-			maxValue: undefined,
-			type: ''
-		}
-	)
+	const [filter, setFilter] = useLocalStorage('FILTER_TRANSACTION', filterBase)
 
 	const [orderBy, setOrderBy] = useLocalStorage<OrderBy>(
 		'ORDERBY_TRANSACTION',
@@ -75,6 +74,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 					...(filter.maxValue ? { max_value: filter.maxValue.toString() } : {}),
 					...(defaultFilter.date ? parseFilterDate(defaultFilter.date) : {}),
 					...(filter.type ? { type: filter.type } : {}),
+					...(filter.tag ? { tag: filter.tag } : {}),
 					...(defaultFilter.source_id
 						? { source_id: defaultFilter.source_id }
 						: {}),
@@ -123,22 +123,16 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 	}, [defaultFilter.source_id])
 
 	const clearFilter = () => {
-		setFilter({
-			search: '',
-			minValue: undefined,
-			maxValue: undefined,
-			type: ''
-		})
+		setFilter(filterBase)
 
-		setOrderBy({
-			order: 'date',
-			direction: 'DESC'
-		})
+		setDefaultFilter((prev) => ({
+			...prev,
+			date: undefined
+		}))
+	}
 
-		setDefaultFilter({
-			date: undefined,
-			source_id: sources[0].id.toString() || ''
-		})
+	const setTag = (tag: string) => {
+		setFilter((prev) => ({ ...prev, tag: tag === prev.tag ? '' : tag }))
 	}
 
 	useEffect(() => {
@@ -172,7 +166,8 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
 				transactionsInfo: [transactionsInfo, setTransactionsInfo],
 				clearFilter,
 				getTransactionsFunc,
-				getTransactionInfoFunc
+				getTransactionInfoFunc,
+				setTag
 			}}
 		>
 			{children}

@@ -1,17 +1,11 @@
 import type { PaginationType } from '@/types'
-import type { OrderBy, StatementType } from '../../types'
+import type { OrderBy, StatementType, TypeAndSetState } from '../../types'
 
 export type StatementProviderState = {
-	orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>]
-	filter: [FilterType, React.Dispatch<React.SetStateAction<FilterType>>]
-	pagination: [
-		PaginationType,
-		React.Dispatch<React.SetStateAction<PaginationType>>
-	]
-	statements: [
-		StatementType[],
-		React.Dispatch<React.SetStateAction<StatementType[]>>
-	]
+	orderBy: TypeAndSetState<OrderBy>
+	filter: TypeAndSetState<FilterType>
+	pagination: TypeAndSetState<PaginationType>
+	statements: TypeAndSetState<StatementType[]>
 	currentBalance: StatementType | null
 	largestBalance: StatementType | null
 	clearFilter: () => void

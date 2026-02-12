@@ -10,7 +10,7 @@ import { useDebounce } from '@/lib/debounce'
 import useLocalStorage from '@/lib/localstorage'
 import { tryCatch } from '@/lib/tryCatch'
 import type { PaginationType } from '@/types'
-import { getBanks } from '../../functions'
+import { getBanks } from './functions'
 import type { BankType, OrderBy } from '../../types'
 import type { BanksProviderState, FilterType } from './types'
 

@@ -1,4 +1,4 @@
-package StatementsController
+package StatementController
 
 import (
 	"errors"

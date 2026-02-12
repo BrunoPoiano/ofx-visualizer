@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SourceSelect } from '../../../SourceSelect'
-import { useStatementContext } from '../../provider'
+import { filterBase, useStatementContext } from '../../provider'
+import FilterAlert from '@/components/global/FilterAlert'
 
 export default function Filter() {
 	const {
@@ -42,9 +43,11 @@ export default function Filter() {
 			/>
 
 			<SourceSelect />
-			<Button className='ml-auto' variant='ghost' onClick={clearFilter}>
-				Clear filter
-			</Button>
+			<FilterAlert className='ml-auto' base={filterBase} newValue={filter}>
+				<Button variant='ghost' onClick={clearFilter}>
+					Clear filter
+				</Button>
+			</FilterAlert>
 		</div>
 	)
 }

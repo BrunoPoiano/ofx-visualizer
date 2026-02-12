@@ -9,7 +9,8 @@ import {
 	SelectValue
 } from '@/components/ui/select'
 import { SourceSelect } from '../../../SourceSelect'
-import { useTransactionContext } from '../../provider'
+import { filterBase, useTransactionContext } from '../../provider'
+import FilterAlert from '@/components/global/FilterAlert'
 
 export default function Filter() {
 	const {
@@ -71,9 +72,11 @@ export default function Filter() {
 					</SelectContent>
 				</Select>
 				<SourceSelect />
-				<Button className='ml-auto' variant='ghost' onClick={clearFilter}>
-					Clear filter
-				</Button>
+				<FilterAlert className='ml-auto' base={filterBase} newValue={filter}>
+					<Button variant='ghost' onClick={clearFilter}>
+						Clear filter
+					</Button>
+				</FilterAlert>
 			</div>
 		</>
 	)

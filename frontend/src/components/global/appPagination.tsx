@@ -15,14 +15,15 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '../ui/select'
+import type { TypeAndSetState } from '../pages/Home/types'
 
-export const AppPagination = ({
-	pagination,
-	setPagination
-}: {
-	pagination: PaginationType
-	setPagination: React.Dispatch<React.SetStateAction<PaginationType>>
-}) => {
+type Props = {
+	paginationState: TypeAndSetState<PaginationType>
+}
+
+export const AppPagination = ({ paginationState }: Props) => {
+	const [pagination, setPagination] = paginationState
+
 	const { current_page, last_page, per_page, total_items } = pagination
 	const start = current_page - 3 < 0 ? 0 : current_page - 3
 	const end = current_page + 2 > last_page ? last_page : current_page + 2

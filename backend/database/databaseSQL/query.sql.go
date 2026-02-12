@@ -134,6 +134,22 @@ func (q *Queries) CountStatements(ctx context.Context, arg CountStatementsParams
 	return count, err
 }
 
+const countTags = `-- name: CountTags :one
+SELECT count(id)
+FROM tags
+WHERE (
+    ?1 IS NULL
+    OR name LIKE '%' || ?1 || '%'
+  )
+`
+
+func (q *Queries) CountTags(ctx context.Context, search interface{}) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countTags, search)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countTransactions = `-- name: CountTransactions :one
 SELECT count(id)
 FROM transactions
@@ -141,33 +157,38 @@ WHERE source_id = ?1
 AND (
     ?2 IS NULL
     OR date LIKE '%' || ?2 || '%'
-    OR "desc" LIKE '%' || ?2 || '%'
+    OR desc LIKE '%' || ?2 || '%'
 )
 AND (
     ?3 IS NULL
-    OR type LIKE '%' || ?3 || '%'
+    OR REPLACE(REPLACE(LOWER(desc || ' '),"-", " "), "*", " ") LIKE '%' || LOWER(?3) || ' %'
 )
 AND (
     ?4 IS NULL
-    OR value <= ?4
+    OR type LIKE '%' || ?4 || '%'
 )
 AND (
     ?5 IS NULL
-    OR value >= ?5
+    OR value <= ?5
 )
 AND (
     ?6 IS NULL
-    OR date >= ?6
+    OR value >= ?6
 )
 AND (
     ?7 IS NULL
-    OR date <= ?7
+    OR date >= ?7
+)
+AND (
+    ?8 IS NULL
+    OR date <= ?8
 )
 `
 
 type CountTransactionsParams struct {
 	SourceID       int64       `json:"source_id"`
 	Search         interface{} `json:"search"`
+	Tag            interface{} `json:"tag"`
 	SearchType     interface{} `json:"searchType"`
 	SearchMaxValue interface{} `json:"searchMaxValue"`
 	SearchMinValue interface{} `json:"searchMinValue"`
@@ -179,6 +200,7 @@ func (q *Queries) CountTransactions(ctx context.Context, arg CountTransactionsPa
 	row := q.db.QueryRowContext(ctx, countTransactions,
 		arg.SourceID,
 		arg.Search,
+		arg.Tag,
 		arg.SearchType,
 		arg.SearchMaxValue,
 		arg.SearchMinValue,
@@ -358,6 +380,24 @@ func (q *Queries) CreateStatement(ctx context.Context, arg CreateStatementParams
 	return i, err
 }
 
+const createTag = `-- name: CreateTag :one
+;
+
+INSERT INTO tags (
+  name
+) VALUES (
+  ?
+)
+RETURNING id, name
+`
+
+func (q *Queries) CreateTag(ctx context.Context, name string) (Tag, error) {
+	row := q.db.QueryRowContext(ctx, createTag, name)
+	var i Tag
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
 const createTransaction = `-- name: CreateTransaction :one
 INSERT INTO transactions (
     id, source_id, date, value, type, desc
@@ -444,6 +484,16 @@ WHERE id = ?
 
 func (q *Queries) DeleteStatement(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteStatement, id)
+	return err
+}
+
+const deleteTag = `-- name: DeleteTag :exec
+DELETE FROM tags
+WHERE id = ?
+`
+
+func (q *Queries) DeleteTag(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTag, id)
 	return err
 }
 
@@ -681,6 +731,20 @@ func (q *Queries) GetStatement(ctx context.Context, arg GetStatementParams) (int
 	return id, err
 }
 
+const getTag = `-- name: GetTag :one
+
+SELECT id FROM tags
+WHERE id = ?1
+LIMIT 1
+`
+
+// -------- tags
+func (q *Queries) GetTag(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getTag, id)
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getTransaction = `-- name: GetTransaction :one
 SELECT id, source_id, date, value, type, "desc" FROM transactions
 WHERE id = ?1 LIMIT 1
@@ -870,43 +934,95 @@ func (q *Queries) ListStatements(ctx context.Context, arg ListStatementsParams) 
 	return items, nil
 }
 
+const listTags = `-- name: ListTags :many
+SELECT id, name
+FROM tags
+WHERE (
+    ?1 IS NULL
+    OR name LIKE '%' || ?1 || '%'
+    )
+ORDER BY id DESC
+LIMIT ?3 OFFSET ?2
+`
+
+type ListTagsParams struct {
+	Search interface{} `json:"search"`
+	Offset int64       `json:"offset"`
+	Limit  int64       `json:"limit"`
+}
+
+func (q *Queries) ListTags(ctx context.Context, arg ListTagsParams) ([]Tag, error) {
+	rows, err := q.db.QueryContext(ctx, listTags, arg.Search, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tag
+	for rows.Next() {
+		var i Tag
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTransactions = `-- name: ListTransactions :many
-SELECT id, source_id, date, value, type, "desc"
-FROM transactions
-WHERE source_id = ?1
+SELECT t.id, t.source_id, t.date, t.value, t.type, t."desc",
+  COALESCE(GROUP_CONCAT(p.name, ','), '') AS tags
+FROM transactions as t
+LEFT JOIN tags p
+    ON REPLACE(REPLACE(LOWER(t."desc" || ' '),"-", " "), "*", " ")
+    LIKE '%' || LOWER(p.name) || ' %'
+WHERE t.source_id = ?1
 AND (
     ?2 IS NULL
-    OR date LIKE '%' || ?2 || '%'
-    OR "desc" LIKE '%' || ?2 || '%'
+    OR t.date LIKE '%' || ?2 || '%'
+    OR t.desc LIKE '%' || ?2 || '%'
 )
 AND (
     ?3 IS NULL
-    OR type LIKE '%' || ?3 || '%'
+    OR t.type LIKE '%' || ?3 || '%'
 )
 AND (
     ?4 IS NULL
-    OR value <= ?4
+    OR REPLACE(REPLACE(LOWER(t."desc" || ' '),"-", " "), "*", " ")
+    LIKE '%' || LOWER(?4) || ' %'
 )
 AND (
     ?5 IS NULL
-    OR value >= ?5
+    OR t.value <= ?5
 )
 AND (
     ?6 IS NULL
-    OR date >= ?6
+    OR t.value >= ?6
 )
 AND (
     ?7 IS NULL
-    OR date <= ?7
+    OR t.date >= ?7
 )
-ORDER BY date DESC
-LIMIT ?9 OFFSET ?8
+AND (
+    ?8 IS NULL
+    OR t.date <= ?8
+)
+GROUP BY
+  t.id
+ORDER BY t.date DESC
+LIMIT ?10 OFFSET ?9
 `
 
 type ListTransactionsParams struct {
 	SourceID       int64       `json:"source_id"`
 	Search         interface{} `json:"search"`
 	SearchType     interface{} `json:"searchType"`
+	Tag            interface{} `json:"tag"`
 	SearchMaxValue interface{} `json:"searchMaxValue"`
 	SearchMinValue interface{} `json:"searchMinValue"`
 	SearchFrom     interface{} `json:"searchFrom"`
@@ -915,11 +1031,22 @@ type ListTransactionsParams struct {
 	Limit          int64       `json:"limit"`
 }
 
-func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsParams) ([]Transaction, error) {
+type ListTransactionsRow struct {
+	ID       string      `json:"id"`
+	SourceID int64       `json:"source_id"`
+	Date     string      `json:"date"`
+	Value    float64     `json:"value"`
+	Type     string      `json:"type"`
+	Desc     string      `json:"desc"`
+	Tags     interface{} `json:"tags"`
+}
+
+func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsParams) ([]ListTransactionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listTransactions,
 		arg.SourceID,
 		arg.Search,
 		arg.SearchType,
+		arg.Tag,
 		arg.SearchMaxValue,
 		arg.SearchMinValue,
 		arg.SearchFrom,
@@ -931,9 +1058,9 @@ func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsPara
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Transaction
+	var items []ListTransactionsRow
 	for rows.Next() {
-		var i Transaction
+		var i ListTransactionsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.SourceID,
@@ -941,6 +1068,7 @@ func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsPara
 			&i.Value,
 			&i.Type,
 			&i.Desc,
+			&i.Tags,
 		); err != nil {
 			return nil, err
 		}

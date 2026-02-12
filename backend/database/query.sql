@@ -130,36 +130,58 @@ WHERE id = :id LIMIT 1;
 SELECT count(id) FROM transactions
 WHERE id = :id LIMIT 1;
 
+
+SELECT
+  t.*,
+  GROUP_CONCAT(p.name) AS matches
+FROM transactions t
+LEFT JOIN tags p
+    ON LOWER(' ' || t."desc" || ' ')
+     LIKE '% ' || LOWER(p.name) || ' %'
+WHERE t.source_id = 10
+GROUP BY t.id;
+
 -- name: ListTransactions :many
-SELECT *
-FROM transactions
-WHERE source_id = :source_id
+SELECT t.*,
+  COALESCE(GROUP_CONCAT(p.name, ','), '') AS tags
+FROM transactions as t
+LEFT JOIN tags p
+    ON REPLACE(REPLACE(LOWER(t."desc" || ' '),"-", " "), "*", " ")
+    LIKE '%' || LOWER(p.name) || ' %'
+WHERE t.source_id = :source_id
 AND (
     :search IS NULL
-    OR date LIKE '%' || :search || '%'
-    OR "desc" LIKE '%' || :search || '%'
+    OR t.date LIKE '%' || :search || '%'
+    OR t.desc LIKE '%' || :search || '%'
 )
 AND (
     :searchType IS NULL
-    OR type LIKE '%' || :searchType || '%'
+    OR t.type LIKE '%' || :searchType || '%'
+)
+AND (
+    :tag IS NULL
+    OR REPLACE(REPLACE(LOWER(t."desc" || ' '),"-", " "), "*", " ")
+    LIKE '%' || LOWER(:tag) || ' %'
 )
 AND (
     :searchMaxValue IS NULL
-    OR value <= :searchMaxValue
+    OR t.value <= :searchMaxValue
 )
 AND (
     :searchMinValue IS NULL
-    OR value >= :searchMinValue
+    OR t.value >= :searchMinValue
 )
 AND (
     :searchFrom IS NULL
-    OR date >= :searchFrom
+    OR t.date >= :searchFrom
 )
 AND (
     :searchTo IS NULL
-    OR date <= :searchTo
+    OR t.date <= :searchTo
 )
-ORDER BY date DESC
+GROUP BY
+  t.id
+ORDER BY t.date DESC
 LIMIT :limit OFFSET :offset;
 
 -- name: CountTransactions :one
@@ -169,7 +191,11 @@ WHERE source_id = :source_id
 AND (
     :search IS NULL
     OR date LIKE '%' || :search || '%'
-    OR "desc" LIKE '%' || :search || '%'
+    OR desc LIKE '%' || :search || '%'
+)
+AND (
+    :tag IS NULL
+    OR REPLACE(REPLACE(LOWER(desc || ' '),"-", " "), "*", " ") LIKE '%' || LOWER(:tag) || ' %'
 )
 AND (
     :searchType IS NULL
@@ -351,4 +377,44 @@ WHERE id = ?;
 
 -- name: DeleteStatement :exec
 DELETE FROM statements
+WHERE id = ?;
+
+
+---------- tags
+
+-- name: GetTag :one
+SELECT id FROM tags
+WHERE id = :id
+LIMIT 1;
+
+
+-- name: ListTags :many
+SELECT *
+FROM tags
+WHERE (
+    :search IS NULL
+    OR name LIKE '%' || :search || '%'
+    )
+ORDER BY id DESC
+LIMIT :limit OFFSET :offset;
+
+-- name: CountTags :one
+SELECT count(id)
+FROM tags
+WHERE (
+    :search IS NULL
+    OR name LIKE '%' || :search || '%'
+  )
+    ;
+
+-- name: CreateTag :one
+INSERT INTO tags (
+  name
+) VALUES (
+  ?
+)
+RETURNING *;
+
+-- name: DeleteTag :exec
+DELETE FROM tags
 WHERE id = ?;

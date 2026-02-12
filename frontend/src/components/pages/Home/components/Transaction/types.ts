@@ -1,22 +1,18 @@
 import type { PaginationType } from '@/types'
-import type { OrderBy, TransactionInfoType, TransactionType } from '../../types'
+import type {
+	OrderBy,
+	TransactionInfoType,
+	TransactionType,
+	TypeAndSetState
+} from '../../types'
 
 export type TransactionProviderState = {
-	orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>]
-	filter: [FilterType, React.Dispatch<React.SetStateAction<FilterType>>]
-	pagination: [
-		PaginationType,
-		React.Dispatch<React.SetStateAction<PaginationType>>
-	]
-	transactions: [
-		TransactionType[],
-		React.Dispatch<React.SetStateAction<TransactionType[]>>
-	]
-
-	transactionsInfo: [
-		TransactionInfoType | undefined,
-		React.Dispatch<React.SetStateAction<TransactionInfoType | undefined>>
-	]
+	orderBy: TypeAndSetState<OrderBy>
+	filter: TypeAndSetState<FilterType>
+	pagination: TypeAndSetState<PaginationType>
+	transactions: TypeAndSetState<TransactionType[]>
+	transactionsInfo: TypeAndSetState<TransactionInfoType | undefined>
+	setTag: (tag: string) => void
 	clearFilter: () => void
 	getTransactionsFunc: () => void
 	getTransactionInfoFunc: () => void
@@ -31,4 +27,5 @@ export type FilterType = {
 	minValue?: number
 	maxValue?: number
 	type: string
+	tag: string
 }
