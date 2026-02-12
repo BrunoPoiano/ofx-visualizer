@@ -1,6 +1,6 @@
 import { ModeSelect } from '@/components/ui/mode-select'
 import { lazy, type ReactNode } from 'react'
-const DialogTag = lazy(() => import('./components/DialogTag'))
+const DialogTag = lazy(() => import('./Tags/DialogTag'))
 
 type Items = {
 	label: string

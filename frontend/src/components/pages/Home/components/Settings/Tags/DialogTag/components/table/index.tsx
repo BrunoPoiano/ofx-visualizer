@@ -18,7 +18,8 @@ export default function Table() {
 			options: (
 				<div className='flex justify-end'>
 					<Button
-						className='bg-destructive'
+						size='icon'
+						variant='destructive'
 						onClick={() => deleteItem(item.id)}
 					>
 						<Trash />

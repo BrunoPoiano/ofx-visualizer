@@ -9,12 +9,12 @@ export const NewTag = () => {
 	const [name, setName] = useState('')
 
 	return (
-		<div className='flex gap-1 items-center'>
+		<div className='flex items-center gap-1'>
 			<Input value={name} onChange={(e) => setName(e.target.value)} />
 			<Button
 				onClick={() => createItem(name).then(() => setName(''))}
 				disabled={name === ''}
-				className='bg-[var(--chart-2)]'
+				variant='success'
 			>
 				Save
 			</Button>

@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { putBanks } from '@/components/pages/Home/functions'
 import { useHomeContext } from '@/components/pages/Home/provider'
 import type { BankType } from '@/components/pages/Home/types'
 import {
 	AlertDialog,
-	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
@@ -17,6 +15,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useBankContext } from '../../../../provider'
+import { PenIcon } from 'lucide-react'
+import { putBanks } from '../../../../functions'
 
 export default function DialogEdit({ item }: { item: BankType }) {
 	const {
@@ -56,7 +56,7 @@ export default function DialogEdit({ item }: { item: BankType }) {
 					onClick={() => setOpen(true)}
 					disabled={!value}
 				>
-					Edit
+					<PenIcon />
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
@@ -74,12 +74,9 @@ export default function DialogEdit({ item }: { item: BankType }) {
 					<AlertDialogCancel onClick={() => setOpen(false)}>
 						Cancel
 					</AlertDialogCancel>
-					<AlertDialogAction
-						className='bg-[var(--chart-2)]'
-						onClick={() => saveName()}
-					>
+					<Button variant='success' onClick={() => saveName()}>
 						Save
-					</AlertDialogAction>
+					</Button>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

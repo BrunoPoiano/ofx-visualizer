@@ -3,6 +3,8 @@ import type { DateRange } from 'react-day-picker'
 import type { PaginationType } from '@/types'
 
 export type GenericObject = Record<string, unknown>
+export type TypeAndSetState<T> = [T, React.Dispatch<React.SetStateAction<T>>]
+export type Params = Record<string, string>
 
 export const TransactionTypeValues = [
 	'CREDIT',
@@ -126,5 +128,3 @@ export type GetBanksFuncParams = {
 	direction?: OrderBy['direction']
 	search?: string
 }
-
-export type TypeAndSetState<T> = [T, React.Dispatch<React.SetStateAction<T>>]

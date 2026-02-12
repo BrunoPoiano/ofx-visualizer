@@ -3,9 +3,9 @@ import { useHomeContext } from '@/components/pages/Home/provider'
 import { useBankContext } from '../../provider'
 import { TableInfo } from './table'
 import { lazy } from 'react'
-import { deleteBanks } from '@/components/pages/Home/functions'
 import { tryCatch } from '@/lib/tryCatch'
 import { toast } from 'sonner'
+import { deleteBanks } from '../../functions'
 
 const DeleteModal = lazy(() => import('@/components/global/deleteModal'))
 const DialogEdit = lazy(() => import('./components/DialogEdit'))

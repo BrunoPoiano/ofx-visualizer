@@ -1,14 +1,11 @@
 import type { PaginationType } from '@/types'
-import type { BankType, OrderBy } from '../../types'
+import type { BankType, OrderBy, TypeAndSetState } from '../../types'
 
 export type BanksProviderState = {
-	orderBy: [OrderBy, React.Dispatch<React.SetStateAction<OrderBy>>]
-	filter: [FilterType, React.Dispatch<React.SetStateAction<FilterType>>]
-	pagination: [
-		PaginationType,
-		React.Dispatch<React.SetStateAction<PaginationType>>
-	]
-	banks: [BankType[], React.Dispatch<React.SetStateAction<BankType[]>>]
+	orderBy: TypeAndSetState<OrderBy>
+	filter: TypeAndSetState<FilterType>
+	pagination: TypeAndSetState<PaginationType>
+	banks: TypeAndSetState<BankType[]>
 	getBanksFunc: () => void
 }
 

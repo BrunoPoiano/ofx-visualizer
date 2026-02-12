@@ -20,7 +20,10 @@ export function isStringOrDefault(value: unknown, defaultValue = ''): string {
 	return defaultValue
 }
 
-export function isNumberOrDefault(value: unknown, defaultValue = 0): number {
+export function isNumberOrDefault<T extends number | undefined>(
+	value: unknown,
+	defaultValue?: T
+): T extends number ? number : number | null {
 	if (isNumber(value)) return value
 
 	if (isString(value)) {
@@ -29,7 +32,11 @@ export function isNumberOrDefault(value: unknown, defaultValue = 0): number {
 			return parsed
 		}
 	}
-	return defaultValue
+	if (defaultValue !== undefined) {
+		return defaultValue
+	}
+
+	return null as any
 }
 
 export function isBooleanOrDefault(

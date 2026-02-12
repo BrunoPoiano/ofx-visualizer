@@ -8,13 +8,10 @@ import {
 
 import { tryCatch } from '@/lib/tryCatch'
 import { toast } from 'sonner'
-import {
-	deleteTags,
-	getTags,
-	postTags
-} from '@/components/pages/Home/functions'
+
 import type { TagType, TypeAndSetState } from '@/components/pages/Home/types'
 import type { PaginationType } from '@/types'
+import { deleteTags, getTags, postTags } from '../functions'
 
 export type DialogTagState = {
 	getData: () => Promise<void>
