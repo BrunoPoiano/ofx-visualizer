@@ -21,6 +21,7 @@ func AppRoutes(queries *databaseSqlc.Queries) *mux.Router {
 	source(router)
 	banks(router)
 	statements(router)
+	tags(router)
 
 	return router
 }
@@ -47,7 +48,7 @@ func statements(router *mux.Router) {
 }
 
 func tags(router *mux.Router) {
-	router.HandleFunc("/statements", TagController.GetItems).Methods("GET")
-	router.HandleFunc("/statements", TagController.InsertItems).Methods("POST")
-	router.HandleFunc("/statements/{tag_id}", middleware.CheckTagExists(TagController.DeleteItem)).Methods("DELETE")
+	router.HandleFunc("/tags", TagController.GetItems).Methods("GET")
+	router.HandleFunc("/tags", TagController.InsertItems).Methods("POST")
+	router.HandleFunc("/tags/{tag_id}", middleware.CheckTagExists(TagController.DeleteItem)).Methods("DELETE")
 }

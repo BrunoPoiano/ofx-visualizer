@@ -1,5 +1,6 @@
 import { ModeSelect } from '@/components/ui/mode-select'
-import type { ReactNode } from 'react'
+import { lazy, type ReactNode } from 'react'
+const DialogTag = lazy(() => import('./components/DialogTag'))
 
 type Items = {
 	label: string
@@ -13,6 +14,6 @@ export const Items: Array<Items> = [
 	},
 	{
 		label: 'Tags',
-		setting: <ModeSelect />
+		setting: <DialogTag />
 	}
 ]

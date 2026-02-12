@@ -8,12 +8,15 @@ import {
 	parseBanks,
 	parseStatement,
 	parseStatementObj,
+	parseTags,
 	parseTransaction,
 	parseTransactionInfo
 } from './parsers'
 import type { BankType, SourceType } from './types'
 
-export async function getTransactions(params?: Record<string, string>) {
+type Params = Record<string, string>
+
+export async function getTransactions(params?: Params) {
 	const { data } = await axiosInstance.get('/transactions', {
 		params: params
 	})
@@ -24,7 +27,7 @@ export async function getTransactions(params?: Record<string, string>) {
 	}
 }
 
-export async function getTransactionsInfo(params?: Record<string, string>) {
+export async function getTransactionsInfo(params?: Params) {
 	const { data } = await axiosInstance.get('/transactions/info', {
 		params: params
 	})
@@ -32,7 +35,7 @@ export async function getTransactionsInfo(params?: Record<string, string>) {
 	return parseTransactionInfo(data)
 }
 
-export async function getStatesments(params?: Record<string, string>) {
+export async function getStatesments(params?: Params) {
 	const { data } = await axiosInstance.get('/statements', {
 		params: params
 	})
@@ -43,10 +46,7 @@ export async function getStatesments(params?: Record<string, string>) {
 	}
 }
 
-export async function getStatesmentsInfo(
-	bankId: string,
-	params?: Record<string, string>
-) {
+export async function getStatesmentsInfo(bankId: string, params?: Params) {
 	const { data } = await axiosInstance.get(`/statements/${bankId}/info`, {
 		params: params
 	})
@@ -61,7 +61,7 @@ export async function getStatesmentsInfo(
 	}
 }
 
-export async function getBanks(params?: Record<string, string>) {
+export async function getBanks(params?: Params) {
 	const { data } = await axiosInstance.get('/banks', {
 		params: params
 	})
@@ -105,4 +105,25 @@ export async function deleteBanks(bankId: number) {
 
 export async function postOfxFile(formData: FormData) {
 	await axiosInstance.post('/transactions', formData)
+}
+
+export async function getTags(params?: Params) {
+	const { data } = await axiosInstance.get('/tags', {
+		params: params
+	})
+
+	return {
+		data: parseTags(data.data),
+		paginationContent: parsePagination(data)
+	}
+}
+
+export async function postTags(name: string) {
+	await axiosInstance.post('/tags', {
+		name
+	})
+}
+
+export async function deleteTags(id: number) {
+	await axiosInstance.delete(`/tags/${id}`)
 }

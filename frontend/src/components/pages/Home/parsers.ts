@@ -14,7 +14,8 @@ import {
 	type StatementType,
 	type TransactionType,
 	TransactionTypeValues,
-	type GenericObject
+	type GenericObject,
+	type TagType
 } from './types'
 
 export function parseBanks(data: unknown): BankType[] {
@@ -153,6 +154,24 @@ export function parseBalance(data: unknown): balanceType[] {
 			desc: isStringOrDefault(typedItem.desc),
 			bal_type: isStringOrDefault(typedItem.bal_type),
 			value: isNumberOrDefault(typedItem.value)
+		}
+
+		prev.push(newItem)
+		return prev
+	}, [])
+}
+
+export function parseTags(data: unknown): TagType[] {
+	if (!Array.isArray(data)) return []
+
+	return data.reduce<TagType[]>((prev, item) => {
+		if (!isObject(item)) {
+			return prev
+		}
+
+		const newItem: TagType = {
+			id: isNumberOrDefault(item.id),
+			name: isStringOrDefault(item.name)
 		}
 
 		prev.push(newItem)

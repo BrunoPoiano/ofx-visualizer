@@ -104,6 +104,11 @@ export type balanceType = {
 	value: number
 }
 
+export type TagType = {
+	id: number
+	name: string
+}
+
 export type HomeTabs = {
 	tab: Tabs
 	content: JSX.Element
@@ -121,3 +126,5 @@ export type GetBanksFuncParams = {
 	direction?: OrderBy['direction']
 	search?: string
 }
+
+export type TypeAndSetState<T> = [T, React.Dispatch<React.SetStateAction<T>>]
